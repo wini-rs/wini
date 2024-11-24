@@ -9,6 +9,6 @@ fn main() {
             eprintln!("{some_err}");
         }
     } else {
-        wini_cli::just::run::run_from_arg_match(&matches);
+        wini::just::run::run_from_arg_match(&matches);
     }
 }
