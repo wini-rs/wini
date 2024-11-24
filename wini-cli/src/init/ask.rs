@@ -107,6 +107,9 @@ pub fn handle_project_setup_for_custom(
             .filter(|s| s != "HEAD")
             .collect::<Vec<String>>()
     };
+
+    sep();
+
     let branch_index = select("Which branch should be used ?", branches.clone())?;
     let branch = &branches[branch_index];
 
