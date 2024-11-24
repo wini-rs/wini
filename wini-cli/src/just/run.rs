@@ -26,5 +26,5 @@ pub fn resolve_args_from_arg_match(arg_match: &ArgMatches) -> Option<Vec<OsStrin
 
 pub fn run_from_arg_match(arg_match: &ArgMatches) {
     let args = resolve_args_from_arg_match(arg_match).unwrap_or_default();
-    let _ = just::run(args.iter());
+    let _ = pub_just::run(args.iter());
 }

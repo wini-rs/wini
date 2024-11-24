@@ -1,6 +1,6 @@
 use {
     clap::{Arg, Command},
-    just::ParameterKind,
+    pub_just::ParameterKind,
 };
 
 pub mod args_from_file;

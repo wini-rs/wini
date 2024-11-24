@@ -733,46 +733,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "just"
-version = "1.37.0"
-source = "git+https://github.com/tkr-sh/just?rev=8b91ef6#8b91ef611133efccaa2514add9194b35cedfd161"
-dependencies = [
- "ansi_term",
- "blake3",
- "camino",
- "chrono",
- "clap",
- "clap_complete",
- "clap_mangen",
- "ctrlc",
- "derive-where",
- "dirs",
- "dotenvy",
- "edit-distance",
- "heck",
- "lexiclean",
- "libc",
- "num_cpus",
- "once_cell",
- "percent-encoding",
- "rand",
- "regex",
- "semver",
- "serde",
- "serde_json",
- "sha2",
- "shellexpand",
- "similar",
- "snafu",
- "strum",
- "target",
- "tempfile",
- "typed-arena",
- "unicode-width 0.2.0",
- "uuid",
-]
-
-[[package]]
 name = "lexiclean"
 version = "0.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1010,6 +970,47 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37d3544b3f2748c54e147655edb5025752e2303145b5aefb3c3ea2c78b973bb0"
 dependencies = [
  "unicode-ident",
+]
+
+[[package]]
+name = "pub-just"
+version = "1.37.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d971c043574f3cf8c555e27af165a08c18b43f76eaeb4bbeb90458a9a7d5c17"
+dependencies = [
+ "ansi_term",
+ "blake3",
+ "camino",
+ "chrono",
+ "clap",
+ "clap_complete",
+ "clap_mangen",
+ "ctrlc",
+ "derive-where",
+ "dirs",
+ "dotenvy",
+ "edit-distance",
+ "heck",
+ "lexiclean",
+ "libc",
+ "num_cpus",
+ "once_cell",
+ "percent-encoding",
+ "rand",
+ "regex",
+ "semver",
+ "serde",
+ "serde_json",
+ "sha2",
+ "shellexpand",
+ "similar",
+ "snafu",
+ "strum",
+ "target",
+ "tempfile",
+ "typed-arena",
+ "unicode-width 0.2.0",
+ "uuid",
 ]
 
 [[package]]
@@ -1737,7 +1738,7 @@ dependencies = [
  "clap",
  "git2",
  "inquire",
- "just",
+ "pub-just",
  "rand",
 ]
 

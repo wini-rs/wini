@@ -1,12 +1,13 @@
 use {
     crate::just::{MinimalJustfile, MinimalParam, MinimalRecipe},
+    pub_just::{Compiler, Loader},
     std::{collections::HashMap, ffi::OsString, path::Path},
 };
 
 pub fn arguments_from_justfile_path(path: &Path) -> Result<MinimalJustfile, ()> {
-    let loader = just::loader::Loader::new();
+    let loader = Loader::new();
 
-    match just::compiler::Compiler::compile(&loader, path) {
+    match Compiler::compile(&loader, path) {
         Ok(compilation_res) => {
             let justfile = compilation_res.justfile;
 
@@ -47,7 +48,7 @@ pub fn arguments_from_justfile_path(path: &Path) -> Result<MinimalJustfile, ()> 
         },
         Err(_) => {
             eprintln!("You have an error in your justfile:");
-            let _ = just::run(vec![OsString::new()].into_iter());
+            let _ = pub_just::run(vec![OsString::new()].into_iter());
 
             Err(())
         },
