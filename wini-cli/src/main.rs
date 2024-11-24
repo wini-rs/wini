@@ -1,4 +1,4 @@
-use wini_cli::{self, cli, init::ask::ask};
+use wini::{self, cli, init::ask::ask};
 
 
 fn main() {
