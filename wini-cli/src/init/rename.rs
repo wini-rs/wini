@@ -27,7 +27,8 @@ fn replace_in_directory<P: AsRef<Path>>(
         let path = entry.path();
 
         if path.is_file() {
-            replace_in_file(&path, target, replacement)?;
+            // Error in writing to a file aren't important
+            let _ = replace_in_file(&path, target, replacement);
         } else if path.is_dir() {
             replace_in_directory(&path, target, replacement)?;
         }
