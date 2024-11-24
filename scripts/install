@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if command -v curl >/dev/null 2>&1; then
+    if [ "$(uname -m)" != x86_64 ]; then
+        echo 'Binary only compiled for x86_64. Please use `cargo install` instead.'
+        exit 1
+    fi
+
+    tmp_exec="TEMPORARY_WINI_EXECUTABLE"
+    curl --fail --location --progress-bar --output "$tmp_exec" "https://github.com/wini-rs/wini/releases/latest/download/wini-linux-x86" || rm $tmp_exec
+    
+    chmod +x $tmp_exec || rm $tmp_exec
+    cp $tmp_exec /usr/local/bin/wini || rm $tmp_exec
+else
+    echo "curl is not installed."
+    echo "Please install curl to proceed."
+fi

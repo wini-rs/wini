@@ -15,7 +15,21 @@ TODO
 
 ## Getting started
 
-TODO
+### Installation
+
+You can install wini with `cargo`
+
+```sh
+cargo install wini
+```
+
+or by downloading the binary (not recommended)
+
+```sh
+curl -fsSL https://wini.rocks | sh
+```
+
+_Note: you need to be root_
 
 ## Documentation
 
