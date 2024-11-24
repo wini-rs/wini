@@ -1,5 +1,5 @@
 [package]
-name = "wini-cli"
+name = "wini"
 version = "0.1.0"
 authors = ["tkr-sh"]
 edition = "2021"
