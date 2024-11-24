@@ -25,8 +25,6 @@ use {
 pub fn from_official_repository() -> Result<RepoSummary, InitError> {
     let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
 
-    sep();
-
     let result = (|| {
         let branch_index = select(
             "Which template should be used",
