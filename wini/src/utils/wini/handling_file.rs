@@ -1,0 +1,74 @@
+use {
+    crate::shared::wini::{
+        cache::{AddCache, CacheCategory},
+        config::SERVER_CONFIG,
+        err::ServerResult,
+        CSS_FILES,
+        JS_FILES,
+        PUBLIC_ENDPOINTS,
+    },
+    axum::{
+        extract::Request,
+        http::HeaderValue,
+        response::{IntoResponse, Response},
+    },
+    hyper::{header::CONTENT_TYPE, StatusCode},
+    tower_http::services::ServeFile,
+};
+
+/// This request handler is in charge of serving files.
+/// In particular, these kind of files, in that order:
+/// - public files (exposed files)
+/// - css files
+/// - javascript files
+pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body>> {
+    let path = &req.uri().path().to_string();
+
+    if (*PUBLIC_ENDPOINTS).contains(path) {
+        return Ok(ServeFile::new(format!("./public{path}"))
+            .try_call(req)
+            .await
+            .unwrap()
+            .into_response());
+    }
+
+    if path.ends_with(".css") {
+        if let Some(file) = CSS_FILES.get(path) {
+            return Ok(css_into_response(file));
+        }
+
+        return Err(StatusCode::NOT_FOUND.into());
+    }
+
+    if path.ends_with(".js") {
+        if let Some(file) = JS_FILES.get(path) {
+            return Ok(js_into_response(file));
+        }
+
+        return Err(StatusCode::NOT_FOUND.into());
+    }
+
+    Err(StatusCode::NOT_FOUND.into())
+}
+
+fn js_into_response(file_content: &str) -> Response<axum::body::Body> {
+    file_into_response(file_content, "javascript")
+        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Javascript))
+}
+
+fn css_into_response(file_content: &str) -> Response<axum::body::Body> {
+    file_into_response(file_content, "css").add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Css))
+}
+
+/// Create a response from the content of the file and add the content_type header accordingly with
+/// the kind of content_type passed in parameter of this function.
+fn file_into_response(file_content: &str, kind: &str) -> Response<axum::body::Body> {
+    let mut res = file_content.to_owned().into_response();
+    res.headers_mut()
+        .insert(
+            CONTENT_TYPE,
+            HeaderValue::from_str(&format!("text/{kind}")).unwrap(),
+        )
+        .expect("Valid header");
+    res
+}

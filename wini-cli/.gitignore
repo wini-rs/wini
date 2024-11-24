@@ -1,0 +1,7 @@
+/target
+*.css
+*.js
+!public/helpers.js
+!public/*.css
+node_modules/
+.sass-cache

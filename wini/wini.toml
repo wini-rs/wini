@@ -1,0 +1,38 @@
+[origin]
+last_commit_hash = "HASH_TO_RESOLVE"
+remote_url = "URL_TO_RESOLVE"
+branch = "BRANCH_NAME_TO_RESOLVE"
+name = "TEMPLATE_NAME_TO_RESOLVE"
+
+# All the paths are relatives to `./src` by default. At the exception of `modules`.
+[path]
+pages = "./pages"
+components = "./components"
+layout = "./layout"
+cron = "./cron"
+public = "../public"
+# Modules is relative to `public`, because it should always be public.
+modules = "./modules"
+
+# The cache rules for the cache categories.
+# > Note that each cache category (html, css, javscripts, public, or more if defined in
+# `./src/shared/wini/cache.rs`), should have a cache rule associated to it in all environments.
+#
+# cache.default: Will be applied to every environment. (`./src/shared/wini/env.rs`)
+# cache.xxxxxxx: (with *xxxxxxx* being a type of environment) Will overwrite cache.default if 
+# the server is running under that environment.
+# cache.xxxxxxx.function: Should function marked as "#[cache]", be cached ?
+#
+# More info about cache: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
+[cache.default]
+html = "public, max-age=60"
+css = "public, max-age=300"
+javascript = "public, max-age=300"
+public = "public, max-age=3600, immutable"
+function = true
+[cache.local]
+html = "no-cache"
+css = "no-cache"
+javascript = "no-cache"
+public = "no-cache"
+function = false

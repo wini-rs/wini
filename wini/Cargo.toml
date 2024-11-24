@@ -1,0 +1,42 @@
+# https://doc.rust-lang.org/cargo/index.html
+[package]
+name = "PROJECT_NAME_TO_RESOLVE"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+walkdir = "2.5.0"
+
+
+[dependencies]
+axum = { version = "0.7.6", features = ["macros"] }
+tower-http = { version = "0.6.1", features = [
+    "compression-gzip",
+    "compression-br",
+    "fs",
+]}
+hyper = "1"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs"] }
+http-body-util = "0.1"
+mime_guess = "2"
+maud = { version = "0.26", features = ["axum"]}
+wini-macros = { path = "./macros/"}
+dotenvy = "0.15"
+regex = "1"
+walkdir = "2.5"
+toml = "0.8"
+serde = { version = "1", features = ["derive"] }
+colog = "1.3.0"
+log = "0.4.22"
+strum = "0.26.3"
+strum_macros = "0.26.4"
+serde_json = "1.0.132"
+itertools = "0.13.0"
+ctor = "0.2.8"
+
+
+[package.metadata.cargo-machete]
+ignored = [
+    # Used with the procedural macro #[cache]
+    "ctor"
+]
