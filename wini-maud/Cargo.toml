@@ -1,6 +1,6 @@
 [package]
 name = "wini-maud"
-version = "0.26.0"
+version = "0.26.1"
 documentation = "https://docs.rs/wini-maud/"
 description = "Compile-time HTML templates to work with Wini."
 categories = ["template-engine"]
