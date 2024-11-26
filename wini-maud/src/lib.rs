@@ -424,7 +424,7 @@ mod tide_support {
 #[cfg(feature = "axum")]
 mod axum_support {
     use {
-        crate::{preescaped, Markup},
+        crate::{Markup, PreEscaped},
         alloc::string::String,
         axum_core::response::{IntoResponse, Response},
         http::{header, HeaderMap, HeaderValue},
@@ -437,7 +437,7 @@ mod axum_support {
                 header::CONTENT_TYPE,
                 HeaderValue::from_static("text/html; charset=utf-8"),
             );
-            (headers, self.content).into_response()
+            (headers, self.content.0).into_response()
         }
     }
 }
