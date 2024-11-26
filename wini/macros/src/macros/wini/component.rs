@@ -43,7 +43,15 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 
             let mut html = #new_name(#(#param_names),*).await;
 
-            html.linked_files.extend(FILES_IN_CURRENT_DIR.into())
+            let hashset = std::collections::HashSet::<String>::from_iter(
+                FILES_IN_CURRENT_DIR
+                    .iter()
+                    .map(std::ops::Deref::deref)
+                    .map(String::from)
+            );
+            html.linked_files.extend(hashset);
+
+            html
         }
     };
 

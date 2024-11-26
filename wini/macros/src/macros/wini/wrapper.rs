@@ -57,7 +57,7 @@ pub fn wrapper(args: TokenStream, item: TokenStream) -> TokenStream {
 
             *files = axum::http::HeaderValue::from_str(
                 &format!(
-                    "{FILES_IN_CURRENT_DIR};{files_from_components}{};",
+                    "{FILES_IN_CURRENT_DIR};{files_from_components};{};",
                     files.to_str().unwrap(),
                 )
             ).unwrap();
