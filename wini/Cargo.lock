@@ -1256,7 +1256,7 @@ dependencies = [
 
 [[package]]
 name = "wini-maud"
-version = "0.26.1"
+version = "0.26.2"
 dependencies = [
  "axum-core",
  "hashbrown",
@@ -1267,7 +1267,7 @@ dependencies = [
 
 [[package]]
 name = "wini_maud_macros"
-version = "0.26.0"
+version = "0.26.2"
 dependencies = [
  "hashbrown",
  "proc-macro-error",

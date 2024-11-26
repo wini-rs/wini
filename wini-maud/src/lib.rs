@@ -418,8 +418,7 @@ mod tide_support {
 #[cfg(feature = "axum")]
 mod axum_support {
     use {
-        crate::{Markup, PreEscaped},
-        alloc::string::String,
+        crate::Markup,
         axum_core::response::{IntoResponse, Response},
         http::{header, HeaderMap, HeaderValue},
     };
@@ -474,8 +473,11 @@ mod submillisecond_support {
     }
 }
 
+
+
 #[doc(hidden)]
 pub mod macro_private {
+    pub use hashbrown::HashSet;
     use {
         crate::{display, Render},
         alloc::string::String,

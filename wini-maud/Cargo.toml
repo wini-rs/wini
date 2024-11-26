@@ -1,6 +1,6 @@
 [package]
 name = "wini-maud"
-version = "0.26.1"
+version = "0.26.2"
 documentation = "https://docs.rs/wini-maud/"
 description = "Compile-time HTML templates to work with Wini."
 categories = ["template-engine"]
@@ -18,7 +18,7 @@ actix-web = ["actix-web-dep", "futures-util"]
 axum = ["axum-core", "http"]
 
 [dependencies]
-wini_maud_macros = { version = "0.26.0", path = "../wini-maud-macros" }
+wini_maud_macros = { version = "0.26.2", path = "../wini-maud-macros" }
 itoa = "1"
 rocket = { version = "0.5", optional = true }
 futures-util = { version = "0.3.0", optional = true, default-features = false }

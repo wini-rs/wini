@@ -33,9 +33,8 @@ fn expand(input: TokenStream) -> TokenStream {
     quote!({
         extern crate alloc;
         extern crate maud;
-        extern crate hashbrown;
         let mut #output_ident = alloc::string::String::with_capacity(#size_hint);
-        let mut #linked_files = hashbrown::HashSet::<alloc::string::String>::new();
+        let mut #linked_files = maud::macro_private::HashSet::<alloc::string::String>::new();
         #stmts
         maud::Markup {
             content: maud::PreEscaped(#output_ident),
