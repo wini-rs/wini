@@ -1,9 +1,9 @@
 use {
-    maud::{html, PreEscaped},
+    maud::{html, MarkUp, PreEscaped},
     wini_macros::wrapper,
 };
 
 #[wrapper]
-pub async fn render(child: &str) -> String {
-    html! {}.into_string()
+pub async fn render(child: &str) -> MarkUp {
+    html! {(PreEscaped(child))}
 }

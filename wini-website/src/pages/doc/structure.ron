@@ -1,0 +1,16 @@
+Directory(
+    is_ordered: true,
+    page: None,
+    title: "Home",
+    pages: [
+        Page(title: "Introduction", page: "introduction"),
+        Directory(
+            is_ordered: true,
+            page: Some("concepts-introduction"),
+            title: "Concepts",
+            pages: [
+                Page(title: "Pages", page: "pages"),
+            ],
+        ),
+    ],
+)
