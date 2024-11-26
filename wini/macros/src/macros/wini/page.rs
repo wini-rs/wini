@@ -1,6 +1,6 @@
 use {
     super::args::ProcMacroParameters,
-    crate::utils::wini::files::get_js_and_css_files_in_dir,
+    crate::utils::wini::files::get_js_or_css_files_joined_in_current_dir,
     proc_macro::TokenStream,
     quote::quote,
     syn::{parse_macro_input, Ident},
@@ -42,12 +42,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
         .collect::<Vec<_>>();
 
 
-    let (js_files, css_files) = get_js_and_css_files_in_dir();
-
-
-    // Get arguments values stored in an identifier
+    let files_in_current_dir = get_js_or_css_files_joined_in_current_dir();
     let meta_headers = attributes.generate_all_headers();
-    let components = attributes.components.unwrap_or_default();
 
     // Generate the output code
     let expanded = quote! {
@@ -56,60 +52,23 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
         #[allow(non_snake_case)]
         pub async fn #original_name(#arguments) -> axum::response::Response<axum::body::Body> {
-            const COMPONENTS: &[&'static str] = &[#(#components,)*];
+            use itertools::Itertools;
+
+            const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
+
             let html = #new_name(#(#param_names),*).await;
 
-            let mut css_files: Vec<String> = (vec![#(#css_files)*] as Vec<&str>).into_iter().map(String::from).collect();
-            let mut js_files: Vec<String> = (vec![#(#js_files)*] as Vec<&str>).into_iter().map(String::from).collect();
-
-            // Components to read from
-            let component_parent_path = crate::concat_paths!(
-                "src",
-                &crate::shared::wini::config::SERVER_CONFIG.path.components
-            ).display().to_string();
-
-            css_files.extend(
-                COMPONENTS
-                    .iter()
-                    .filter_map(|comp|
-                        crate::shared::wini::components_files::COMPONENTS_FILES
-                            .css
-                            .get(*comp)
-                    )
-                    .flatten()
-                    .map(ToOwned::to_owned)
-                    .collect::<Vec<_>>()
-            );
-            js_files.extend(
-                COMPONENTS
-                    .iter()
-                    .filter_map(|comp|
-                        crate::shared::wini::components_files::COMPONENTS_FILES
-                            .js
-                            .get(*comp)
-                    )
-                    .flatten()
-                    .map(ToOwned::to_owned)
-                    .collect::<Vec<_>>()
-            );
+            let files = html.linked_files.iter().join(";");
 
             let mut res = axum::response::IntoResponse::into_response(html);
 
             res.headers_mut().insert(
-                "styles",
+                "files",
                 axum::http::HeaderValue::from_str(&format!(
-                    "{};",
-                    css_files.join(";"),
+                    "{FILES_IN_CURRENT_DIR};{files};",
                 )).unwrap()
             );
 
-            res.headers_mut().insert(
-                "js",
-                axum::http::HeaderValue::from_str(&format!(
-                    "{};",
-                    js_files.join(";"),
-                )).unwrap()
-            );
 
             // Modify header with meta tags in it
             #meta_headers
