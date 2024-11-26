@@ -2,7 +2,7 @@ use proc_macro::Span;
 
 
 /// Get javascript and css files in the directory of the proc_macro
-pub fn get_js_or_css_files_joined_in_current_dir() -> String {
+pub fn get_js_or_css_files_in_current_dir() -> Vec<String> {
     let span = Span::call_site();
     let source = span.source_file();
     let simple_path = source.path();
@@ -37,5 +37,5 @@ pub fn get_js_or_css_files_joined_in_current_dir() -> String {
         }
     }
 
-    files.join(";")
+    files
 }

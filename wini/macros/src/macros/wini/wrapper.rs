@@ -1,7 +1,7 @@
 use {
     crate::{
         macros::wini::args::ProcMacroParameters,
-        utils::wini::files::get_js_or_css_files_joined_in_current_dir,
+        utils::wini::files::get_js_or_css_files_in_current_dir,
     },
     proc_macro::TokenStream,
     quote::quote,
@@ -22,8 +22,7 @@ pub fn wrapper(args: TokenStream, item: TokenStream) -> TokenStream {
     let new_name = Ident::new(&format!("__reserved_fn_wini_{}", name), name.span());
     input.sig.ident = new_name.clone();
 
-
-    let files_in_current_dir = get_js_or_css_files_joined_in_current_dir();
+    let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
     let meta_headers = attributes.generate_all_headers();
 
     // Generate the output code
