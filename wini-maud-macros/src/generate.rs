@@ -96,9 +96,11 @@ impl Generator {
     fn component(&self, expr: TokenStream, build: &mut Builder) {
         let output_ident = self.output_ident.clone();
         let linked_files = self.linked_files.clone();
-        build.push_tokens(quote!(maud::macro_private::render_to!(&(#expr()), &mut #output_ident);));
+        build.push_tokens(
+            quote!(maud::macro_private::render_to!(&(#expr().await), &mut #output_ident);),
+        );
         build.push_tokens(quote!(
-                #linked_files.extend(#expr().linked_files);
+                #linked_files.extend(#expr().await.linked_files);
         ));
     }
 
