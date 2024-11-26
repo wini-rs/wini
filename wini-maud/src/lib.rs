@@ -13,13 +13,7 @@ extern crate alloc;
 
 pub use wini_maud_macros::html;
 use {
-    alloc::{
-        borrow::{Cow, ToOwned},
-        boxed::Box,
-        string::String,
-        sync::Arc,
-        vec::Vec,
-    },
+    alloc::{borrow::Cow, boxed::Box, string::String, sync::Arc},
     core::{
         fmt::{self, Arguments, Display, Write},
         ops::Deref,
