@@ -56,6 +56,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
         #[allow(non_snake_case)]
         pub async fn #original_name(#arguments) -> axum::response::Response<axum::body::Body> {
+            const COMPONENTS: &[&'static str] = &[#(#components,)*];
             let html = #new_name(#(#param_names),*).await;
 
             let mut css_files: Vec<String> = (vec![#(#css_files)*] as Vec<&str>).into_iter().map(String::from).collect();
@@ -67,10 +68,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
                 &crate::shared::wini::config::SERVER_CONFIG.path.components
             ).display().to_string();
 
-            let components: Vec<&'static str> = vec![#(#components,)*];
-
             css_files.extend(
-                components
+                COMPONENTS
                     .iter()
                     .filter_map(|comp|
                         crate::shared::wini::components_files::COMPONENTS_FILES
@@ -82,7 +81,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
                     .collect::<Vec<_>>()
             );
             js_files.extend(
-                components
+                COMPONENTS
                     .iter()
                     .filter_map(|comp|
                         crate::shared::wini::components_files::COMPONENTS_FILES

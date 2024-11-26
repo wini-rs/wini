@@ -32,13 +32,14 @@ pub fn wrapper(args: TokenStream, item: TokenStream) -> TokenStream {
         #[allow(non_snake_case)]
         #input
 
-        const COMPONENTS: &[&'static str] = &[#(#components,)*];
 
         #[allow(non_snake_case)]
         pub async fn #name(
             req: axum::extract::Request,
             next: axum::middleware::Next
         ) -> crate::shared::wini::err::ServerResult<axum::response::Response> {
+            const COMPONENTS: &[&'static str] = &[#(#components,)*];
+
             let rep = next.run(req).await;
             let (mut res_parts, res_body) = rep.into_parts();
 
