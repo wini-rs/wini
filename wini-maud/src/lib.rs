@@ -240,9 +240,16 @@ impl<T: AsRef<str>> Render for PreEscaped<T> {
 /// A block of markup is a string that does not need to be escaped.
 ///
 /// The `html!` macro expands to an expression of this type.
+#[derive(Debug, Default)]
 pub struct Markup {
     pub content: PreEscaped<String>,
     pub linked_files: HashSet<String>,
+}
+impl Markup {
+    /// Converts the inner value to a string.
+    pub fn into_string(self) -> String {
+        self.content.into()
+    }
 }
 
 impl Render for Markup {
@@ -251,11 +258,12 @@ impl Render for Markup {
     }
 }
 
-impl Into<PreEscaped<String>> for Markup {
-    fn into(self) -> PreEscaped<String> {
-        self.content
+impl From<Markup> for PreEscaped<String> {
+    fn from(val: Markup) -> Self {
+        val.content
     }
 }
+
 
 impl Deref for Markup {
     type Target = PreEscaped<String>;
@@ -264,24 +272,6 @@ impl Deref for Markup {
         &self.content
     }
 }
-
-impl Markup {
-    /// Converts the inner value to a string.
-    pub fn into_string(self) -> String {
-        self.content.into()
-    }
-}
-
-impl Default for Markup {
-    fn default() -> Self {
-        Self {
-            content: Default::default(),
-            linked_files: Default::default(),
-        }
-    }
-}
-
-
 
 impl<T: Into<String>> PreEscaped<T> {
     /// Converts the inner value to a string.
