@@ -9,7 +9,7 @@ use {
 };
 
 
-pub fn wrapper(args: TokenStream, item: TokenStream) -> TokenStream {
+pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     // Convert the attributes in a struct.
     let mut attributes = ProcMacroParameters::default();
     let attr_parser = syn::meta::parser(|meta| attributes.parse(meta));
