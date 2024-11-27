@@ -36,7 +36,7 @@ curl -fsSL https://wini.rocks | sh
 ```
 
 > [!NOTE]
-> Note: you need to be root
+> You need to be root
 
 ### Create your first project
 
