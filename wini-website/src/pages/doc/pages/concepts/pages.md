@@ -1,6 +1,6 @@
 # Pages
 
-A page, is - at it's core - only an endpoint of a server sending HTML. In wini, this is defined as a function returning `Markup` (which is more or less, a `String`: more in the Maud chapter):
+Pages are functions — returning some HTML — that are used as an endpoint on the server. In wini, this is defined as a function returning `Markup` (which is more or less, a `String` (more in the Maud chapter))
 
 ## Usage 
 ```

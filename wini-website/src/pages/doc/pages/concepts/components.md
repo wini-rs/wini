@@ -1,12 +1,11 @@
 # Components
 
-Components are functions - returning some HTML - that can be used in different pages, layout and components too.
+Components are functions — returning some HTML — that can be used in different pages, layout and components too.
 
 ## Usage
 ```
-// ./components/my_button/mod.rs
 #[component]
-pub async fn render() -> MarkUp {
+async fn render() -> MarkUp {
     html! {
         button.my_button {
             "Press me!"
@@ -14,17 +13,15 @@ pub async fn render() -> MarkUp {
     }
 }
 
-// ./pages/home/mod.rs
-use crate::components::my_button;
 #[page]
-pub async fn render() -> MarkUp {
+async fn render() -> MarkUp {
     html! {
         main {
             "Hello!"
             [my_button::render]
         }
     }
-}
+} // Will return <main>Hello!<button class="my_button">Press me!</button></main>
 ```
 
 ## About

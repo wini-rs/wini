@@ -1,6 +1,11 @@
-pre {
+pre, code {
     font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    background: #141414;
+}
+
+pre {
     background: #141414;
     padding: 12px;
     border-radius: 4px;
+    overflow: auto;
 }

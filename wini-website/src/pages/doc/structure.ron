@@ -10,6 +10,8 @@ Directory(
             title: "Concepts",
             pages: [
                 Page(title: "Pages", page: "pages"),
+                Page(title: "Components", page: "components"),
+                Page(title: "Layouts", page: "layout"),
             ],
         ),
     ],

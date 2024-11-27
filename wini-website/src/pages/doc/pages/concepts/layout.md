@@ -1,18 +1,18 @@
 # Layouts
 
-A layout, is a function that wraps the computation of the requested page in another HTML and sends back the resulting HTML.
+Layouts are functions that wraps the computation of the requested page in another HTML and return back the resulting HTML.
 
 ## Usage
 
 ```
 #[page]
-pub async fn my_page() {
+async fn my_page() {
     html! { "Hello world!" }
 }
 
 
 #[layout]
-pub async fn my_layout(html: &str) {
+async fn my_layout(html: &str) {
     html! {
         header {
             "Hello"
@@ -29,23 +29,24 @@ pub async fn my_layout(html: &str) {
 Multiple layouts can be applied to an endpoint/request. In this case, the parent layout get the computation of the previous layout:
 
 ```
-     User request
-          |
-+----------------------+
-|       Layout1        |
-| +------------------+ |
-| |     Layout2      | |
-| | +--------------+ | |
-| | |    Page      | | |
-| | +--------------+ | |
-| +------------------+ |
-+----------------------+
-          |
-          V
-     User response
+      requests
+         |
+         v
++--- layer_one ---+
+| +- layer_two -+ |
+| |             | |
+| |   my_page   | |
+| |             | |
+| +- layer_two -+ |
++--- layer_one ---+
+         |
+         v
+      responses
 ```
 
-Will result in: `layout1(layout2(page))`
+Will result in: `layout_one(layout_two(my_page))`
+
+(_Graph inspired by: <https://docs.rs/axum/latest/axum/middleware/index.html>_)
 
 There is more or less the same relationship between a page/component and layout/page, but there are some differences:
 

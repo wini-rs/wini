@@ -9,10 +9,8 @@ It will be divde in 3 sections:
 
 If we do a quick analogy between front end an back-end, here are the equivalent:
 
-+-----------+-----------------+
 | Front     | Back            |
-+-----------+-----------------+
+|-----------|-----------------|
 | Component | Helper Function |
 | Page      | Endpoint        |
 | Layout    | Middleware      |
-+-----------+-----------------+

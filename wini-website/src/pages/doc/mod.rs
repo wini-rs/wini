@@ -2,6 +2,7 @@ use {
     axum::extract::Request,
     font_awesome_as_a_crate::{svg, Type},
     maud::{html, Markup, PreEscaped},
+    pulldown_cmark::Options,
     std::{collections::HashMap, path::Path, sync::LazyLock},
     wini_macros::page,
 };
@@ -119,7 +120,17 @@ pub fn pages() -> HashMap<String, String> {
                         .unwrap()
                         .unwrap();
 
-                    let parser = pulldown_cmark::Parser::new(&file_content);
+                    let mut options = Options::empty();
+                    options.extend([
+                        Options::ENABLE_HEADING_ATTRIBUTES,
+                        Options::ENABLE_TABLES,
+                        Options::ENABLE_FOOTNOTES,
+                        Options::ENABLE_STRIKETHROUGH,
+                        Options::ENABLE_SMART_PUNCTUATION,
+                        Options::ENABLE_DEFINITION_LIST,
+                    ]);
+
+                    let parser = pulldown_cmark::Parser::new_ext(&file_content, options);
                     let mut html_output = String::new();
                     pulldown_cmark::html::push_html(&mut html_output, parser);
 

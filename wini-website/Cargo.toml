@@ -35,7 +35,7 @@ itertools = "0.13.0"
 ctor = "0.2.8"
 font-awesome-as-a-crate = "0.3.0"
 ron = "0.8.1"
-pulldown-cmark = "0.12.2"
+pulldown-cmark = "0.12"
 
 
 [package.metadata.cargo-machete]
