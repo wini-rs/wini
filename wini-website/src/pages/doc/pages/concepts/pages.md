@@ -1,1 +1,42 @@
-wuu
+# Pages
+
+A page, is - at it's core - only an endpoint of a server sending HTML. In wini, this is defined as a function returning `Markup` (which is more or less, a `String`: more in the Maud chapter):
+
+## Usage 
+```
+#[page]
+async fn my_page() -> Markup {
+    html! {
+        h1 { "Hello world!" }
+    }
+} // Will return `<h1>Hello world!</h1>`
+```
+
+## About
+
+Notice the use of the `#[page]` macro. If we were only sending back some basic String, we wouldn't need to use a procedural macro just for that.
+
+The purpose of this macro is to include the Typescript and Scss files associated to this page, so, when it's sent back it's included with the appropriate JavaScript and CSS.
+
+## Example
+
+```.
+.
+├── my_script_1.ts
+├── my_script_2.ts
+├── mod.rs
+└── style.scss
+```
+
+Will send back in header:
+```
+<head>
+    ...
+    <script src="/.../my_script_1.js">
+    <script src="/.../my_script_2.js">
+    <style href="/.../style.css">
+    ...
+</head>
+```
+
+_**Note**: This is the same thing with the `#[component]` and `#[layout]` macros that we wil see next. Tho, they don't do _exactly_ the same thing_
