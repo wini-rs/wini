@@ -35,7 +35,8 @@ or by downloading the binary (not recommended)
 curl -fsSL https://wini.rocks | sh
 ```
 
-_Note: you need to be root_
+> [!NOTE]
+> You need to be root
 
 ### Create your first project
 

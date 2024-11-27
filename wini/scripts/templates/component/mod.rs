@@ -1,5 +1,9 @@
-use maud::{html, PreEscaped};
+use {
+    maud::{html, Markup},
+    wini_macros::component,
+};
 
-pub async fn render() -> PreEscaped<String> {
+#[component]
+pub async fn render() -> Markup {
     html! {}
 }

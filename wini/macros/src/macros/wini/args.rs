@@ -6,8 +6,6 @@ use {
 /// The arguments expected in attribute
 #[derive(Default, Debug)]
 pub struct ProcMacroParameters {
-    /// The components on which this page/wrapper depend on
-    pub components: Option<Vec<String>>,
     /// Title of the webpage: `<title>`, `og:title`
     pub title: Option<String>,
     /// Meta Description: `description`, `og:description`
@@ -148,7 +146,7 @@ impl ProcMacroParameters {
                         Ok(())
                     })
                 },
-                "components" | "keywords" => {
+                "keywords" => {
                     let lit_array: ExprArray = meta.value()?.parse()?;
                     let mut vec_elements = vec![];
                     for elem in lit_array.elems {
@@ -161,7 +159,6 @@ impl ProcMacroParameters {
 
                     // Assign it to the correct key
                     match ident.to_string().as_str() {
-                        "components" => self.components = Some(vec_elements),
                         "keywords" => self.keywords = Some(vec_elements),
                         _ => unreachable!("Already matched."),
                     }
