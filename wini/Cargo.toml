@@ -19,7 +19,7 @@ hyper = "1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs"] }
 http-body-util = "0.1"
 mime_guess = "2"
-maud = { version = "0.26", features = ["axum"]}
+wini-maud = { version = "0.26.2", features = ["axum"]}
 wini-macros = { path = "./macros/"}
 dotenvy = "0.15"
 regex = "1"

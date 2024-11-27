@@ -1,0 +1,20 @@
+[package]
+name = "wini_maud_macros"
+version = "0.26.2"
+documentation = "https://docs.rs/wini-maud-macros"
+description = "Internal crate. Please use 'wini-maud' instead."
+repository = "https://github.com/wini-rs/wini"
+edition = "2021"
+authors = ["Chris Wong <lambda.fairy@gmail.com>", "tk"]
+license = "LGPL-3.0-or-later"
+
+[dependencies]
+syn = "2"
+quote = "1.0.7"
+proc-macro2 = "1.0.23"
+proc-macro-error = { version = "1.0.0", default-features = false }
+hashbrown = "0.15.2"
+
+[lib]
+name = "wini_maud_macros"
+proc-macro = true
