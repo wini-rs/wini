@@ -94,13 +94,22 @@ impl Generator {
     }
 
     fn component(&self, expr: TokenStream, build: &mut Builder) {
+        use quote::ToTokens;
         let output_ident = self.output_ident.clone();
         let linked_files = self.linked_files.clone();
+        let streams = expr.to_token_stream();
+        let called_expr = if let Some(proc_macro2::TokenTree::Group(_)) = streams.into_iter().last()
+        {
+            quote!(#expr)
+        } else {
+            quote!(#expr())
+        };
+
         build.push_tokens(
-            quote!(maud::macro_private::render_to!(&(#expr().await), &mut #output_ident);),
+            quote!(maud::macro_private::render_to!(&(#called_expr.await), &mut #output_ident);),
         );
         build.push_tokens(quote!(
-                #linked_files.extend(#expr().await.linked_files);
+                #linked_files.extend(#called_expr.await.linked_files);
         ));
     }
 
