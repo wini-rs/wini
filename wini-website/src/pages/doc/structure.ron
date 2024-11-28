@@ -14,5 +14,7 @@ Directory(
                 Page(title: "Layouts", page: "layout"),
             ],
         ),
+        Page(title: "Getting started", page: "getting_started"),
+        Page(title: "Creating a page", page: "creating_a_page"),
     ],
 )
