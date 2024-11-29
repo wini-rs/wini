@@ -67,4 +67,8 @@ pub async fn render() -> MarkUp {
 }
 ```
 
-_**Note**: The syntax of `[my_function]` to delimiter a component is only available in `wini-maud` and not `maud`_
+<div class="note">
+
+The syntax of `[my_function]` to delimiter a component is only available in `wini-maud` and not `maud`
+
+</div>

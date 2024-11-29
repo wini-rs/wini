@@ -39,4 +39,8 @@ Will send back in header:
 </head>
 ```
 
-_**Note**: This is the same thing with the `#[component]` and `#[layout]` macros that we wil see next. Tho, they don't do _exactly_ the same thing_
+<div class="note">
+
+This is the same thing with the `#[component]` and `#[layout]` macros that we wil see next. Tho, they don't do _exactly_ the same thing
+
+</div>

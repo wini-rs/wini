@@ -4,7 +4,11 @@ This Rust book is a book explaining the workings of [Wini](https://github.com/wi
 
 This book assumes that you have basic knowledge in [Rust](https://www.rust-lang.org/) and Web development.
 
-_**Note**: If you want to learn Rust but don't know where to start, the [rust book](https://doc.rust-lang.org/stable/book/) is a good start._
+<div class="note">
+
+If you want to learn Rust but don't know where to start, the [rust book](https://doc.rust-lang.org/stable/book/) is a good start.
+
+</div>
 
 ## So, what is Wini ?
 

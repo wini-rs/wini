@@ -5,7 +5,7 @@ Maud is also really fast, because the procedural macro `html!`, transforms this 
 
 ## Quick tutorial
 
-_If you want a complete tutorial, I encourage you to read <https://maud.lambda-fairy.xyz/> which goes in depth of the complete syntax of Maud and is really a greate ressource_
+_If you want a complete tutorial, I encourage you to read <https://maud.lambda-fairy.xyz/> which goes in depth of the complete syntax of Maud and is really a great ressource_
 
 ### Element declaration
 
@@ -18,7 +18,13 @@ element;  // <=> <element>
 
 The second one is typically used when using an image or a meta tag for example.
 
-Note: Using `element;` won't declare an empty `script` (`<script></script>`). It will create a `<script>` without closing, and therefore, lead to an error. So the correct way of doing it is: `script {}`
+<div class="note">
+
+Using `element;` won't declare an empty `script` (`<script></script>`).
+
+It will create a `<script>` without closing, and therefore, lead to an error. So the correct way of doing it is: `script {}`
+
+</div>
 
 ### Attributes
 
@@ -69,4 +75,8 @@ html! {
 }
 ```
 
-> Note: it supports pattern matching. So `@if let`s are valid.
+<div class="note">
+
+it supports pattern matching. So `@if let`s are valid.
+
+</div>

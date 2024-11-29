@@ -15,6 +15,26 @@ Directory(
             ],
         ),
         Page(title: "Getting started", page: "getting_started"),
-        Page(title: "Creating a page", page: "creating_a_page"),
+        Page(title: "Getting used to wini-cli", page: "getting_used_to"),
+        Directory(
+            is_ordered: true,
+            page: Some("overview"),
+            title: "Directory structure",
+            pages: [
+                Page(title: "Files at root", page: "files_at_root"),
+                Page(title: "Why maud ?", page: "why-maud"),
+                Page(title: "wini-maud", page: "wini-maud"),
+            ],
+        ),
+        Directory(
+            is_ordered: true,
+            page: None,
+            title: "Maud",
+            pages: [
+                Page(title: "What is maud ?", page: "what-is-maud"),
+                Page(title: "Why maud ?", page: "why-maud"),
+                Page(title: "wini-maud", page: "wini-maud"),
+            ],
+        ),
     ],
 )

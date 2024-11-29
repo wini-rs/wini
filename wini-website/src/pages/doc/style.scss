@@ -1,11 +1,42 @@
 pre, code {
     font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
-    background: #141414;
+    background: #111111;
+}
+
+
+code {
+    margin-inline: 4px;
+}
+
+pre code {
+    margin-inline: 0px;
 }
 
 pre {
-    background: #141414;
     padding: 12px;
     border-radius: 4px;
     overflow: auto;
+}
+
+.note {
+    &::before {
+        content: "Note";
+        color: #72b0c0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    border-left: 4px #448899 solid;
+    padding-left: 10px;
+    font-size: 15px;
+    color: #fff9;
+}
+
+a {
+    font-weight: 600;
+
+    color: #77AAFF;
+
+    &:visited {
+        color: #AA77FF;
+    }
 }

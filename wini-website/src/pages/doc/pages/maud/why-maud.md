@@ -3,7 +3,7 @@
 ## The good
 
 - It's **fast** (we'll see it more in depth later)
-- It has an **elegant syntax**. Even tho this is a subjective point, for the vast majority of expessions, Maud has substantially less characters than HTML and incorporate CSS convetions (`#` <=> id, `.` <=> class) that are easily recoginzable.
+- It has an **elegant syntax**. Even tho this is a subjective point, for the vast majority of expessions, Maud has substantially less characters than HTML and incorporate CSS convetions (`#` <=> id, `.` <=> class) that are easily recognizable.
 - Support for **Rust statements** (`if`, `match`, `for`, ...)
 - **Auto-completion**
 
@@ -21,16 +21,19 @@ The results are self explicits: Maud is **significantly** faster.
 #### Recursive example:
 - Maud: 1.823µs
 - MiniJinja: 100.628µs
+
 _Maud was faster by 98.805µs!!!_
 
 #### Names example:
 - Maud: 420ns
 - MiniJinja: 70.488µs
+
 _Maud was faster by 70.068µs!!!_
 
 #### Raw html example
 - Maud: 118ns
 - MiniJinja: 69.433µs
+
 _Maud was faster by 69.315µs!!!_
 
 More than that:

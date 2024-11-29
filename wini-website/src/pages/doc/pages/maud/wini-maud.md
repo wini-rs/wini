@@ -15,7 +15,12 @@ When you declare a component for example, this component might depends on some s
 
 But, since you basically only return a `String`, you can't really pass this context to the parent function that called you.
 
-_**Note**: In theory you could have wrote a proc macro that takes the last expression of a function, creates a new struct from the `PreEscaped<String>`, but I don't think that this was a good idea since you could just do that in `html!`_
+<div class="note">
+
+In theory you could have wrote a proc macro that takes the last expression of a function, creates a new struct from the `PreEscaped<String>`, but I don't think that this was a good idea since you could just do that in `html!`
+
+</div>
+
 
 ## Components
 

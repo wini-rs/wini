@@ -56,7 +56,11 @@ There is more or less the same relationship between a page/component and layout/
 
 
 
-_**Note**: A layout can also use a component_
+<div class="note">
+
+A layout can also use a component
+
+</div>
 
 ```
 #[layout]
