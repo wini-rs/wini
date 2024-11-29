@@ -10,8 +10,18 @@ mod macros;
 pub(crate) mod utils;
 
 #[proc_macro_attribute]
+pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
+    macros::wini::component::component(args, item)
+}
+
+#[proc_macro_attribute]
 pub fn wrapper(args: TokenStream, item: TokenStream) -> TokenStream {
-    macros::wini::wrapper::wrapper(args, item)
+    macros::wini::layout::layout(args, item)
+}
+
+#[proc_macro_attribute]
+pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
+    macros::wini::layout::layout(args, item)
 }
 
 #[proc_macro_attribute]

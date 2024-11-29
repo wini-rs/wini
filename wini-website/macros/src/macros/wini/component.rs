@@ -10,7 +10,7 @@ use {
 };
 
 
-pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
+pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     // Convert the attributes in a struct.
     let mut attributes = ProcMacroParameters::default();
     let attr_parser = syn::meta::parser(|meta| attributes.parse(meta));
@@ -28,8 +28,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
-    let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
-    let meta_headers = attributes.generate_all_headers();
+    let files_in_current_dir = get_js_or_css_files_in_current_dir();
 
     // Generate the output code
     let expanded = quote! {
@@ -37,29 +36,22 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
         #original_function
 
         #[allow(non_snake_case)]
-        pub async fn #original_name(#arguments) -> axum::response::Response<axum::body::Body> {
+        pub async fn #original_name(#arguments) -> maud::Markup {
             use itertools::Itertools;
 
-            const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
+            const FILES_IN_CURRENT_DIR: &[&str] = &[#(#files_in_current_dir),*];
 
-            let html = #new_name(#(#param_names),*).await;
+            let mut html = #new_name(#(#param_names),*).await;
 
-            let files = html.linked_files.iter().join(";");
-
-            let mut res = axum::response::IntoResponse::into_response(html);
-
-            res.headers_mut().insert(
-                "files",
-                axum::http::HeaderValue::from_str(&format!(
-                    "{FILES_IN_CURRENT_DIR};{files};",
-                )).unwrap()
+            let hashset = std::collections::HashSet::<String>::from_iter(
+                FILES_IN_CURRENT_DIR
+                    .iter()
+                    .map(std::ops::Deref::deref)
+                    .map(String::from)
             );
+            html.linked_files.extend(hashset);
 
-
-            // Modify header with meta tags in it
-            #meta_headers
-
-            res
+            html
         }
     };
 
