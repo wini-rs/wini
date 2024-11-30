@@ -30,8 +30,6 @@ if [ -n "$(yq -p toml ".$PKG" < ./packages-files.toml)" ]; then
 fi
 
 
-public_path=$(yq ".path.public" ./wini.toml)
-modules_path=$(yq ".path.modules" ./wini.toml)
 node_modules_pkg="./node_modules/$PKG" 
 
 default_file=
