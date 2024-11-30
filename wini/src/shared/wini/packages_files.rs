@@ -74,6 +74,19 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
     let hashmap: HashMap<String, VecOrString> =
         toml::from_str(&file).exit_with_msg_if_err("Unexpected error while parsing TOML");
 
+
+    fn module_path_from_short_name(package: &str, file: &str) -> String {
+        concat_paths!(
+            &SERVER_CONFIG.path.modules,
+            &package,
+            std::path::Path::new(&file).file_name().unwrap_or_default()
+        )
+        .display()
+        .to_string()
+        .trim_start_matches(".")
+        .to_string()
+    }
+
     hashmap
         .into_iter()
         .map(|(key, vec_or_string)| {
@@ -83,32 +96,12 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
                     VecOrString::Vec(v) => {
                         VecOrString::Vec(
                             v.into_iter()
-                                .map(|file| {
-                                    concat_paths!(
-                                        &SERVER_CONFIG.path.modules,
-                                        &key,
-                                        std::path::Path::new(&file).file_name().unwrap_or_default()
-                                    )
-                                    .display()
-                                    .to_string()
-                                    .trim_start_matches(".")
-                                    .to_string()
-                                })
+                                .map(|file| module_path_from_short_name(&key, &file))
                                 .collect(),
                         )
                     },
                     VecOrString::String(s) => {
-                        VecOrString::String(
-                            concat_paths!(
-                                &SERVER_CONFIG.path.modules,
-                                &key,
-                                std::path::Path::new(&s).file_name().unwrap()
-                            )
-                            .display()
-                            .to_string()
-                            .trim_start_matches(".")
-                            .to_string(),
-                        )
+                        VecOrString::String(module_path_from_short_name(&key, &s))
                     },
                 },
             )

@@ -54,7 +54,7 @@ pub struct ConfigPath {
 impl ConfigPath {
     pub fn public_from_src(&self) -> String {
         let path = concat_paths!("src", &self.public);
-        normalize_relative_path(&path).display().to_string()
+        normalize_relative_path(path).display().to_string()
     }
 }
 

@@ -109,7 +109,7 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
         .flatten()
         .map(|dep| {
             let public_path =
-                normalize_relative_path(&concat_paths!("str", &SERVER_CONFIG.path.public))
+                normalize_relative_path(concat_paths!("str", &SERVER_CONFIG.path.public))
                     .display()
                     .to_string();
 

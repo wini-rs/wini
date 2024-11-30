@@ -140,22 +140,19 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             // If an import starts with a ".", it's a path to a file. In this case, we want to
             // have it's path relative to the file it's referenced from.
             let dep_relative_path = if dep.starts_with(".") {
-                let dep = if dep.ends_with(".js") {
-                    concat_paths!(path.parent().expect("Path should have a parent."), dep)
-                        .to_str()
-                        .expect("Not empty.")
-                        .to_string()
-                } else {
-                    concat_paths!(
-                        path.parent().expect("Path should have a parent."),
+                let dep = concat_paths!(
+                    path.parent().expect("Path should have a parent."),
+                    if dep.ends_with(".js") {
+                        dep
+                    } else {
                         dep + ".ts"
-                    )
-                    .to_str()
-                    .expect("Not empty.")
-                    .to_string()
-                };
+                    }
+                )
+                .to_str()
+                .expect("Not empty.")
+                .to_string();
 
-                normalize_relative_path(&dep).display().to_string()
+                normalize_relative_path(dep).display().to_string()
             }
             // Resolve tsconfig paths. <=> If it's a file that needs to be resolved with
             // `tsconfig.compilerOptions.paths`.
