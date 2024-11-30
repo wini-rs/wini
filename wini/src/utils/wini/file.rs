@@ -14,11 +14,11 @@ use walkdir::WalkDir;
 /// Will result in
 ///
 /// `["a", "b/d", "c"]`
-pub fn get_files_in_directory(dir: &str) -> std::io::Result<Vec<String>> {
+pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<String>> {
     let mut files = Vec::new();
 
     // Read the directory
-    for entry in std::fs::read_dir(dir)? {
+    for entry in std::fs::read_dir(dir.as_ref())? {
         let entry = entry?;
         let path = entry.path();
 
@@ -64,22 +64,19 @@ pub fn get_files_in_directory_per_extensions(dir: &str, extensions: &[&str]) -> 
         .into_iter()
         .filter_map(|entry| {
             match entry {
-                Ok(file) => {
+                Ok(file)
                     if extensions_with_dots
                         .iter()
-                        .any(|ext| file.path().to_str().is_some_and(|s| s.ends_with(ext)))
-                    {
-                        Some(
-                            file.path()
-                                .to_str()
-                                .expect("Already verified before")
-                                .to_string(),
-                        )
-                    } else {
-                        None
-                    }
+                        .any(|ext| file.path().to_str().is_some_and(|s| s.ends_with(ext))) =>
+                {
+                    Some(
+                        file.path()
+                            .to_str()
+                            .expect("Already verified before")
+                            .to_string(),
+                    )
                 },
-                Err(_) => None,
+                _ => None,
             }
         })
         .collect::<Vec<_>>()

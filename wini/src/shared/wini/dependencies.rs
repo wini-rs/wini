@@ -103,6 +103,7 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
 /// </head>
 ///
 /// # Panic
+///
 /// If there is an error finding a dependency
 fn script_dependencies(path: &str) -> Option<Vec<String>> {
     let mut path_str = path.strip_prefix("/").unwrap_or(path).replace(".js", ".ts");
