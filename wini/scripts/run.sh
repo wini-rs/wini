@@ -18,4 +18,4 @@ trap on_interrupt SIGINT
 
 watchexec -i "node_modules/**" -e 'ts' -r just compile-ts &
 watchexec -i "node_modules/**" -e 'scss' -r just compile-scss &
-watchexec -i "target/**" -i "node_modules/**" -e 'rs,ts,md,scss,svg,json,sh' --stop-signal SIGTERM  -r "cargo run"
+watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run"
