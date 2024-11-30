@@ -1,4 +1,5 @@
 use {
+    crate::pages::doc::PAGES_STRUCTURE,
     font_awesome_as_a_crate::{svg, Type},
     maud::{html, Markup, PreEscaped},
     wini_macros::wrapper,
@@ -6,5 +7,30 @@ use {
 
 #[wrapper]
 pub async fn render(child: &str) -> Markup {
-    html! {(PreEscaped(child))}
+    html! {
+        nav #sidebar {
+            (PAGES_STRUCTURE.rec_display())
+        }
+        main {
+            header {
+                div {
+                    button #hide-sidebar {
+                        img src="/bars-solid.svg";
+                    }
+                }
+                h1 {"Wini's book"}
+                div {
+                    a href="https://github.com/wini-rs/wini" {
+                        img src="/github.svg";
+                    }
+                    a href="https://codeberg.org/wini/wini" {
+                        img src="/codeberg.svg";
+                    }
+                }
+            }
+            div #horizontal-content {
+                (PreEscaped(child))
+            }
+        }
+    }
 }

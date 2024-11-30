@@ -12,7 +12,7 @@ use {
 
 
 #[derive(Debug, serde::Deserialize)]
-enum PageOrDirectory<'l> {
+pub enum PageOrDirectory<'l> {
     Page {
         title: &'l str,
         page: &'l str,
@@ -48,7 +48,7 @@ impl<'l> PageOrDirectory<'l> {
         }
     }
 
-    fn rec_display(&self) -> Markup {
+    pub fn rec_display(&self) -> Markup {
         match self {
             PageOrDirectory::Page { title, page } => {
                 html! { li { a href=(format!("/doc/{page}")) { (title) }}}
@@ -143,7 +143,7 @@ pub fn pages() -> HashMap<String, String> {
     }
 }
 
-static PAGES_STRUCTURE: LazyLock<PageOrDirectory> =
+pub static PAGES_STRUCTURE: LazyLock<PageOrDirectory> =
     LazyLock::new(|| ron::from_str(&include_str!("./structure.ron")).unwrap());
 
 
@@ -166,57 +166,33 @@ pub async fn render(req: Request) -> Markup {
     let (previous_page, next_page) = PAGES_STRUCTURE.get_nearest_pages(requested_page);
 
     html! {
-        nav #sidebar {
-            (PAGES_STRUCTURE.rec_display())
+        @if let Some(previous_page) = previous_page {
+            a href={"/doc/" (previous_page)} .previous-next {
+                (PreEscaped(
+                        svg(Type::Solid, "angle-left"
+
+                        ).unwrap()))
+            }
+        } @else {
+            div .placeholder-previous-next {}
         }
         main {
-            header {
-                div {
-                    button #hide-sidebar {
-                        img src="/bars-solid.svg";
-                    }
-                }
-                h1 {"Wini's book"}
-                div {
-                    a href="https://github.com/wini-rs/wini" {
-                        img src="/github.svg";
-                    }
-                    a href="https://codeberg.org/wini/wini" {
-                        img src="/codeberg.svg";
-                    }
-                }
+            #content {
+                (PreEscaped(result))
             }
-            div #horizontal-content {
-                @if let Some(previous_page) = previous_page {
-                    a href={"/doc/" (previous_page)} .previous-next {
-                        (PreEscaped(
-                                svg(Type::Solid, "angle-left"
-
-                                ).unwrap()))
-                    }
-                }
-                @else {
-                    div .placeholder-previous-next {}
-                }
-                main {
-                    #content {
-                        (PreEscaped(result))
-                    }
-                }
-                @if let Some(next_page) = next_page {
-                    a href={"/doc/" (next_page)} .previous-next {
-                        (PreEscaped(
-                            svg(
-                                Type::Solid,
-                                "angle-right"
-                            )
-                            .unwrap()
-                        ))
-                    }
-                } @else {
-                    .placeholder-previous-next {}
-                }
+        }
+        @if let Some(next_page) = next_page {
+            a href={"/doc/" (next_page)} .previous-next {
+                (PreEscaped(
+                    svg(
+                        Type::Solid,
+                        "angle-right"
+                    )
+                    .unwrap()
+                ))
             }
+        } @else {
+            .placeholder-previous-next {}
         }
     }
 }
