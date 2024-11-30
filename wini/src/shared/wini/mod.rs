@@ -8,7 +8,7 @@ use {
 
 /// The list of all the public endoints <=> all the files in `../public`
 pub static PUBLIC_ENDPOINTS: LazyLock<Vec<String>> =
-    LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_else(|_| Vec::new()));
+    LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_default());
 
 /// An HashMap of all the CSS files, with their content being the value
 pub static CSS_FILES: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
