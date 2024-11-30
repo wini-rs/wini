@@ -13,6 +13,10 @@ They are in a folder and not a crate so you can easily customize them if you wan
 
 The default public directory. A public directory is a directory made to serve static files, like `favicon` or some images.
 
+## public/helpers.js
+
+A javascript file that contains helper functions inspired by jQuery that makes you win a lot of time (typed in `public/helpers.g.ts`)
+
 ## scripts
 
 The directory where all the scripts used by `just` are. You can also modify them as your need very easily!

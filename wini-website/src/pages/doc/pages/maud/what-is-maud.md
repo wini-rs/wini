@@ -11,7 +11,7 @@ _If you want a complete tutorial, I encourage you to read <https://maud.lambda-f
 
 In maud, you can declare an element with the following syntax:
 
-```
+```rs
 element {}  // <=> <element></element>
 element;  // <=> <element>
 ```
@@ -61,7 +61,7 @@ This also works with all types of expressions in Rust when the expression return
 
 ### Conditions, Match and loops
 
-Maud supports match, if, else, while and for statements. To use them, you just need to preceed them by a `@` and you can use them like you would have in a normal context.
+Maud supports `match`, `if`, `else`, `while` and `for` statements. To use them, you just need to preceed them by a `@` and you can use them like you would have in a normal context.
 
 ```rs
 let my_vec = vec!["hello", "world", "!"];

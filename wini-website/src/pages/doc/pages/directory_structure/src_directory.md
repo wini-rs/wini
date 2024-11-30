@@ -1,4 +1,4 @@
-# src
+# The `src` directory
 
 When creating a new project with `cargo`, the `src/` directory is the directory where all the rust code should be written (there are exceptions like `build.rs`, but this is more of an exception).
 
