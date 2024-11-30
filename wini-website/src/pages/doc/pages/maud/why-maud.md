@@ -9,7 +9,7 @@
 
 ## The bad
 - Doesn't have a **formatter**
-- Doesn't have an amazing syntax **highlighting**
+- Doesn't have an amazing syntax **highlighting**. (Syntax highlighting of `.my-class` is bugged because of "-", excepted that, its normal!)
 - It's a **procedural macro** (=> might increase compile time)
 - Not based on any **standard**
 

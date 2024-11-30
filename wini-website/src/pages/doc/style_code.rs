@@ -1,4 +1,5 @@
 use {
+    std::sync::LazyLock,
     syntect::{
         highlighting::ThemeSet,
         html::highlighted_html_for_string,
@@ -8,9 +9,7 @@ use {
 };
 
 pub fn style_code(code: &Node, parser: &tl::Parser<'_>) -> String {
-    let ss = SyntaxSet::load_defaults_newlines();
-    let ts = ThemeSet::load_defaults();
-    let theme = &ts.themes["base16-eighties.dark"];
+    let theme = &THEMES.themes["base16-eighties.dark"];
 
     let raw_code = code.inner_html(parser);
     println!("{raw_code}");
@@ -31,26 +30,23 @@ pub fn style_code(code: &Node, parser: &tl::Parser<'_>) -> String {
         .replace("&amp;", "&");
 
 
-    let custom_syntaxes = custom_syntaxes();
-    let c = custom_syntaxes.clone();
 
-    // let (ss, set) = .map_or_else(
-    //     move || (ss, ss.find_syntax_by_extension(&language).unwrap()),
-    //     |syntax| (custom_syntaxes, syntax),
-    // );
-
-    let html = if let Some(set) = custom_syntaxes.find_syntax_by_extension(&language) {
-        highlighted_html_for_string(&unescaped_code, &custom_syntaxes, &set, theme).unwrap()
+    let html = if let Some(set) = CUSTOM_SYNTAXES.find_syntax_by_extension(&language) {
+        highlighted_html_for_string(&unescaped_code, &CUSTOM_SYNTAXES, &set, theme).unwrap()
     } else {
-        let set = ss.find_syntax_by_extension(&language).unwrap();
-        highlighted_html_for_string(&unescaped_code, &ss, &set, theme).unwrap()
+        let set = NORMAL_SYNTAXES.find_syntax_by_extension(&language).unwrap();
+        highlighted_html_for_string(&unescaped_code, &NORMAL_SYNTAXES, &set, theme).unwrap()
     };
 
     html
 }
 
+static NORMAL_SYNTAXES: LazyLock<SyntaxSet> = LazyLock::new(SyntaxSet::load_defaults_newlines);
+static THEMES: LazyLock<ThemeSet> = LazyLock::new(ThemeSet::load_defaults);
+static CUSTOM_SYNTAXES: LazyLock<SyntaxSet> = LazyLock::new(custom_syntaxes);
+
 fn custom_syntaxes() -> SyntaxSet {
     let mut ss = SyntaxSetBuilder::new();
-    ss.add_from_folder(".", true);
+    ss.add_from_folder(".", true).unwrap();
     ss.build()
 }

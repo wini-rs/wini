@@ -37,12 +37,12 @@ div #my-id .my-class-1 .my-class-2 {}
 To declare some special attribtues, here is the following syntax:
 
 ```css
-div my-attribute="helo" {}
+div my-attribute="hello" {}
 ```
 
 ### String
 
-Maud doesn't have the same relation with string than HTML. HTML automatically converts everything that is not valid to a String (e.g. `<d/iv>` is a string.). While maud, force the quoting of String (e.g. `"<d/iv>"`). A basic hello world example is therefore:
+Maud doesn't have the same relation with string than HTML. HTML automatically converts everything that is not valid to a String (e.g. `div>` is a string.). While maud, force the quoting of String (e.g. `"div>"`). A basic hello world example is therefore:
 
 ```css
 span { "Hello world!" }
