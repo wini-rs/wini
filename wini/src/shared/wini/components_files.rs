@@ -18,7 +18,8 @@ pub static COMPONENTS_FILES: LazyLock<ComponentsFiles> = LazyLock::new(|| {
     let mut css_hm = HashMap::new();
 
     let components_path = format!("src/{}", SERVER_CONFIG.path.components);
-    let regex_to_remove_components_dir = Regex::new(&format!("^/{components_path}/")).unwrap();
+    let regex_to_remove_components_dir =
+        Regex::new(&format!("^/{components_path}/")).expect("Should be a valid regex");
 
     for file_path in get_files_in_directory_per_extensions(&components_path, &["js", "css"]) {
         let path_to_file_str_non_normalized = regex_to_remove_components_dir
