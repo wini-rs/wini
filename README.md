@@ -48,4 +48,4 @@ wini init
 
 ## Documentation
 
-TODO
+All the documentation concerning the inner workings of wini and how to work with it are available here: <https://wini.rocks/>.
