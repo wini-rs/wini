@@ -1,5 +1,6 @@
 use {
     super::{
+        err::ExitWithMessageIfErr,
         tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
         JS_FILES,
     },
@@ -14,21 +15,20 @@ use {
     },
 };
 
-pub static REGEX_DEPENDENCY: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#).unwrap());
+pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#)
+        .expect("This should always be a valid regex.")
+});
 pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).unwrap());
+    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).expect("This should always be a valid regex."));
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
         LazyLock::force(&REGEX_IS_PACKAGE);
 
-        let mut hm = HashMap::new();
-
-        for script in JS_FILES.keys() {
-            hm.insert(script.to_string(), script_dependencies(script));
-        }
-
-        hm
+        JS_FILES
+            .keys()
+            .map(|script| (script.to_owned(), script_dependencies(script)))
+            .collect()
     });
 
 
@@ -43,10 +43,10 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
 /// let normalized = normalize_relative_path(path);
 /// assert_eq!(normalized, PathBuf::from("file.txt"));
 /// ```
-pub fn normalize_relative_path(path: &Path) -> PathBuf {
+pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
     let mut components = Vec::new();
 
-    for component in path.components() {
+    for component in path.as_ref().components() {
         match component {
             Component::CurDir => {
                 // Ignore "./" (current directory)
@@ -100,6 +100,9 @@ pub fn normalize_relative_path(path: &Path) -> PathBuf {
 ///     <script src="file2.js"/>
 ///     ...
 /// </head>
+///
+/// # Panic
+/// If there is an error finding a dependency
 fn script_dependencies(path: &str) -> Option<Vec<String>> {
     let mut path_str = path.strip_prefix("/").unwrap_or(path).replace(".js", ".ts");
     let mut path = std::path::Path::new(&path_str);
@@ -109,9 +112,12 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         path = std::path::Path::new(&path_str);
     }
 
-    let mut file = File::open(path).unwrap();
+    let mut file = File::open(path).exit_with_msg_if_err(format!("Couldn't find {path:?}"));
     let mut contents = String::new();
-    file.read_to_string(&mut contents).unwrap();
+    if let Err(err) = file.read_to_string(&mut contents) {
+        log::error!("Couldn't read to string: {err:?}");
+        std::process::exit(1)
+    }
 
     let caps = REGEX_DEPENDENCY.captures_iter(&contents);
 
@@ -134,20 +140,21 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             // have it's path relative to the file it's referenced from.
             let dep_relative_path = if dep.starts_with(".") {
                 let dep = if dep.ends_with(".js") {
-                    concat_paths!(path.parent().unwrap(), dep)
+                    concat_paths!(path.parent().expect("Path should have a parent."), dep)
                         .to_str()
-                        .unwrap()
+                        .expect("Not empty.")
                         .to_string()
                 } else {
-                    concat_paths!(path.parent().unwrap(), format!("{dep}.ts"))
-                        .to_str()
-                        .unwrap()
-                        .to_string()
+                    concat_paths!(
+                        path.parent().expect("Path should have a parent."),
+                        dep + ".ts"
+                    )
+                    .to_str()
+                    .expect("Not empty.")
+                    .to_string()
                 };
 
-                normalize_relative_path(std::path::Path::new(&dep))
-                    .display()
-                    .to_string()
+                normalize_relative_path(&dep).display().to_string()
             }
             // Resolve tsconfig paths. <=> If it's a file that needs to be resolved with
             // `tsconfig.compilerOptions.paths`.
