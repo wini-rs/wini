@@ -1,4 +1,5 @@
 use {
+    crate::components::notfound,
     axum::extract::Request,
     font_awesome_as_a_crate::{svg, Type},
     maud::{html, Markup, PreEscaped},
@@ -150,8 +151,17 @@ static PAGES_STRUCTURE: LazyLock<PageOrDirectory> =
 #[page]
 pub async fn render(req: Request) -> Markup {
     let pages = pages();
-    let requested_page = req.uri().path().split('/').last().unwrap();
-    let result = pages.get(requested_page).unwrap();
+    let requested_page = req
+        .uri()
+        .path()
+        .split('/')
+        .skip(2)
+        .next()
+        .unwrap_or("introduction");
+
+    let Some(result) = pages.get(requested_page) else {
+        return html! { [notfound::render] };
+    };
 
     let (previous_page, next_page) = PAGES_STRUCTURE.get_nearest_pages(requested_page);
 

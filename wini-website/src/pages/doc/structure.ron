@@ -19,11 +19,11 @@ Directory(
         Directory(
             is_ordered: true,
             page: Some("overview"),
-            title: "Directory structure",
+            title: "Architecture",
             pages: [
                 Page(title: "Files at root", page: "files_at_root"),
-                Page(title: "Why maud ?", page: "why-maud"),
-                Page(title: "wini-maud", page: "wini-maud"),
+                Page(title: "Directories", page: "directories"),
+                Page(title: "Src directory", page: "src_directory"),
             ],
         ),
         Directory(

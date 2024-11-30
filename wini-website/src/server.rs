@@ -23,6 +23,7 @@ pub async fn start() {
     // The main router of the application is defined here
     let app = Router::new()
         .route("/doc/*.", get(pages::doc::render))
+        .route("/doc", get(pages::doc::render))
         .layer(middleware::from_fn(main::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))

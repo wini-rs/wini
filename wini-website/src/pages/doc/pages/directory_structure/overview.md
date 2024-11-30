@@ -1,4 +1,4 @@
-# Directory structure
+# Architecture
 
 Below is the global directory structure of a new wini project:
 
