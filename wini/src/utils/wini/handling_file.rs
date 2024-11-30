@@ -33,19 +33,19 @@ pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body
     }
 
     if path.ends_with(".css") {
-        if let Some(file) = CSS_FILES.get(path) {
-            return Ok(css_into_response(file)?);
-        }
-
-        return Err(StatusCode::NOT_FOUND.into());
+        return if let Some(file) = CSS_FILES.get(path) {
+            css_into_response(file)
+        } else {
+            Err(StatusCode::NOT_FOUND.into())
+        };
     }
 
     if path.ends_with(".js") {
-        if let Some(file) = JS_FILES.get(path) {
-            return Ok(js_into_response(file)?);
-        }
-
-        return Err(StatusCode::NOT_FOUND.into());
+        return if let Some(file) = JS_FILES.get(path) {
+            js_into_response(file)
+        } else {
+            Err(StatusCode::NOT_FOUND.into())
+        };
     }
 
     Err(StatusCode::NOT_FOUND.into())
