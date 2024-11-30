@@ -51,14 +51,24 @@ impl<'l> PageOrDirectory<'l> {
     pub fn rec_display(&self) -> Markup {
         match self {
             PageOrDirectory::Page { title, page } => {
-                html! { li { a href=(format!("/doc/{page}")) { (title) }}}
+                html! {
+                    li.cursor
+                        hx-get={"/htmx/" (page)}
+                        hx-target="#horizontal-content"
+                        hx-replace-url={"/doc/" (page)}
+                    { (title) }
+                }
             },
             PageOrDirectory::Directory {
                 pages, page, title, ..
             } => {
                 html! {
                     @if let Some(page) = page {
-                        li { a href=(format!("/doc/{page}")) {(title) }}
+                        li.cursor
+                            hx-get={"/htmx/" (page)}
+                            hx-target="#horizontal-content"
+                            hx-replace-url={"/doc/" (page)}
+                        { (title) }
                     } @else {
                         li { (title) }
                     }
@@ -111,6 +121,8 @@ fn search_file_recursively(dir: &str, target_name: &str) -> std::io::Result<Opti
     Ok(None)
 }
 
+
+pub static PAGES: LazyLock<HashMap<String, String>> = LazyLock::new(pages);
 pub fn pages() -> HashMap<String, String> {
     let page_structure: PageOrDirectory = ron::from_str(&include_str!("./structure.ron")).unwrap();
     match page_structure.rec_get_pages() {
@@ -150,7 +162,6 @@ pub static PAGES_STRUCTURE: LazyLock<PageOrDirectory> =
 
 #[page]
 pub async fn render(req: Request) -> Markup {
-    let pages = pages();
     let requested_page = req
         .uri()
         .path()
@@ -159,7 +170,7 @@ pub async fn render(req: Request) -> Markup {
         .next()
         .unwrap_or("introduction");
 
-    let Some(result) = pages.get(requested_page) else {
+    let Some(result) = PAGES.get(requested_page) else {
         return html! { [notfound::render] };
     };
 
@@ -167,9 +178,10 @@ pub async fn render(req: Request) -> Markup {
 
     html! {
         @if let Some(previous_page) = previous_page {
-            button hx-get={"/htmx/" (previous_page)} .previous-next
+            button.previous-next
+                hx-get={"/htmx/" (previous_page)}
                 hx-target="#horizontal-content"
-
+                hx-replace-url={"/doc/" (previous_page)}
             {
                 (PreEscaped(
                         svg(Type::Solid, "angle-left"
@@ -185,7 +197,10 @@ pub async fn render(req: Request) -> Markup {
             }
         }
         @if let Some(next_page) = next_page {
-            button href={"/htmx/" (next_page)} .previous-next {
+            button.previous-next
+                hx-get={"/htmx/" (next_page)}
+                hx-replace-url={"/doc/" (next_page)}
+                hx-target="#horizontal-content"{
                 (PreEscaped(
                     svg(
                         Type::Solid,

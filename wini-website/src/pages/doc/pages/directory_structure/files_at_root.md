@@ -10,9 +10,14 @@ First of all, we'll cover the files at the root of the project
 This file is therefore, a configuration of the TypeScript formatter.
 
 
+## bun.lockb
+
+A binary lockfile of all the javascript packages managed by [`bun`](https://bun.sh/). More information at <https://bun.sh/docs/install/lockfile>.
+
+
 ## Cargo.toml
 
-The cargo configuration file of the current project. See <https://doc.rust-lang.org/cargo/reference/manifest.html> for more information about it.
+The cargo configuration file of the current project. More information at <https://doc.rust-lang.org/cargo/reference/manifest.html>.
 
 
 ## flake.nix
@@ -27,7 +32,7 @@ The file specifying commands for [`just`](https://github.com/casey/just). For mo
 
 ## packages.json
 
-The file specifying the javascript packages used in your website. You can refer to <https://docs.npmjs.com/cli/configuring-npm/package-json>
+The file specifying the javascript packages used in your website. More information at <https://docs.npmjs.com/cli/configuring-npm/package-json>
 
 
 ## packages-files.toml
@@ -57,7 +62,7 @@ A brief introduction to "how do X in the project ?"
 
 ## tsconfig.json
 
-A configuration file specifying how the typescript should be compiled. You can refer to <https://www.typescriptlang.org/docs/handbook/tsconfig-json.html>
+A configuration file specifying how the typescript should be compiled. More information at <https://www.typescriptlang.org/docs/handbook/tsconfig-json.html>
 
 
 ## wini.toml

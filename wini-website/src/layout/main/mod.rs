@@ -1,6 +1,5 @@
 use {
     crate::pages::doc::PAGES_STRUCTURE,
-    font_awesome_as_a_crate::{svg, Type},
     maud::{html, Markup, PreEscaped},
     wini_macros::wrapper,
 };
