@@ -65,7 +65,6 @@ where
 {
     fn exit_with_msg_if_err(self, msg: impl std::fmt::Display) -> T {
         self.map_err(|err| {
-            // colog::init();
             log::error!("{msg}: {err:?}");
             std::process::exit(1);
         })
