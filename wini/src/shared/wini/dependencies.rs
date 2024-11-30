@@ -35,8 +35,9 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
 /// Normalizes a relative file path by resolving `.` (current directory) and `..` (parent directory) components.
 ///
 /// # Example
-/// ```
-/// use wini::shared::wini::dependencies::normalize_relative_path;
+///
+/// ```rs
+/// use PROJECT_NAME_TO_RESOLVE::shared::wini::dependencies::normalize_relative_path;
 /// use std::path::{Path, PathBuf};
 ///
 /// let path = Path::new("./folder/../file.txt");
@@ -96,8 +97,8 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
 /// ```html
 /// <head>
 ///     ...
-///     <script src="path/to/debug.min.js"/>
-///     <script src="file2.js"/>
+///     <script src="path/to/debug.min.js"></script>
+///     <script src="file2.js"></script>
 ///     ...
 /// </head>
 ///
@@ -158,12 +159,12 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             }
             // Resolve tsconfig paths. <=> If it's a file that needs to be resolved with
             // `tsconfig.compilerOptions.paths`.
-            else if let Some(prefix_path) = (*TSCONFIG_PATHS)
+            else if let Some(prefix_path) = TSCONFIG_PATHS
                 .prefixes()
                 .iter()
                 .find(|prefix| dep.starts_with(*prefix))
             {
-                let vec = (*TSCONFIG_PATHS)
+                let vec = TSCONFIG_PATHS
                     .get(*prefix_path)
                     .expect("Already matched the key");
 
