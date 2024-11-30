@@ -1,9 +1,9 @@
 use {
     maud::{html, Markup, PreEscaped},
-    wini_macros::wrapper,
+    wini_macros::layout,
 };
 
-#[wrapper]
+#[layout]
 pub async fn render(s: &str) -> Markup {
     html! {
         header {
