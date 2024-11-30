@@ -20,7 +20,7 @@ wini init # `wini new` is used for something else
 
 It will ask you to create a project using an interactive prompt like:
 
-```
+```sh
 ┌───────────────────────────────────┐
 │ Welcome to your new Wini project! │
 ◆ ──────────────────────────────────┘

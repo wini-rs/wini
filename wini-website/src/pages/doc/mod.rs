@@ -2,11 +2,14 @@ use {
     crate::components::notfound,
     axum::extract::Request,
     font_awesome_as_a_crate::{svg, Type},
+    itertools::Itertools,
     maud::{html, Markup, PreEscaped},
     pulldown_cmark::Options,
-    std::{collections::HashMap, path::Path, sync::LazyLock},
+    std::{collections::HashMap, sync::LazyLock},
     wini_macros::page,
 };
+
+mod style_code;
 
 // static MARKDOWN_PAGES: LazyLock<HashMap<String, String>> = LazyLock::new(|| Vec::new());
 
@@ -123,8 +126,12 @@ fn search_file_recursively(dir: &str, target_name: &str) -> std::io::Result<Opti
 
 
 pub static PAGES: LazyLock<HashMap<String, String>> = LazyLock::new(pages);
+
+/// # Panics
+/// Since this code will only be called on a LazyLock, it's ok if it panics
 pub fn pages() -> HashMap<String, String> {
     let page_structure: PageOrDirectory = ron::from_str(&include_str!("./structure.ron")).unwrap();
+
     match page_structure.rec_get_pages() {
         VecOrStr::Vec(v) => {
             v.iter()
@@ -133,19 +140,54 @@ pub fn pages() -> HashMap<String, String> {
                         .unwrap()
                         .unwrap();
 
-                    let mut options = Options::empty();
-                    options.extend([
-                        Options::ENABLE_HEADING_ATTRIBUTES,
-                        Options::ENABLE_TABLES,
-                        Options::ENABLE_FOOTNOTES,
-                        Options::ENABLE_STRIKETHROUGH,
-                        Options::ENABLE_SMART_PUNCTUATION,
-                        Options::ENABLE_DEFINITION_LIST,
-                    ]);
-
-                    let parser = pulldown_cmark::Parser::new_ext(&file_content, options);
+                    let parser = pulldown_cmark::Parser::new_ext(&file_content, Options::all());
                     let mut html_output = String::new();
+
+
                     pulldown_cmark::html::push_html(&mut html_output, parser);
+
+                    let clone = html_output.clone();
+                    let mut dom = tl::parse(&clone, tl::ParserOptions::default())
+                        .expect("HTML string too long");
+
+                    let mut code_blocks = dom
+                        .query_selector("pre")
+                        .expect("Failed to parse query selector")
+                        .collect_vec();
+
+                    let mut added_chars: isize = 0;
+                    let mut handled = 0;
+
+                    while code_blocks.len() > 0 {
+                        let code_block = code_blocks[0];
+                        let parser_mut = dom.parser();
+                        let pre_code = code_block.get(parser_mut).expect("Failed to resolve node");
+                        let code = pre_code.children().unwrap().all(parser_mut)[0].clone();
+
+                        let styled = style_code::style_code(&code, parser_mut);
+
+                        let boundaries = pre_code.as_tag().unwrap().boundaries(parser_mut);
+
+                        let start: usize = (boundaries.0 as isize + added_chars) as usize;
+                        let end: usize = (boundaries.1 as isize + added_chars) as usize;
+
+                        html_output.replace_range(start..=end, &styled);
+                        added_chars +=
+                            (styled.len() as isize) - (boundaries.1 + 1 - boundaries.0) as isize;
+
+                        handled += 1;
+
+                        dom = tl::parse(&clone, tl::ParserOptions::default())
+                            .expect("HTML string too long");
+
+                        code_blocks = dom
+                            .query_selector("pre")
+                            .expect("Failed to parse query selector")
+                            .skip(handled)
+                            .collect_vec();
+                    }
+
+
 
                     ((*page).to_owned(), html_output)
                 })

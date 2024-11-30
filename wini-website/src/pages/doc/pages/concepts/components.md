@@ -3,7 +3,7 @@
 Components are functions — returning some HTML — that can be used in different pages, layout and components too.
 
 ## Usage
-```
+```rs
 #[component]
 async fn render() -> MarkUp {
     html! {
@@ -33,7 +33,7 @@ Components can also be used accross multiple pages, layout or components, making
 
 ## Example
 
-```
+```rs
 // ./components/my_button/mod.rs
 #[component]
 pub async fn render() -> MarkUp {

@@ -3,7 +3,7 @@
 Pages are functions — returning some HTML — that are used as an endpoint on the server. In wini, this is defined as a function returning `Markup` (which is more or less, a `String` (more in the Maud chapter))
 
 ## Usage 
-```
+```rs
 #[page]
 async fn my_page() -> Markup {
     html! {
@@ -20,7 +20,7 @@ The purpose of this macro is to include the Typescript and Scss files associated
 
 ## Example
 
-```.
+```
 .
 ├── my_script_1.ts
 ├── my_script_2.ts
@@ -29,11 +29,11 @@ The purpose of this macro is to include the Typescript and Scss files associated
 ```
 
 Will send back in header:
-```
+```html
 <head>
     ...
-    <script src="/.../my_script_1.js">
-    <script src="/.../my_script_2.js">
+    <script src="/.../my_script_1.js"></script>
+    <script src="/.../my_script_2.js"></script>
     <style href="/.../style.css">
     ...
 </head>

@@ -30,7 +30,7 @@ But, JavaScript should only be a minimal part of a website, since most of the th
 Wini also uses the incredibly useful and elegant [maud](https://maud.lambda.xyz/) crate that allow you to describe [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model) in a syntax way more elegant than some [SGML](https://en.wikipedia.org/wiki/Standard_Generalized_Markup_Language)-inspired syntax:
 
 ### Maud
-```
+```css
 html {
     h1 { "Hello, world!" }
     p.intro {
@@ -42,7 +42,7 @@ html {
 ```
 
 ### HTML
-```
+```html
 <html>
     <h1> Hello, world! </h1>
     <p class="intro">

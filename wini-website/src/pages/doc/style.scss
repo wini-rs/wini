@@ -1,6 +1,8 @@
 pre, code {
-    font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
-    background: #111111;
+    &, & span {
+        font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    }
+    background: #2d2d2d;
 }
 
 
@@ -8,7 +10,7 @@ code {
     margin-inline: 4px;
 }
 
-pre code {
+pre {
     margin-inline: 0px;
 }
 

@@ -2,7 +2,7 @@
 
 Below is the global directory structure of a new wini project:
 
-```
+```sh
 .
 ├── biome.json             
 ├── build.rs

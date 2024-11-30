@@ -4,7 +4,7 @@ Layouts are functions that wraps the computation of the requested page in anothe
 
 ## Usage
 
-```
+```rs
 #[page]
 async fn my_page() {
     html! { "Hello world!" }
@@ -62,7 +62,7 @@ A layout can also use a component
 
 </div>
 
-```
+```rs
 #[layout]
 pub async fn my_layout(html: &str) {
     html! {
