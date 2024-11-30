@@ -1,3 +1,6 @@
+import 'htmx.org';
+
+
 let isNavBarHidden = false;
 
 $("#hide-sidebar").on("click", () => {

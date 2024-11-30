@@ -27,6 +27,7 @@ pub async fn start() {
         .layer(middleware::from_fn(main::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
+        .route("/htmx/:hey", get(pages::doc::render))
         .route("/*.", get(handling_file::handle_file))
         .layer(comression_layer);
 

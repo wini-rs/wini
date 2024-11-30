@@ -167,7 +167,10 @@ pub async fn render(req: Request) -> Markup {
 
     html! {
         @if let Some(previous_page) = previous_page {
-            a href={"/doc/" (previous_page)} .previous-next {
+            button hx-get={"/htmx/" (previous_page)} .previous-next
+                hx-target="#horizontal-content"
+
+            {
                 (PreEscaped(
                         svg(Type::Solid, "angle-left"
 
@@ -182,7 +185,7 @@ pub async fn render(req: Request) -> Markup {
             }
         }
         @if let Some(next_page) = next_page {
-            a href={"/doc/" (next_page)} .previous-next {
+            button href={"/htmx/" (next_page)} .previous-next {
                 (PreEscaped(
                     svg(
                         Type::Solid,

@@ -60,10 +60,11 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
 
             for file in files[..files.len() - 1].split(';') {
                 if !file.is_empty() {
+                    let file_formated = format!("/{file}");
                     if file.ends_with("css") {
-                        styles.push(format!("/{file}"))
+                        styles.push(file_formated)
                     } else if file.ends_with("js") {
-                        scripts.push(format!("/{file}"))
+                        scripts.push(file_formated)
                     }
                 }
             }

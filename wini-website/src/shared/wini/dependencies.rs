@@ -17,7 +17,7 @@ use {
 pub static REGEX_DEPENDENCY: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#).unwrap());
 pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]+$"#).unwrap());
+    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).unwrap());
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
         LazyLock::force(&REGEX_IS_PACKAGE);
@@ -25,7 +25,7 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
         let mut hm = HashMap::new();
 
         for script in JS_FILES.keys() {
-            hm.insert(script.to_string(), script_dependencies(script));
+            hm.insert(script.to_owned(), script_dependencies(script));
         }
 
         hm

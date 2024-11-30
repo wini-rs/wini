@@ -99,6 +99,8 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
                                     )
                                     .display()
                                     .to_string()
+                                    .trim_start_matches(".")
+                                    .to_string()
                                 })
                                 .collect(),
                         )
@@ -111,6 +113,8 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
                                 std::path::Path::new(&s).file_name().unwrap()
                             )
                             .display()
+                            .to_string()
+                            .trim_start_matches(".")
                             .to_string(),
                         )
                     },
