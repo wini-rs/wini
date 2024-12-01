@@ -197,10 +197,14 @@ nav#sidebar {
 
 @media (max-width: 800px) {
     #content {
-        font-size: 12px;
-        max-width: calc(100vw - 80px) !important;
+        font-size: 16px;
+        max-width: calc(100vw - 40px) !important;
         padding-inline: 4px !important;
         height: calc(100vh - $header-height - $p-header * 2 - 64px) !important;
+
+        &::after {
+            display: none !important;
+        }
     }
 
     #horizontal-content {
