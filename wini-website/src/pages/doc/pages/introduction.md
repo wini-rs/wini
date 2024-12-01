@@ -12,7 +12,7 @@ If you want to learn Rust but don't know where to start, the [rust book](https:/
 
 ## So, what is Wini ?
 
-Wini is a set of templates written (mostly) in Rust. Template in the sens, that wini - at it's core - is just files. Files that the user can freely overwrite and modify as they want. Therefore, a project based on wini, is just a clone (in the sens of git) of a template repository.
+Wini is a set of templates written (mostly) in Rust. Template in the sense, that wini - at it's core - is just files. Files that the user can freely overwrite and modify as they want. Therefore, a project based on wini, is just a clone (in the sens of git) of a template repository.
 
 Wini comes with a set of useful features already made such as pages, middleware/layout, components and caching. Wini is also based on the [axum](https://github.com/tokio-rs/axum) framework, so you can easily customize it and use the large ecosystem of middleware of [tower](https://github.com/tower-rs/tower).
 
