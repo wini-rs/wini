@@ -2,10 +2,17 @@ import 'htmx.org';
 
 let isNavBarHidden = false;
 
-$("#hide-sidebar").on("click", () => {
-    $("#sidebar").css("margin-left", isNavBarHidden ? "0vw" : "calc(-20vw - 16px)")
+const switchHidden = () => {
+    if (isNavBarHidden) {
+        $("#sidebar").rmClass("hidden");
+    } else {
+        $("#sidebar").addClass("hidden");
+    }
+
     isNavBarHidden = !isNavBarHidden;
-})
+}
+
+$("#hide-sidebar").on("click", switchHidden)
 
 
 const hlCurrentPage = () => {
@@ -13,6 +20,10 @@ const hlCurrentPage = () => {
     const currentPage = currentUrl.split("/")[2] ?? "introduction";
 
     setHlPage(currentPage);
+
+    if (window.innerWidth < 1200) {
+        switchHidden();
+    }
 }
 
 const setHlPage = (s: string) => {
