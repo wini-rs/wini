@@ -15,10 +15,48 @@ use {
         utils::{copy_dir_all, generate_random_string},
     },
     git2::{BranchType, Repository},
-    inquire::set_global_render_config,
+    inquire::{set_global_render_config, Confirm},
     std::{fs, path::Path},
 };
 
+
+
+/// Ask the user how they want to create the project
+pub fn ask() -> Result<(), InitError> {
+    set_global_render_config(*RENDER_CONFIG);
+
+    println!("{HEADER}");
+
+    sep();
+
+    let selection = select(
+        "Create a project from",
+        vec![
+            "Official wini templates",
+            "Remote git repository",
+            "Local git repository",
+        ],
+    )?;
+
+    sep();
+
+    let repo_summary = match selection {
+        0 => from_official_repository()?,
+        1 => from_custom_remote_repository()?,
+        2 => from_cutom_local_repository()?,
+        _ => unreachable!(),
+    };
+
+    rename_fields(&repo_summary)?;
+
+    sep();
+    println!(
+        "\x1B[32m◆\x1B[0m Project created at `\x1B[32;1m./{}\x1b[0m`!",
+        repo_summary.dir
+    );
+
+    Ok(())
+}
 
 
 /// Creates the repository project from one of the official template of wini
@@ -34,7 +72,7 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
 
         sep();
 
-        let project_name = input("Project name:")?;
+        let project_name = get_project_name()?;
 
         let path = Path::new(&project_name);
         if path.exists() && path.is_dir() {
@@ -115,7 +153,7 @@ pub fn handle_project_setup_for_custom(
 
     sep();
 
-    let project_name = input("Project name:")?;
+    let project_name = get_project_name()?;
 
     let path = Path::new(&project_name);
     if path.exists() && path.is_dir() {
@@ -211,40 +249,36 @@ pub fn from_cutom_local_repository() -> Result<RepoSummary, InitError> {
     }
 }
 
+fn get_project_name() -> Result<String, InitError> {
+    let mut project_name = input("Project name:")?;
 
-/// Ask the user how they want to create the project
-pub fn ask() -> Result<(), InitError> {
-    set_global_render_config(*RENDER_CONFIG);
+    let illegal_chars = project_name
+        .chars()
+        .filter(|c| !c.is_ascii_alphanumeric() && *c != '_')
+        .collect::<Vec<_>>();
 
-    println!("{HEADER}");
+    if !illegal_chars.is_empty() {
+        sep();
+    }
 
-    sep();
+    for char in illegal_chars {
+        if project_name.contains(char) {
+            let is_ok_for_renaming = Confirm::new(&format!(
+                "Project name can't have a '{}' in it. Rename it to: \"{}\"",
+                char,
+                project_name.replace(char, "_")
+            ))
+            .with_default(true)
+            .prompt()
+            .unwrap_or(false);
 
-    let selection = select(
-        "Create a project from",
-        vec![
-            "Official wini templates",
-            "Remote git repository",
-            "Local git repository",
-        ],
-    )?;
+            if is_ok_for_renaming {
+                project_name = project_name.replace(char, "_")
+            } else {
+                return Err(InitError::ManualExit);
+            }
+        }
+    }
 
-    sep();
-
-    let repo_summary = match selection {
-        0 => from_official_repository()?,
-        1 => from_custom_remote_repository()?,
-        2 => from_cutom_local_repository()?,
-        _ => unreachable!(),
-    };
-
-    rename_fields(&repo_summary)?;
-
-    sep();
-    println!(
-        "\x1B[32m◆\x1B[0m Project created at `\x1B[32;1m./{}\x1b[0m`!",
-        repo_summary.dir
-    );
-
-    Ok(())
+    Ok(project_name)
 }
