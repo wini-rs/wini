@@ -1,0 +1,17 @@
+# This file stores all the javascript files that should be used when using a library.
+# 
+# # Example
+#
+# ```toml
+# leaflet = "dist/leaflet.js"
+# ```
+#
+# This is the equivalent of saying:
+# When I want to use the `leaflet` package in a script, look at `node_modules/leaflet/dist/leaflet.js`
+# and include this file in the DOM (<script src="...">)
+# All files in this directory will be send to "$PUBLIC_MODULES"
+#
+# This also works with list, for multiple dependencies:
+# ```toml
+# leaflet = ["dist/leaflet.js", "dist/leaflet.css"]
+# ```

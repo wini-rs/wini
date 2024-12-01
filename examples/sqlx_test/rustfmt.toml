@@ -1,0 +1,14 @@
+# https://github.com/rust-lang/rustfmt
+# Configuration: https://rust-lang.github.io/rustfmt
+edition = "2021"
+newline_style = "Unix"
+array_width = 50
+reorder_impl_items = true
+combine_control_expr = false
+match_block_trailing_comma = true
+binop_separator = "Back"
+group_imports = "StdExternalCrate"
+imports_granularity = "One"
+force_multiline_blocks = true
+imports_layout = "HorizontalVertical"
+blank_lines_upper_bound = 3
