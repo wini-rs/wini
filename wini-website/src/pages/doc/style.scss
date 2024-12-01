@@ -2,7 +2,9 @@ pre, code {
     &, & span {
         font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
     }
-    background: #2d2d2d;
+    & {
+      background: #2d2d2d;
+    }
 }
 
 
