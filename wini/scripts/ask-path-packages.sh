@@ -73,7 +73,7 @@ while [ -z "$path_of_file" ]; do
 done
 
 if grep -q ' ' <<< "$path_of_file"; then
-    echo "$PKG = [\"${path_of_file/ /\", \"}\"]" >> ./packages-files.toml
+    echo "\"$PKG\" = [\"${path_of_file/ /\", \"}\"]" >> ./packages-files.toml
 else
-    echo "$PKG = \"$path_of_file\"" >> ./packages-files.toml
+    echo "\"$PKG\" = \"$path_of_file\"" >> ./packages-files.toml
 fi

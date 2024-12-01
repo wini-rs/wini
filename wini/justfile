@@ -48,6 +48,8 @@ update-template:
 js-add pkg: && js-sync-packages
     bun a {{pkg}}
     @echo -e "\e[1m=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+    bun i
+    @echo -e "\e[1m=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
     @echo -e "Adding {{pkg}} to ./packages-files.toml\e[0m"
     @./scripts/ask-path-packages.sh {{pkg}}
 
