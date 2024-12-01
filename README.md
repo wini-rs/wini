@@ -32,7 +32,7 @@ cargo install wini
 or by downloading the binary (not recommended)
 
 ```sh
-curl -fsSL https://wini.rocks | sh
+curl -fsSL https://wini.rocks/install | sh
 ```
 
 > [!NOTE]
