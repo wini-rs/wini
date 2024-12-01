@@ -49,3 +49,6 @@ wini init
 ## Documentation
 
 All the documentation concerning the inner workings of wini and how to work with it are available here: <https://wini.rocks/>.
+
+## State 
+Even tho wini works, it's still on a very early version: Things might not always work as expected and there might be some breaking change in the future. But if you are curious, and you want to help develop this project, you can still try it!
