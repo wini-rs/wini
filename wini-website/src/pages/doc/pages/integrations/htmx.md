@@ -25,3 +25,5 @@ div hx-post="/mouse_entered" hx-trigger="mouseenter" {
     "[Here Mouse, Mouse!]"
 }
 ```
+
+_A complete example can be found here: [github](https://github.com/wini-rs/wini/tree/main/examples/htmx) / [codeberg](https://codeberg.org/wini/wini/src/branch/main/examples/htmx)_

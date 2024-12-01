@@ -39,3 +39,5 @@ fn my_page() -> Markup {
     }
 }
 ```
+
+_A complete example can be found here: [github](https://github.com/wini-rs/wini/tree/main/examples/sqlx_test) / [codeberg](https://codeberg.org/wini/wini/src/branch/main/examples/sqlx_test)_
