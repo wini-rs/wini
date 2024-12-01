@@ -26,7 +26,7 @@ All the commands in wini (excepted `init`) are a mapping of [`just`](https://git
 
 `just` is a command runner tool and a modern alternative to [`make`](https://www.gnu.org/software/make/). You can see the list of all the commands premade by either looking at `./justfile` or by doing
 
-```
+```sh
 just -l # which is more or less the same as `wini help`
 ```
 

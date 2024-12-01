@@ -29,8 +29,20 @@ Directory(
         Directory(
             is_ordered: true,
             page: None,
+            title: "Maud",
+            pages: [
+                Page(title: "What is maud ?", page: "what-is-maud"),
+                Page(title: "Why maud ?", page: "why-maud"),
+                Page(title: "wini-maud", page: "wini-maud"),
+            ],
+        ),
+        Directory(
+            is_ordered: true,
+            page: None,
             title: "Technical dive",
             pages: [
+                Page(title: "Hosting your own template", page: "hosting_your_template"),
+                Page(title: "Procedural macros", page: "procedural_macros"),
             ],
         ),
         Directory(
@@ -38,16 +50,8 @@ Directory(
             page: None,
             title: "Integrations",
             pages: [
-            ],
-        ),
-        Directory(
-            is_ordered: true,
-            page: None,
-            title: "Maud",
-            pages: [
-                Page(title: "What is maud ?", page: "what-is-maud"),
-                Page(title: "Why maud ?", page: "why-maud"),
-                Page(title: "wini-maud", page: "wini-maud"),
+                Page(title: "htmx", page: "htmx"),
+                Page(title: "sqlx", page: "sqlx"),
             ],
         ),
     ],

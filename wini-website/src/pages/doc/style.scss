@@ -20,7 +20,7 @@ pre {
     overflow: auto;
 }
 
-.note {
+.note, .warn {
     &::before {
         content: "Note";
         color: #72b0c0;
@@ -32,6 +32,15 @@ pre {
     font-size: 15px;
     color: #fff9;
 }
+
+.warn {
+    &::before {
+        content: "Warning";
+        color: #da9a72;
+    }
+    border-left: 4px #d0804f solid;
+}
+
 
 a {
     font-weight: 600;

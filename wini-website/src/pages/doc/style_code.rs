@@ -3,7 +3,7 @@ use {
     syntect::{
         highlighting::ThemeSet,
         html::highlighted_html_for_string,
-        parsing::{SyntaxDefinition, SyntaxSet, SyntaxSetBuilder},
+        parsing::{SyntaxSet, SyntaxSetBuilder},
     },
     tl::Node,
 };

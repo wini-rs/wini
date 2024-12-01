@@ -25,10 +25,10 @@ modules = "./modules"
 #
 # More info about cache: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Cache-Control
 [cache.default]
-html = "public, max-age=60"
-css = "public, max-age=300"
-javascript = "public, max-age=300"
-public = "public, max-age=3600, immutable"
+html = "public, max-age=3600"
+css = "public, max-age=3600"
+javascript = "public, max-age=3600"
+public = "public, max-age=86000, immutable"
 function = true
 [cache.local]
 html = "no-cache"

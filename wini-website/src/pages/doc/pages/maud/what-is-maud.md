@@ -40,6 +40,14 @@ To declare some special attribtues, here is the following syntax:
 div my-attribute="hello" {}
 ```
 
+<div class="note">
+
+When you defined a div with an id or a class, you don't have to write `div`: it will be infered automatically
+
+This means that `#my-id {}` <=> `div #my-id {}`
+
+</div>
+
 ### String
 
 Maud doesn't have the same relation with string than HTML. HTML automatically converts everything that is not valid to a String (e.g. `div>` is a string.). While maud, force the quoting of String (e.g. `"div>"`). A basic hello world example is therefore:
