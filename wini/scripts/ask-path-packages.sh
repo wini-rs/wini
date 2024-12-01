@@ -24,7 +24,7 @@ show_invalid_path() {
 
 PKG="$1"
 
-if [ -n "$(yq -p toml ".$PKG" < ./packages-files.toml)" ]; then
+if [ "$(yq -p toml ".$PKG" < ./packages-files.toml)" != null ]; then
     error "$PKG is already installed"
     exit 1
 fi
