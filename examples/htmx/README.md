@@ -1,6 +1,6 @@
 # htmx
 
-A basic example that demonstrates how to use `wini` + `htmx`. If you want to see a more complete example, I encourage you to look for [wini-website](./wini-website) which uses `htmx` for the page transitionning!
+A basic example that demonstrates how to use `wini` + `htmx`. If you want to see a more complete example, I encourage you to look for [wini-website](../../wini-website) which uses `htmx` for the page transitionning!
 
 *The following commands are compatible with `just`, so you can also use `just` instead of `wini`*
 
