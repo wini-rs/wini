@@ -18,6 +18,14 @@ build-prod:
 run-prod:
     ENV_TYPE="PROD" cargo run --release
 
+# Create the binary for the staging
+build-staging:
+    ENV_TYPE="STAGING" cargo build --release
+
+# Run in staging
+run-staging:
+    ENV_TYPE="STAGING" cargo run --release
+
 
 
 # Create a new *something* based on a template
