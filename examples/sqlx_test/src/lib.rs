@@ -29,6 +29,5 @@ pub static POOL: LazyLock<sqlx::PgPool> = LazyLock::new(|| {
 
 #[ctor::ctor]
 fn init_pool() {
-    println!("tets!");
     LazyLock::force(&POOL);
 }
