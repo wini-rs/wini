@@ -40,13 +40,19 @@ and... that's it! Your project is created!
 Go in the project directory that has just been created (in our case: `cd ./hello_wini`).
 
 Next, you can use
-```
+```sh
 wini env
 ```
 This will call `nix develop` to install the dependencies needed. For that you therefore need to have [nix](https://nixos.org/learn/) installed. Else, you can see which system dependencies you should install by looking at the `buildInputs` in `./flake.nix`.
 
+<div class="note">
+
+If you don't use `wini env`, you will have to select the nightly toolchain for rust manually
+
+</div>
+
 Once in your development environment, the last command you need to enter is:
-```
+```sh
 wini run
 ```
 
