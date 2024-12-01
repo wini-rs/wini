@@ -1,5 +1,5 @@
 use {
-    super::config::TomlLoadingError,
+    super::{config::TomlLoadingError, err::ExitWithMessageIfErr},
     crate::{concat_paths, shared::wini::config::SERVER_CONFIG},
     serde::{de::Visitor, Deserialize, Deserializer},
     std::{collections::HashMap, io, sync::LazyLock},
@@ -56,31 +56,36 @@ impl<'de> Deserialize<'de> for VecOrString {
     }
 }
 
+/// The files on which a package depend on
 pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::new(|| {
     let file_to_read_from = "./packages-files.toml";
 
-    let file = match std::fs::read_to_string(file_to_read_from) {
-        Ok(s) => s,
-        Err(err) => {
-            let err_kind = match err.kind() {
+    let file = std::fs::read_to_string(file_to_read_from)
+        .map_err(|err| {
+            match err.kind() {
                 io::ErrorKind::NotFound => {
                     TomlLoadingError::ConfigFileDoesntExists(file_to_read_from.to_owned())
                 },
                 _ => TomlLoadingError::OtherIo(err),
-            };
-            log::error!("{err_kind:#?}");
-            std::process::exit(1);
-        },
-    };
+            }
+        })
+        .exit_with_msg_if_err("Error while reading file");
 
-    let hashmap: HashMap<String, VecOrString> = match toml::from_str(&file) {
-        Ok(hm) => hm,
-        Err(err) => {
-            log::error!("{err:#?}");
-            std::process::exit(1);
-        },
-    };
+    let hashmap: HashMap<String, VecOrString> =
+        toml::from_str(&file).exit_with_msg_if_err("Unexpected error while parsing TOML");
 
+
+    fn module_path_from_short_name(package: &str, file: &str) -> String {
+        concat_paths!(
+            &SERVER_CONFIG.path.modules,
+            &package,
+            std::path::Path::new(&file).file_name().unwrap_or_default()
+        )
+        .display()
+        .to_string()
+        .trim_start_matches(".")
+        .to_string()
+    }
 
     hashmap
         .into_iter()
@@ -91,56 +96,15 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
                     VecOrString::Vec(v) => {
                         VecOrString::Vec(
                             v.into_iter()
-                                .map(|file| {
-                                    concat_paths!(
-                                        &SERVER_CONFIG.path.modules,
-                                        &key,
-                                        std::path::Path::new(&file).file_name().unwrap()
-                                    )
-                                    .display()
-                                    .to_string()
-                                })
+                                .map(|file| module_path_from_short_name(&key, &file))
                                 .collect(),
                         )
                     },
                     VecOrString::String(s) => {
-                        VecOrString::String(
-                            concat_paths!(
-                                &SERVER_CONFIG.path.modules,
-                                &key,
-                                std::path::Path::new(&s).file_name().unwrap()
-                            )
-                            .display()
-                            .to_string(),
-                        )
+                        VecOrString::String(module_path_from_short_name(&key, &s))
                     },
                 },
             )
         })
         .collect()
 });
-
-pub trait CssFilesFromPackage {
-    fn css_files_from_package(&self, pkg: &str) -> Option<Vec<String>>;
-}
-
-impl CssFilesFromPackage for HashMap<String, VecOrString> {
-    fn css_files_from_package(&self, pkg: &str) -> Option<Vec<String>> {
-        self.get(pkg).and_then(|files| {
-            match files {
-                VecOrString::String(str) => {
-                    if str.ends_with(".css") {
-                        Some(vec![str.to_owned()])
-                    } else {
-                        None
-                    }
-                },
-                VecOrString::Vec(files) => {
-                    let mut files = files.clone();
-                    files.retain(|f| f.ends_with(".css"));
-                    Some(files)
-                },
-            }
-        })
-    }
-}

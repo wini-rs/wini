@@ -60,10 +60,11 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
 
             for file in files[..files.len() - 1].split(';') {
                 if !file.is_empty() {
+                    let formatted_file = format!("/{file}");
                     if file.ends_with("css") {
-                        styles.push(format!("/{file}"))
+                        styles.push(formatted_file);
                     } else if file.ends_with("js") {
-                        scripts.push(format!("/{file}"))
+                        scripts.push(formatted_file);
                     }
                 }
             }
@@ -108,7 +109,7 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
         .flatten()
         .map(|dep| {
             let public_path =
-                normalize_relative_path(&concat_paths!("str", &SERVER_CONFIG.path.public))
+                normalize_relative_path(concat_paths!("str", &SERVER_CONFIG.path.public))
                     .display()
                     .to_string();
 

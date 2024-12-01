@@ -1,0 +1,58 @@
+Directory(
+    is_ordered: true,
+    page: None,
+    title: "Home",
+    pages: [
+        Page(title: "Introduction", page: "introduction"),
+        Directory(
+            is_ordered: true,
+            page: Some("concepts-introduction"),
+            title: "Concepts",
+            pages: [
+                Page(title: "Pages", page: "pages"),
+                Page(title: "Components", page: "components"),
+                Page(title: "Layouts", page: "layout"),
+            ],
+        ),
+        Page(title: "Getting started", page: "getting_started"),
+        Page(title: "Getting used to wini-cli", page: "getting_used_to"),
+        Directory(
+            is_ordered: true,
+            page: Some("overview"),
+            title: "Architecture",
+            pages: [
+                Page(title: "Files at root", page: "files_at_root"),
+                Page(title: "Directories", page: "directories"),
+                Page(title: "Src directory", page: "src_directory"),
+            ],
+        ),
+        Directory(
+            is_ordered: true,
+            page: None,
+            title: "Maud",
+            pages: [
+                Page(title: "What is maud ?", page: "what-is-maud"),
+                Page(title: "Why maud ?", page: "why-maud"),
+                Page(title: "wini-maud", page: "wini-maud"),
+            ],
+        ),
+        Directory(
+            is_ordered: true,
+            page: None,
+            title: "Technical dive",
+            pages: [
+                Page(title: "Hosting your own template", page: "hosting_your_template"),
+                Page(title: "Procedural macros", page: "procedural_macros"),
+            ],
+        ),
+        Directory(
+            is_ordered: true,
+            page: None,
+            title: "Integrations",
+            pages: [
+                Page(title: "htmx", page: "htmx"),
+                Page(title: "sqlx", page: "sqlx"),
+            ],
+        ),
+    ],
+)

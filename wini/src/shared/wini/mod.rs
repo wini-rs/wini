@@ -8,31 +8,32 @@ use {
 
 /// The list of all the public endoints <=> all the files in `../public`
 pub static PUBLIC_ENDPOINTS: LazyLock<Vec<String>> =
-    LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_else(|_| Vec::new()));
+    LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_default());
 
 /// An HashMap of all the CSS files, with their content being the value
 pub static CSS_FILES: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
-    let mut hm = HashMap::new();
-
-    for file in get_files_in_directory_per_extensions("src", &["css"]) {
-        hm.insert(format!("/{file}"), std::fs::read_to_string(file).unwrap());
-    }
-
-    hm
+    get_files_in_directory_per_extensions("src", &["css"])
+        .into_iter()
+        .map(|file| {
+            (
+                format!("/{file}"),
+                std::fs::read_to_string(file).exit_with_msg_if_err("File should always exist."),
+            )
+        })
+        .collect()
 });
 
 /// An HashMap of all the JavaScript files, with their content being the value
 pub static JS_FILES: LazyLock<HashMap<String, String>> = LazyLock::new(|| {
-    let mut hm = HashMap::new();
-
-    for file in get_files_in_directory_per_extensions("src", &["js"]) {
-        hm.insert(
-            format!("/{}", &file[..]),
-            std::fs::read_to_string(file).unwrap(),
-        );
-    }
-
-    hm
+    get_files_in_directory_per_extensions("src", &["js"])
+        .into_iter()
+        .map(|file| {
+            (
+                format!("/{file}"),
+                std::fs::read_to_string(file).exit_with_msg_if_err("File should always exist."),
+            )
+        })
+        .collect()
 });
 
 pub static ENV_TYPE: LazyLock<EnvType> = LazyLock::new(|| {

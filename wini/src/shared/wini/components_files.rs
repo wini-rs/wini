@@ -1,5 +1,9 @@
 use {
-    super::{config::SERVER_CONFIG, dependencies::normalize_relative_path},
+    super::{
+        config::SERVER_CONFIG,
+        dependencies::normalize_relative_path,
+        err::ExitWithMessageIfErr,
+    },
     crate::{concat_paths, utils::wini::file::get_files_in_directory_per_extensions},
     regex::Regex,
     std::{collections::HashMap, sync::LazyLock},
@@ -18,14 +22,15 @@ pub static COMPONENTS_FILES: LazyLock<ComponentsFiles> = LazyLock::new(|| {
     let mut css_hm = HashMap::new();
 
     let components_path = format!("src/{}", SERVER_CONFIG.path.components);
-    let regex_to_remove_components_dir = Regex::new(&format!("^/{components_path}/")).unwrap();
+    let regex_to_remove_components_dir =
+        Regex::new(&format!("^/{components_path}/")).exit_with_msg_if_err("Expected a valid regex");
 
     for file_path in get_files_in_directory_per_extensions(&components_path, &["js", "css"]) {
         let path_to_file_str_non_normalized = regex_to_remove_components_dir
             .replace(&file_path, "")
             .to_string();
 
-        let path_to_push = normalize_relative_path(&concat_paths!(
+        let path_to_push = normalize_relative_path(concat_paths!(
             &components_path,
             &path_to_file_str_non_normalized
         ))

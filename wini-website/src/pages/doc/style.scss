@@ -1,0 +1,53 @@
+pre, code {
+    &, & span {
+        font-family: "Source Code Pro", Consolas, "Ubuntu Mono", Menlo, "DejaVu Sans Mono", monospace, monospace;
+    }
+    background: #2d2d2d;
+}
+
+
+code {
+    margin-inline: 4px;
+}
+
+pre {
+    margin-inline: 0px;
+}
+
+pre {
+    padding: 12px;
+    border-radius: 4px;
+    overflow: auto;
+}
+
+.note, .warn {
+    &::before {
+        content: "Note";
+        color: #72b0c0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+    border-left: 4px #448899 solid;
+    padding-left: 10px;
+    font-size: 15px;
+    color: #fff9;
+}
+
+.warn {
+    &::before {
+        content: "Warning";
+        color: #da9a72;
+    }
+    border-left: 4px #d0804f solid;
+}
+
+
+a {
+    font-weight: 600;
+
+    color: #77AAFF;
+
+    &:visited {
+        color: #AA77FF;
+    }
+}
