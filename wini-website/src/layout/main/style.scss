@@ -134,6 +134,10 @@ nav#sidebar {
                 background: #fff3;
             }
         }
+
+        &.active {
+            background-color: #fff4 !important;
+        }
     }
     
     ol {

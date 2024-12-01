@@ -57,6 +57,7 @@ impl<'l> PageOrDirectory<'l> {
                 html! {
                     li.cursor
                         hx-get={"/htmx/" (page)}
+                        "hx-on::after-request"="hlCurrentPage()"
                         hx-target="#horizontal-content"
                         hx-replace-url={"/doc/" (page)}
                     { (title) }
@@ -69,6 +70,7 @@ impl<'l> PageOrDirectory<'l> {
                     @if let Some(page) = page {
                         li.cursor
                             hx-get={"/htmx/" (page)}
+                            "hx-on::after-request"="hlCurrentPage()"
                             hx-target="#horizontal-content"
                             hx-replace-url={"/doc/" (page)}
                         { (title) }
@@ -221,6 +223,7 @@ pub async fn render(req: Request) -> Markup {
     html! {
         @if let Some(previous_page) = previous_page {
             button.previous-next
+                hx-on-click={"setHlPage('"(previous_page)"')"}
                 hx-get={"/htmx/" (previous_page)}
                 hx-target="#horizontal-content"
                 hx-replace-url={"/doc/" (previous_page)}
@@ -242,7 +245,9 @@ pub async fn render(req: Request) -> Markup {
             button.previous-next
                 hx-get={"/htmx/" (next_page)}
                 hx-replace-url={"/doc/" (next_page)}
-                hx-target="#horizontal-content"{
+                hx-target="#horizontal-content"
+                hx-on-click={"setHlPage('"(next_page)"')"}
+            {
                 (PreEscaped(
                     svg(
                         Type::Solid,

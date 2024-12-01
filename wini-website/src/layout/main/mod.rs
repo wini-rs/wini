@@ -1,10 +1,10 @@
 use {
     crate::pages::doc::PAGES_STRUCTURE,
     maud::{html, Markup, PreEscaped},
-    wini_macros::wrapper,
+    wini_macros::layout,
 };
 
-#[wrapper]
+#[layout]
 pub async fn render(child: &str) -> Markup {
     html! {
         nav #sidebar {
@@ -27,7 +27,7 @@ pub async fn render(child: &str) -> Markup {
                     }
                 }
             }
-            div #horizontal-content {
+            div #horizontal-content hx-disinherit="*" {
                 (PreEscaped(child))
             }
         }

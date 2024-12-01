@@ -15,7 +15,7 @@
 
 ## How it compares to other ?
 ### Minijinja
-I made an entire [repository](https://github.com/tkr-sh/maud_vs_minijinja) just to compare minijinja to maud.
+I made an entire [repository](https://github.com/tkr-sh/maud_vs_minijinja) just to compare [minijinja](https://github.com/mitsuhiko/minijinja) to maud.
 The results are self explicits: Maud is **significantly** faster.
 
 #### Recursive example:
@@ -37,6 +37,7 @@ _Maud was faster by 70.068µs!!!_
 _Maud was faster by 69.315µs!!!_
 
 More than that:
+- Maud's HTML is automatically compressed (not minijinja)
 - You don't have to write that with the HTML-syntax
 - You have support for the native rust statements
 - You have auto-completion

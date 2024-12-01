@@ -34,7 +34,7 @@ Will send back in header:
     ...
     <script src="/.../my_script_1.js"></script>
     <script src="/.../my_script_2.js"></script>
-    <style href="/.../style.css">
+    <link rel="stylesheet" href="/.../style.css">
     ...
 </head>
 ```
