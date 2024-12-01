@@ -11,12 +11,20 @@ run:
     @./scripts/run.sh
 
 # Create the binary for the production
-build-prod:
+build-prod: compile-ts compile-scss
     ENV_TYPE="PROD" cargo build --release
 
 # Run in production
-run-prod:
+run-prod: js-i js-sync-packages compile-ts compile-scss
     ENV_TYPE="PROD" cargo run --release
+
+# Create the binary for the staging
+build-staging: compile-ts compile-scss
+    ENV_TYPE="STAGING" cargo build --release
+
+# Run in staging
+run-staging: js-i js-sync-packages compile-ts compile-scss
+    ENV_TYPE="STAGING" cargo run --release
 
 
 
@@ -40,6 +48,8 @@ update-template:
 js-add pkg: && js-sync-packages
     bun a {{pkg}}
     @echo -e "\e[1m=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+    bun i
+    @echo -e "\e[1m=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
     @echo -e "Adding {{pkg}} to ./packages-files.toml\e[0m"
     @./scripts/ask-path-packages.sh {{pkg}}
 
@@ -51,6 +61,9 @@ js-rm pkg: && js-sync-packages
 # Update javascript packages to their new version
 js-update: && js-sync-packages
     bun update
+
+js-i:
+    bun i
 
 # Sync all the javascript packages in ./public/modules/
 js-sync-packages:

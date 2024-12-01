@@ -24,7 +24,7 @@ use {
 pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body>> {
     let path = &req.uri().path().to_string();
 
-    if (*PUBLIC_ENDPOINTS).contains(path) {
+    if PUBLIC_ENDPOINTS.contains(path) {
         return Ok(ServeFile::new(format!("./public{path}"))
             .try_call(req)
             .await
@@ -33,42 +33,43 @@ pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body
     }
 
     if path.ends_with(".css") {
-        if let Some(file) = CSS_FILES.get(path) {
-            return Ok(css_into_response(file));
-        }
-
-        return Err(StatusCode::NOT_FOUND.into());
+        return if let Some(file) = CSS_FILES.get(path) {
+            css_into_response(file)
+        } else {
+            Err(StatusCode::NOT_FOUND.into())
+        };
     }
 
     if path.ends_with(".js") {
-        if let Some(file) = JS_FILES.get(path) {
-            return Ok(js_into_response(file));
-        }
-
-        return Err(StatusCode::NOT_FOUND.into());
+        return if let Some(file) = JS_FILES.get(path) {
+            js_into_response(file)
+        } else {
+            Err(StatusCode::NOT_FOUND.into())
+        };
     }
 
     Err(StatusCode::NOT_FOUND.into())
 }
 
-fn js_into_response(file_content: &str) -> Response<axum::body::Body> {
-    file_into_response(file_content, "javascript")
-        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Javascript))
+fn js_into_response(file_content: &str) -> ServerResult<Response<axum::body::Body>> {
+    Ok(file_into_response(file_content, "javascript")?
+        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Javascript)))
 }
 
-fn css_into_response(file_content: &str) -> Response<axum::body::Body> {
-    file_into_response(file_content, "css").add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Css))
+fn css_into_response(file_content: &str) -> ServerResult<Response<axum::body::Body>> {
+    Ok(file_into_response(file_content, "css")?
+        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Css)))
 }
 
 /// Create a response from the content of the file and add the content_type header accordingly with
 /// the kind of content_type passed in parameter of this function.
-fn file_into_response(file_content: &str, kind: &str) -> Response<axum::body::Body> {
+fn file_into_response(file_content: &str, kind: &str) -> ServerResult<Response<axum::body::Body>> {
     let mut res = file_content.to_owned().into_response();
     res.headers_mut()
         .insert(
             CONTENT_TYPE,
-            HeaderValue::from_str(&format!("text/{kind}")).unwrap(),
+            HeaderValue::from_str(&format!("text/{kind}"))?,
         )
         .expect("Valid header");
-    res
+    Ok(res)
 }

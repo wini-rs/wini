@@ -1,11 +1,19 @@
-use axum::response::{IntoResponse, Response};
+use {
+    axum::response::{IntoResponse, Response},
+    hyper::{header::InvalidHeaderValue, StatusCode},
+    std::{convert::Infallible, str::Utf8Error},
+};
 
 #[derive(Debug)]
 pub enum ServerError {
     Status(hyper::StatusCode),
+    Infaillible(Infallible),
+    Utf8Error(Utf8Error),
+    InvalidHeader(InvalidHeaderValue),
+    DebugedError(String),
 }
 
-/// Macro to implement erros into
+/// Macro to easily implement errors into
 macro_rules! impl_from_error {
     ($from:ty, $to:path) => {
         impl From<$from> for ServerError {
@@ -17,15 +25,33 @@ macro_rules! impl_from_error {
 }
 
 impl_from_error!(hyper::StatusCode, Self::Status);
+impl_from_error!(Infallible, Self::Infaillible);
+impl_from_error!(Utf8Error, Self::Utf8Error);
+impl_from_error!(String, Self::DebugedError);
+impl_from_error!(InvalidHeaderValue, Self::InvalidHeader);
 
 pub type ServerResult<T> = Result<T, ServerError>;
 
 impl IntoResponse for ServerError {
     fn into_response(self) -> Response {
         eprintln!("{:#?}", self);
-        match self {
-            Self::Status(status_code) => status_code.into_response(),
-        }
+        let err_msg = match self {
+            Self::InvalidHeader(err) => {
+                format!("Unexpected header value: {err}")
+            },
+            Self::DebugedError(err) => {
+                format!("Unexpected error: {err}")
+            },
+            Self::Infaillible(err) => {
+                format!("This error should not be possible: {err:#?}")
+            },
+            Self::Utf8Error(err) => {
+                format!("Error decoding buffer to UTF-8: {err:#?}")
+            },
+            Self::Status(status_code) => return status_code.into_response(),
+        };
+
+        (StatusCode::INTERNAL_SERVER_ERROR, err_msg).into_response()
     }
 }
 
@@ -65,7 +91,6 @@ where
 {
     fn exit_with_msg_if_err(self, msg: impl std::fmt::Display) -> T {
         self.map_err(|err| {
-            // colog::init();
             log::error!("{msg}: {err:?}");
             std::process::exit(1);
         })

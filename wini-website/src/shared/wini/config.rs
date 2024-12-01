@@ -54,7 +54,7 @@ pub struct ConfigPath {
 impl ConfigPath {
     pub fn public_from_src(&self) -> String {
         let path = concat_paths!("src", &self.public);
-        normalize_relative_path(&path).display().to_string()
+        normalize_relative_path(path).display().to_string()
     }
 }
 
@@ -182,7 +182,6 @@ impl Display for TomlLoadingError {
 
 pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
     Arc::new(Config::from_file().unwrap_or_else(|error| {
-        // colog::init();
         log::error!("{error}");
         log::info!("Terminating program...");
         std::process::exit(1);

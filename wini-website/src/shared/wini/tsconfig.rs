@@ -1,3 +1,5 @@
+//! Handle topics linked to `tsconfig.json`
+
 use {
     serde::Deserialize,
     std::{collections::HashMap, sync::LazyLock},
@@ -29,10 +31,10 @@ pub static TSCONFIG_PATHS: LazyLock<HashMap<String, Vec<String>>> = LazyLock::ne
 
     let config: TsConfig = serde_json::from_str(&tsconfig).expect("Failed to parse JSON");
 
-    let mut paths = config.compiler_options.paths.unwrap_or_default();
+    let paths = config.compiler_options.paths.unwrap_or_default();
 
     paths
-        .drain()
+        .into_iter()
         .map(|(k, v)| {
             let key = k.strip_suffix("/*").unwrap_or(&k).to_string();
             let values = v
@@ -45,6 +47,7 @@ pub static TSCONFIG_PATHS: LazyLock<HashMap<String, Vec<String>>> = LazyLock::ne
 });
 
 pub trait TsConfigPathsPrefix {
+    /// Get all the prefixes that should be resolved in a `tsconfig.json` file
     fn prefixes(&self) -> Vec<&str>;
 }
 
