@@ -3,7 +3,7 @@
 ## The good
 
 - It's **fast** (we'll see it more in depth later)
-- It has an **elegant syntax**. Even tho this is a subjective point, for the vast majority of expressions, Maud has substantially less characters than HTML and incorporate CSS conventions (`#` <=> id, `.` <=> class) that are easily recognizable.
+- It has an **elegant syntax**. Although this is subjective, for the vast majority of expressions, Maud has substantially fewer characters than HTML and incorporates CSS conventions (`#` <=> id, `.` <=> class) that are easily recognizable.
 - Support for **Rust statements** (`if`, `match`, `for`, ...)
 - **Auto-completion**
 
