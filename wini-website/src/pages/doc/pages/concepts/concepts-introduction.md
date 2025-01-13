@@ -1,7 +1,7 @@
 # Concepts
 
 In this section I'll quickly cover the 3 base concepts of Wini that are essential to work with wini.
-It will be divde in 3 sections:
+It will be divide in 3 sections:
 
 - Pages
 - Components

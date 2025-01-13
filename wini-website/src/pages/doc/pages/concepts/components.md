@@ -28,7 +28,7 @@ async fn render() -> MarkUp {
 
 A component can also include another component, and there are _no limit_ in how many you can nest.
 
-Components can also be used accross multiple pages, layout or components, making them really useful when there is some common logic in the website.
+Components can also be used across multiple pages, layout or components, making them really useful when there is some common logic in the website.
 
 
 ## Example

@@ -11,7 +11,7 @@ By default, the `html!` proc macro returns a `Markup` which is a `PreEscaped<Str
 
 This is pretty normal, but, it didn't fit a scenario: including stylesheets and javascript files.
 
-When you declare a component for example, this component might depends on some stylesheets or some scripts. So, when you include it, you would like to include those in the response (else the result will lack in functionnality or style).
+When you declare a component for example, this component might depends on some stylesheets or some scripts. So, when you include it, you would like to include those in the response (else the result will lack in functionality or style).
 
 But, since you basically only return a `String`, you can't really pass this context to the parent function that called you.
 
