@@ -18,7 +18,7 @@ src
 └── utils/
 ```
 
-Even tho, most of the name are self explicit, we'll go through each file
+Even though most of the names are self-explanatory, we'll go through each file
 
 ## components/
 
