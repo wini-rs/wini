@@ -84,7 +84,7 @@ pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
         }
 
 
-        // The lazylock containg the computed request response
+        // The lazylock containing the computed request response
         static #const_cache_name: std::sync::LazyLock<(axum::http::response::Parts, axum::body::Bytes)> = std::sync::LazyLock::new(|| {
             let temp_runtime = tokio::runtime::Runtime::new().unwrap();
 

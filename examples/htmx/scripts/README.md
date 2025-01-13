@@ -20,7 +20,7 @@ Below is a quick overview of what each script is doing.
 - `run.sh`: Run the project in a dev environment.
 - `scss.sh`: Compile all the scss files into css.
 - `sync-packages.sh`: Sync packages from node_modules to `modules`
-- `terminate.sh`: Terminates the current runnign wini server.
+- `terminate.sh`: Terminates the currently running wini server.
 - `typescript.sh`: Compile all the ts files into js.
 - `yesno.sh`: Provide utility function for `[y/n]` prompts in bash.
 - `template/`: Template for creating *something* when running `./new.sh`

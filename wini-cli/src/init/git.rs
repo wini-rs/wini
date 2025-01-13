@@ -17,7 +17,7 @@ use {
 
 /// Interactively authenticate a user
 pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, git2::Error> {
-    println!("{}", InitError::CloneNeedsAuthentification);
+    println!("{}", InitError::CloneNeedsAuthentication);
     sep();
 
     let selection = select("Authenticate with", vec!["Key", "Password"])

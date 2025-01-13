@@ -39,13 +39,13 @@ The file specifying the javascript packages used in your website. More informati
 
 _This file is specific to wini._
 
-When you install a javascript package with `wini js-add mypackage`, what you are essentially doing is clonning the repository behind `mypackage`.
+When you install a javascript package with `wini js-add mypackage`, what you are essentially doing is cloning the repository behind `mypackage`.
 
 This package is after that put in the infamous directory called `node_modules/`.
 
 Therefore, a legitimate question is:
 
-When you are using a package in one of your script, which files should it includes ? And this is exactly what `packages-files.toml` tries to solve: specifying which files should be included when using a pacakge. This can be javascript files like stylesheets.
+When you are using a package in one of your script, which files should it include? And this is exactly what `packages-files.toml` tries to solve: specifying which files should be included when using a package. This can be javascript files like stylesheets.
 
 Most of the times, you won't have to touch this file because the question of which files to include will be asked to you when using `wini js-add`
 

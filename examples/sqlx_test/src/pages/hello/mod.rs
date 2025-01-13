@@ -23,7 +23,7 @@ pub async fn render() -> Markup {
     )
     .fetch_one(&*POOL)
     .await
-    .expect("An error occured");
+    .expect("An error occurred");
 
     html! {
         main {

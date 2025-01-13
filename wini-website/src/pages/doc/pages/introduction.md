@@ -20,9 +20,9 @@ Once a project is created from one of the wini templates, the update to the orig
 
 ## What makes Wini so unique ?
 
-Wini has an _old-school_ approach of seing front-end: Front-end is just back-end sending HTML, CSS and web-related files. Which is what all front-end frameworks are essentially doing, but they cover that from the developer.
+Wini has an _old-school_ approach of seeing the front-end: Front-end is just back-end sending HTML, CSS and web-related files. Which is what all front-end frameworks are essentially doing, but they cover that from the developer.
 
-Instead of using [WebAssembly](https://webassembly.org/) like [Dioxus](https://dioxuslabs.com/), [Leptos](https://leptos.dev/), [Yew](https://yew.rs/), [Sycamore](https://sycamore.dev/) and others, Wini uses JavaScript transpiled from [Typescript](https://www.typescriptlang.org/). Why ? Because JavaScript is more lightweight (in term of bytes transfered), supported and has a larger ecosystem than current WebAssembly.
+Instead of using [WebAssembly](https://webassembly.org/) like [Dioxus](https://dioxuslabs.com/), [Leptos](https://leptos.dev/), [Yew](https://yew.rs/), [Sycamore](https://sycamore.dev/) and others, Wini uses JavaScript transpiled from [Typescript](https://www.typescriptlang.org/). Why ? Because JavaScript is more lightweight (in terms of bytes transferred), supported and has a larger ecosystem than current WebAssembly.
 
 Instead of using JavaScript for everything, Wini allows the user to do everything server-side in Rust, and when you need to use JavaScript in last resort, you can create a TypeScript file.
 But, JavaScript should only be a minimal part of a website, since most of the things can and should be rendered on the server.

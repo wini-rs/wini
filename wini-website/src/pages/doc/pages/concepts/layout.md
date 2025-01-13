@@ -52,7 +52,7 @@ There is more or less the same relationship between a page/component and layout/
 
 - A layout will just always have one parameter `&str` that is the result of the page, since there is only one page per request / endpoint. At the contrary, a page can use one or zero or multiple components.
 
-- A layout is meant to be usable accross multiple pages. In the case of page/componetent, it's the component that is meant to be used for multiple pages.
+A layout is meant to be usable across multiple pages. In the case of page/component, it's the component that is meant to be used for multiple pages.
 
 
 
