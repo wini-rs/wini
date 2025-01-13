@@ -45,7 +45,7 @@ This package is after that put in the infamous directory called `node_modules/`.
 
 Therefore, a legitimate question is:
 
-When you are using a package in one of your script, which files should it includes ? And this is exactly what `packages-files.toml` tries to solve: specifying which files should be included when using a package. This can be javascript files like stylesheets.
+When you are using a package in one of your script, which files should it include? And this is exactly what `packages-files.toml` tries to solve: specifying which files should be included when using a package. This can be javascript files like stylesheets.
 
 Most of the times, you won't have to touch this file because the question of which files to include will be asked to you when using `wini js-add`
 
