@@ -1237,7 +1237,7 @@ dependencies = [
 
 [[package]]
 name = "wini-maud"
-version = "0.26.4"
+version = "0.26.5"
 dependencies = [
  "axum-core",
  "hashbrown",
