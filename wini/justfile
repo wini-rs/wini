@@ -10,6 +10,9 @@ env:
 run:
     @./scripts/run.sh
 
+check: compile-ts compile-scss
+    cargo check
+
 # Create the binary for the production
 build-prod: compile-ts compile-scss
     ENV_TYPE="PROD" cargo build --release
