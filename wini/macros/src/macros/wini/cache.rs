@@ -1,8 +1,8 @@
 use {
-    crate::SHOULD_CACHE_FN,
+    crate::{utils::wini::path::is_str_eq_to_path, SHOULD_CACHE_FN},
     proc_macro::TokenStream,
     quote::quote,
-    syn::{meta::ParseNestedMeta, parse_macro_input, Ident, LitBool},
+    syn::{meta::ParseNestedMeta, parse_macro_input, Attribute, Ident, LitBool, MetaList},
 };
 
 /// The arguments expected in attribute
@@ -35,7 +35,7 @@ impl CacheProcMacroParameters {
 }
 
 
-pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
+pub fn init_cache(args: TokenStream, item: TokenStream) -> TokenStream {
     if !*SHOULD_CACHE_FN {
         return item;
     }
@@ -48,29 +48,37 @@ pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // Modify the name of the current input to a reserved one
     let mut input = parse_macro_input!(item as syn::ItemFn);
+
+    // We always want to check that there is `#[cached]`
+    let cache_fn_name = match input.attrs.iter().find(|attr| {
+        match &attr.meta {
+            syn::Meta::Path(path) => is_str_eq_to_path("cached", &path),
+            syn::Meta::List(meta_list) => is_str_eq_to_path("cached", &meta_list.path),
+            syn::Meta::NameValue(_) => false,
+        }
+    }) {
+        Some(attr) => {
+            match &attr.meta {
+                syn::Meta::Path(_path) => {
+                    Ident::new(
+                        &format!("__reserved_fn_wini_{}_prime_cache", &input.sig.ident),
+                        input.sig.ident.span(),
+                    )
+                },
+                syn::Meta::List(meta_list) => todo!(),
+                syn::Meta::NameValue(_) => unreachable!("We don't match `NameValue`"),
+            }
+        },
+        None => panic!("uwu"),
+    };
+
+
+
     let original_name = input.sig.ident.clone();
-    let new_name = Ident::new(
-        &format!("__reserved_cache_fn_wini_{}", original_name),
-        original_name.span(),
-    );
     let ctor_name = Ident::new(
-        &format!("__ctor_reserved_cache_fn_wini_{}", original_name),
+        &format!("__ctor_initialize_{}", original_name),
         original_name.span(),
     );
-    let const_cache_name = Ident::new(
-        &format!(
-            "{}CONST_CACHE_WINI_{}",
-            if attributes.is_public {
-                ""
-            } else {
-                "__RESERVED_"
-            },
-            original_name.to_string().to_uppercase()
-        ),
-        original_name.span(),
-    );
-    // Change the function name
-    input.sig.ident = new_name.clone();
 
     let expanded = quote! {
         // The original function with all the code
@@ -80,27 +88,13 @@ pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
         // program
         #[ctor::ctor]
         fn #ctor_name() {
-            std::sync::LazyLock::force(&#const_cache_name);
-        }
-
-
-        // The lazylock containg the computed request response
-        static #const_cache_name: std::sync::LazyLock<(axum::http::response::Parts, axum::body::Bytes)> = std::sync::LazyLock::new(|| {
             let temp_runtime = tokio::runtime::Runtime::new().unwrap();
 
             temp_runtime.block_on(async {
                 use http_body_util::BodyExt;
                 use axum::response::IntoResponse;
-                let ok = #new_name().await.into_response().into_parts();
-                (ok.0, ok.1.collect().await.unwrap().to_bytes())
-            })
-        });
-
-        // The function returning the lazylock content
-        #[allow(non_snake_case)]
-        pub async fn #original_name() -> axum::response::Response<axum::body::Body> {
-            let (parts, bytes) = #const_cache_name.clone();
-            axum::response::Response::from_parts(parts, bytes.into())
+                let _ = #cache_fn_name().await;
+            });
         }
     };
 

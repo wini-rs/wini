@@ -30,8 +30,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
-    macros::wini::cache::cache(args, item)
+pub fn init_cache(args: TokenStream, item: TokenStream) -> TokenStream {
+    macros::wini::cache::init_cache(args, item)
 }
 
 /// Doesn't panic if there is an error. This will be the job of the server initialization to handle
