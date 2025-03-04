@@ -13,6 +13,15 @@ use {
 };
 
 
+pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
+    Arc::new(Config::from_file().unwrap_or_else(|error| {
+        log::error!("{error}");
+        log::info!("Terminating program...");
+        std::process::exit(1);
+    }))
+});
+
+
 /// The config parsed from `./wini.toml`
 #[derive(Debug, serde::Deserialize)]
 pub struct Config {
@@ -103,8 +112,6 @@ pub struct Caches {
     environments: HashMap<EnvType, Option<ConfigCache>>,
 }
 
-
-
 impl Caches {
     /// Get the current cache rule for a specific cache category
     pub fn get(&self, cache_for: CacheCategory) -> String {
@@ -178,12 +185,3 @@ impl Display for TomlLoadingError {
         }
     }
 }
-
-
-pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
-    Arc::new(Config::from_file().unwrap_or_else(|error| {
-        log::error!("{error}");
-        log::info!("Terminating program...");
-        std::process::exit(1);
-    }))
-});
