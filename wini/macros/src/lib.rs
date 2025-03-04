@@ -54,7 +54,7 @@ pub(crate) static SHOULD_CACHE_FN: LazyLock<bool> = LazyLock::new(|| {
         .environments
         .get(&env_type)
         .and_then(|maybe_config| maybe_config.as_ref().map(|c| c.function))
-        .unwrap_or_else(|| toml.cache.default.map(|env| env.function).unwrap_or(false))
+        .unwrap_or_else(|| toml.cache.default.is_some_and(|env| env.function))
 });
 
 
