@@ -50,8 +50,8 @@ declare global {
         hasClass: (c: string) => boolean;
         addClass: (c: string) => void;
         rmClass: (c: string) => void;
-        add: (e: (string | HTMLElement)[]) => void;
-        prep: (e: (string | HTMLElement)[]) => void;
+        add: (e: (string | HTMLElement)[] | HTMLElement) => void;
+        prep: (e: (string | HTMLElement)[] | HTMLElement) => void;
         text: TextFunction;
         css: CssFunction;
         $<T extends string>(e: `#${string}`): HTMLElement;

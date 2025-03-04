@@ -6,31 +6,17 @@ HTMLElement.prototype.hasClass = function(c){return this.classList.contains(c)};
 HTMLElement.prototype.addClass = function(c){this.classList.add(c)};
 HTMLElement.prototype.rmClass = function(c){this.classList.remove(c)};
 HTMLElement.prototype.add = function(e) {
-    typeof e === "string" ?
-        this.innerHTML += e :
-        Array.isArray(e) ?
-            (function() {
-                for (const c of e) {
-                    this.append(c);
-                }
-            }) :
-            e instanceof HTMLElement ?
-                this.append(e) :
-                (()=>{throw "Invalid parameter type"});
+    if (typeof e === "string") this.innerHTML += e
+    else if (Array.isArray(e)) for (const c of e) this.append(c)
+    else if (e instanceof HTMLElement) this.append(e)
+    else throw "Invalid parameter type"
     return this;
 };
 HTMLElement.prototype.prep = function(e) {
-    typeof e === "string" ?
-        this.innerHTML = e + this.innerHTML :
-        Array.isArray(e) ?
-            (function() {
-                for (let i = e.length - 1; i >= 0; i--) {
-                    this.prepend(array[i]);
-                }
-            }) :
-            e instanceof HTMLElement ?
-                this.prepend(e) :
-                (()=>{throw "Invalid parameter type"})
+    if (typeof e === "string") this.innerHTML = e + this.innerHTML
+    else if (Array.isArray(e)) for (let i = e.length - 1; i >= 0; i--) this.prepend(array[i])
+    else if (e instanceof HTMLElement) this.prepend(e)
+    else throw "Invalid parameter type"
     return this;
 };
 HTMLElement.prototype.text = function(t=null) {
@@ -54,7 +40,7 @@ var $new = (k, p, t, c) => {
     let e=document.createElement(k ?? 'div');
     for (let [a, v] of Object.entries(p)) e[a] = v;
     if (t !== null) e.text(t);
-    for (let s of c) e.appendChild(s);
+    if (c) for (let s of c) e.appendChild(s);
     return e;
 }
 var api = (method, url, data) => {
