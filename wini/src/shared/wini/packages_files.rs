@@ -76,15 +76,19 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
 
 
     fn module_path_from_short_name(package: &str, file: &str) -> String {
-        concat_paths!(
-            &SERVER_CONFIG.path.modules,
-            &package,
-            std::path::Path::new(&file).file_name().unwrap_or_default()
-        )
-        .display()
-        .to_string()
-        .trim_start_matches(".")
-        .to_string()
+        if file.starts_with("https://") {
+            file.to_string()
+        } else {
+            concat_paths!(
+                &SERVER_CONFIG.path.modules,
+                &package,
+                std::path::Path::new(&file).file_name().unwrap_or_default()
+            )
+            .display()
+            .to_string()
+            .trim_start_matches(".")
+            .to_string()
+        }
     }
 
     hashmap
