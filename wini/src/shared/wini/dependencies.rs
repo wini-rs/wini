@@ -19,8 +19,10 @@ pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#)
         .expect("This should always be a valid regex.")
 });
+
 pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).expect("This should always be a valid regex."));
+
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
         LazyLock::force(&REGEX_IS_PACKAGE);
