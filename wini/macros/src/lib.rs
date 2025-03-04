@@ -43,7 +43,7 @@ pub(crate) static SHOULD_CACHE_FN: LazyLock<bool> = LazyLock::new(|| {
         Err(_) => return false,
     };
 
-    dotenv().ok();
+    dotenv().expect("Couldn't load environment");
     let env_type = match std::env::var("ENV_TYPE") {
         Ok(env_type) => env_type.to_lowercase(),
         Err(_) => return false,

@@ -40,14 +40,19 @@ pub static JS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(||
 });
 
 pub static ENV_TYPE: LazyLock<EnvType> = LazyLock::new(|| {
-    dotenv().ok();
-    let env_type = std::env::var("ENV_TYPE")
-        .exit_with_msg_if_err("Couldn't load environment variable `ENV_TYPE`");
-    EnvType::from_str(&env_type).exit_with_msg_if_err("Invalid kind of environment")
+    dotenv().exit_with_msg_if_err("Couldn't load environment.");
+
+    EnvType::from_str(
+        std::env::var("ENV_TYPE")
+            .exit_with_msg_if_err("Couldn't load environment variable `ENV_TYPE`")
+            .as_str(),
+    )
+    .exit_with_msg_if_err("Invalid kind of environment")
 });
 
 pub static PORT: LazyLock<u16> = LazyLock::new(|| {
-    dotenv().ok();
+    dotenv().exit_with_msg_if_err("Couldn't load environment.");
+
     std::env::var("PORT")
         .exit_with_msg_if_err("Port not specified in the environment:")
         .parse::<u16>()
