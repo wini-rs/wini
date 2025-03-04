@@ -57,7 +57,7 @@ A really nice way to use `wini` is with [`htmx`](https://htmx.org/) and [`_hyper
 Since in `wini` every page is a Rust function, you can easily create a 
 
 ```rs
-    .route("/htmx/{page}", get(pages::doc::render))
+    .route("/htmx/{page}", get(pages::render))
 ```
 
 that will handle all the pages that you want and return them without middleware. This is extremly powerful. You can see a complete example [here](./examples/htmx/).
