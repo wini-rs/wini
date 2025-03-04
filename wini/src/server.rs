@@ -26,7 +26,7 @@ pub async fn start() {
         .layer(middleware::from_fn(header::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
-        .route("/*.", get(handling_file::handle_file))
+        .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(comression_layer);
 
 
