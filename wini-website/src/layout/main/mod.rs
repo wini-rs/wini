@@ -7,13 +7,20 @@ use {
 #[layout]
 pub async fn render(child: &str) -> Markup {
     html! {
+        script type="text/hyperscript" {
+            (PreEscaped("def liClick() \
+                if the innerWidth of the window < 1200 then \
+                    add .hidden to #sidebar \
+                end \
+           end"))
+        }
         nav #sidebar {
             (PAGES_STRUCTURE.rec_display())
         }
         main {
             header {
                 div {
-                    button #hide-sidebar {
+                    button #hide-sidebar _="on click toggle .hidden on #sidebar" {
                         img src="/bars-solid.svg";
                     }
                 }
