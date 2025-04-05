@@ -5,7 +5,7 @@ documentation = "https://docs.rs/wini-maud/"
 description = "Compile-time HTML templates to work with Wini."
 categories = ["template-engine"]
 repository = "https://github.com/wini-rs/wini"
-edition = "2021"
+edition = "2024"
 authors = ["Chris Wong <lambda.fairy@gmail.com>", "tk"]
 license = "LGPL-3.0-or-later"
 

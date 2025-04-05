@@ -12,7 +12,6 @@ pub fn style_code(code: &Node, parser: &tl::Parser<'_>) -> String {
     let theme = &THEMES.themes["base16-eighties.dark"];
 
     let raw_code = code.inner_html(parser);
-    println!("{raw_code}");
     let Some(language) = code
         .as_tag()
         .and_then(|e| e.attributes().get("class"))

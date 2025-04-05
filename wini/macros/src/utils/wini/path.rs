@@ -11,14 +11,3 @@ pub(crate) fn is_str_eq_to_path(str: &str, path: &syn::Path) -> bool {
                 .is_some_and(|last| last == str)
         })
 }
-
-pub(crate) fn last_path_to_string(path: &syn::Path) -> String {
-    path.get_ident()
-        .span()
-        .source_text()
-        .unwrap()
-        .split(':')
-        .last()
-        .unwrap()
-        .to_owned()
-}

@@ -2,7 +2,7 @@ use {
     crate::{utils::wini::path::is_str_eq_to_path, SHOULD_CACHE_FN},
     proc_macro::TokenStream,
     quote::quote,
-    syn::{meta::ParseNestedMeta, parse_macro_input, Attribute, Ident, LitBool, LitStr, MetaList},
+    syn::{parse_macro_input, Ident},
 };
 
 
@@ -29,7 +29,7 @@ pub fn init_cache(_args: TokenStream, item: TokenStream) -> TokenStream {
                 input.sig.ident.span(),
             )
         },
-        None => panic!("uwu"),
+        None => panic!("There should be a `#[cached]` proc_macro when using `#[init_cache]`"),
     };
 
 

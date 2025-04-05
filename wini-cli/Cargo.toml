@@ -2,7 +2,7 @@
 name = "wini"
 version = "0.1.2"
 authors = ["tkr-sh"]
-edition = "2021"
+edition = "2024"
 license = "AGPL-3.0-or-later"
 description = "CLI utility for wini"
 repository = "https://codeberg.org/wini/wini"

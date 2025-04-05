@@ -1,13 +1,12 @@
-use {rand::Rng, std::path::Path};
+use {rand::random_range, std::path::Path};
 
 /// Creates a random string of length `length`.
 pub fn generate_random_string(length: usize) -> String {
     let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let mut rng = rand::thread_rng();
 
     (0..length)
         .map(|_| {
-            let idx = rng.gen_range(0..characters.len());
+            let idx = random_range(0..characters.len());
             characters.chars().nth(idx).unwrap()
         })
         .collect()
