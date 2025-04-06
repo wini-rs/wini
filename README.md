@@ -8,6 +8,72 @@
 
 </div>
 
+<table>
+    <tr>
+        <th>
+            Page
+        </th>
+        <th>
+            Layout / Middleware
+        </th>
+        <th>
+            Component
+        </th>
+    </tr>
+    <tr>
+        <td>
+
+```rs
+#[page]
+async fn page() -> Markup {
+    html! {
+        h1 {
+            "My title"
+        }
+        main .bg-red {
+            "Some content"
+        }
+    }
+}
+```
+
+</td>
+<td>
+
+```rs
+#[layout]
+async fn layout(child: &str) -> Markup {
+    html! {
+        header {
+            "Welcome to Wini!"
+        }
+        (PreEscaped(child))
+    }
+}
+```
+
+</td>
+<td>
+
+```rs
+#[component]
+async fn button() -> Markup {
+    html! {
+        button
+            .btn-blue
+            onclick="jsFn()"
+        {
+            "Blue button!"
+        }
+    }
+}
+```
+
+</td>
+    </tr>
+</table>
+
+
 ## What is wini ?
 
 Wini is a set of templates written in [Rust](https://www.rust-lang.org/), that are made to create websites. Instead of using [WebAssembly](https://webassembly.org/) like other common Rust front-end frameworks, Wini templates rely on server side rendering, and, when needed, [Typescript](https://www.typescriptlang.org/). Other options are also available like [`htmx`](https://htmx.org/) and [`_hyperscript`](https://hyperscript.org/) (See [Integration with `htmx` and `_hyperscript`](#integration-with-htmx-and-hyperscript))
