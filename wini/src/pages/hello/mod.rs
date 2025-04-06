@@ -1,7 +1,6 @@
 use {
     cached::proc_macro::cached,
     maud::{html, Markup},
-    std::{thread::sleep, time::Duration},
     wini_macros::{init_cache, page},
 };
 
@@ -9,10 +8,24 @@ use {
 #[page]
 #[cached]
 pub async fn render() -> Markup {
-    sleep(Duration::from_secs(3));
     html! {
         button #hello {
             "Say hello!"
         }
     }
 }
+
+
+// IFFEAT test
+use crate::{components::button, shared::wini::err::ServerResult};
+
+#[page]
+pub async fn test_button() -> ServerResult<Markup> {
+    Ok(html! {
+        (button().await?)
+        button #hello {
+            "Say hello!"
+        }
+    })
+}
+// ENDIF

@@ -3,6 +3,7 @@ use {
     crate::utils::wini::{
         files::get_js_or_css_files_in_current_dir,
         params_from_itemfn::params_from_itemfn,
+        result::is_ouput_ty_result,
     },
     proc_macro::TokenStream,
     quote::quote,
@@ -26,6 +27,17 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     );
     original_function.sig.ident = new_name.clone();
 
+    let (return_type, maybe_early_return, return_data) = if is_ouput_ty_result(&original_function) {
+        (
+            quote!(crate::shared::wini::err::ServerResult<::maud::Markup>),
+            quote!(?),
+            quote!(Ok(html)),
+        )
+    } else {
+        (quote!(::maud::Markup), quote!(), quote!(html))
+    };
+    println!("{return_type}");
+
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
@@ -36,12 +48,15 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
         #original_function
 
         #[allow(non_snake_case)]
-        pub async fn #original_name(#arguments) -> maud::Markup {
-            use itertools::Itertools;
+        pub async fn #original_name(#arguments) -> #return_type {
+            use {
+                axum::response::IntoResponse,
+                itertools::Itertools,
+            };
 
             const FILES_IN_CURRENT_DIR: &[&str] = &[#(#files_in_current_dir),*];
 
-            let mut html = #new_name(#(#param_names),*).await;
+            let mut html = #new_name(#(#param_names),*).await #maybe_early_return;
 
             let hashset = std::collections::HashSet::<String>::from_iter(
                 FILES_IN_CURRENT_DIR
@@ -51,7 +66,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
             );
             html.linked_files.extend(hashset);
 
-            html
+            #return_data
         }
     };
 

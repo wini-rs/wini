@@ -98,7 +98,6 @@ ignored = [
     undocumented_unsafe_blocks = "warn"
     unnested_or_patterns = "warn"
     unreadable_literal = "warn"
-    unused_async = "warn"
     unused_peekable = "warn"
     unused_result_ok = "warn"
     unused_rounding = "warn"

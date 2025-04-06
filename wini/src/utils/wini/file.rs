@@ -5,7 +5,7 @@ use {std::path::Path, walkdir::WalkDir};
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore
 /// ├── a
 /// ├── b/
 /// │   └── d
@@ -43,7 +43,7 @@ pub fn get_files_in_directory<P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<Str
 ///
 /// # Example
 ///
-/// ```
+/// ```ignore
 /// ├── a.js
 /// ├── a_not_js
 /// ├── b/

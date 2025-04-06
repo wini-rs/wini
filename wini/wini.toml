@@ -2,7 +2,7 @@
 last_commit_hash = "HASH_TO_RESOLVE"
 remote_url = "URL_TO_RESOLVE"
 branch = "BRANCH_NAME_TO_RESOLVE"
-features = FEATURES_TO_RESOLVE
+# features = FEATURES_TO_RESOLVE
 name = "TEMPLATE_NAME_TO_RESOLVE"
 
 # All the paths are relatives to `./src` by default. At the exception of `modules`.
