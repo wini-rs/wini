@@ -8,8 +8,6 @@ use {
     regex::Regex,
     std::{
         collections::HashMap,
-        fs::File,
-        io::Read,
         path::{Component, Path, PathBuf},
         sync::LazyLock,
     },
@@ -21,7 +19,7 @@ pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
 });
 
 pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).expect("This should always be a valid regex."));
+    LazyLock::new(|| Regex::new(r"^[A-Za-z_0-9]").expect("This should always be a valid regex."));
 
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
@@ -57,10 +55,10 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
             Component::ParentDir => {
                 // Remove the last component if possible, but only if it's not a root or a prefix
                 if let Some(last) = components.last() {
-                    if *last != Component::ParentDir {
-                        components.pop();
-                    } else {
+                    if *last == Component::ParentDir {
                         components.push(component);
+                    } else {
+                        components.pop();
                     }
                 } else {
                     components.push(component); // If it's at the start, keep it
@@ -116,12 +114,7 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         path = std::path::Path::new(&path_str);
     }
 
-    let mut file = File::open(path).exit_with_msg_if_err(format!("Couldn't find {path:?}"));
-    let mut contents = String::new();
-    if let Err(err) = file.read_to_string(&mut contents) {
-        log::error!("Couldn't read to string: {err:?}");
-        std::process::exit(1)
-    }
+    let contents = std::fs::read_to_string(path).exit_with_msg_if_err("IO Error");
 
     let caps = REGEX_DEPENDENCY.captures_iter(&contents);
 
@@ -131,7 +124,9 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         .map(|ex| ex.1[1].to_string())
         .collect::<Vec<String>>();
 
-    if !dependencies.is_empty() {
+    if dependencies.is_empty() {
+        None
+    } else {
         let mut relatives_dependencies = vec![];
 
         // Ok to clone since this function will only be called on initialization of LazyLock
@@ -142,7 +137,7 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
 
             // If an import starts with a ".", it's a path to a file. In this case, we want to
             // have it's path relative to the file it's referenced from.
-            let dep_relative_path = if dep.starts_with(".") {
+            let dep_relative_path = if dep.starts_with('.') {
                 let dep = concat_paths!(
                     path.parent().expect("Path should have a parent."),
                     if dep.ends_with(".js") {
@@ -224,7 +219,5 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         }
 
         Some(relatives_dependencies)
-    } else {
-        None
     }
 }

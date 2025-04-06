@@ -114,12 +114,12 @@ pub struct Caches {
 
 impl Caches {
     /// Get the current cache rule for a specific cache category
-    pub fn get(&self, cache_for: CacheCategory) -> String {
-        self.get_opt(cache_for).unwrap()
+    pub fn get_or_panic(&self, cache_for: CacheCategory) -> String {
+        self.get(cache_for).expect("Expected some data")
     }
 
     /// Get the current cache rule for a specific cache category
-    pub fn get_opt(&self, cache_for: CacheCategory) -> Option<String> {
+    pub fn get(&self, cache_for: CacheCategory) -> Option<String> {
         self.get_opt_with_env_type(*ENV_TYPE, cache_for)
     }
 

@@ -36,7 +36,7 @@ pub fn add_meta_tags(res_parts: &mut Parts) -> Markup {
             .map(|tag_name| (res_parts.headers.remove(&tag_name).expect("Already matched."), tag_name))
             .flat_map(|(tag_value, tag_name)|
                 match (*META_MAPPINGS).get(&tag_name[5..]) {
-                    Some(names) => names.iter().map(|name| ((*name).to_owned(), tag_value.to_owned())).collect(),
+                    Some(names) => names.iter().map(|name| ((*name).to_owned(), tag_value.clone())).collect(),
                     None => vec![(tag_name, tag_value)],
                 }
             ) {

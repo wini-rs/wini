@@ -4,7 +4,7 @@ pub fn html(
     s: &str,
     scripts_files: Vec<String>,
     style_sheets: Vec<String>,
-    meta: Markup,
+    meta: &Markup,
 ) -> String {
     maud::html! {
         (DOCTYPE)

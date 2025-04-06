@@ -1,4 +1,4 @@
-use walkdir::WalkDir;
+use {std::path::Path, walkdir::WalkDir};
 
 /// This function will try to get all the files in a directory, including subdirectories and return
 /// their relative paths.
@@ -16,7 +16,7 @@ use walkdir::WalkDir;
 /// Will result in
 ///
 /// `["a", "b/d", "c"]`
-pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<String>> {
+pub fn get_files_in_directory<P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<String>> {
     let mut files = Vec::new();
 
     // Read the directory
@@ -31,7 +31,7 @@ pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<Stri
                 files.push(path.to_string_lossy().replace("./public", ""));
             }
         } else if path.is_dir() {
-            files.extend(get_files_in_directory(path.to_str().unwrap())?);
+            files.extend(get_files_in_directory(path)?);
         }
     }
 
