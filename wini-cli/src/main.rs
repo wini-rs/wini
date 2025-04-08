@@ -7,6 +7,7 @@ fn main() {
     if let Some(_matches) = matches.subcommand_matches("init") {
         if let Err(some_err) = ask() {
             eprintln!("{some_err}");
+            std::process::exit(1);
         }
     } else {
         wini::just::run::run_from_arg_match(&matches);
