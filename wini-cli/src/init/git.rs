@@ -143,7 +143,9 @@ pub fn clone(url: &str) -> Result<String, InitError> {
             match why.code() {
                 git2::ErrorCode::Auth => {
                     println!("{}", InitError::BadCredentials);
-                    println!("{SEP}");
+
+                    sep();
+
                     clone(url)
                 },
                 _ => Err(InitError::OtherGitError(why)),
