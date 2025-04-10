@@ -12,6 +12,7 @@ pub enum InitError {
     IoError(std::io::Error),
     InvalidPath(String),
     OtherGitError(git2::Error),
+    JustError(i32),
 }
 
 
@@ -32,6 +33,8 @@ impl Display for InitError {
                 Self::OtherGitError(err) => format!("{:?}", err.message()),
                 Self::IoError(err) => err.to_string(),
                 Self::AlreadyExists(path) => format!("There is already a directory at {path:#?}"),
+                Self::JustError(exit_code) =>
+                    format!("A just command failed with exit code: {exit_code}"),
             }
         ))
     }
