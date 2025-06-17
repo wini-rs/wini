@@ -1,8 +1,6 @@
 use {
     crate::shared::wini::err::ServerResult,
-    axum::{body::Body, http::response::Parts},
-    hyper::StatusCode,
-    maud::{html, Markup, PreEscaped},
+    maud::{Markup, PreEscaped, html},
     wini_macros::layout,
 };
 
@@ -16,6 +14,10 @@ pub async fn render(s: &str) -> ServerResult<Markup> {
     })
 }
 // IFFEAT test
+use {
+    axum::{body::Body, http::response::Parts},
+    hyper::StatusCode,
+};
 #[layout]
 pub async fn mut_parts(_: &mut Parts) -> ServerResult<Markup> {
     Ok(html! {

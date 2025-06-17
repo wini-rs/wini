@@ -9,7 +9,7 @@ def main [...features] {
         open $file.name --raw
         | lines
         | reduce --fold {content: "", should_delete: false, depth: 0} {|line, acc|
-            if $line =~ '^// IFFEAT' {
+            if $line =~ '^// IFFEAT' or $line =~ '^# IFFEAT' {
                 if $acc.should_delete {
                     let return_acc = ($acc | update depth ($acc.depth + 1))
                     return $return_acc
@@ -25,7 +25,7 @@ def main [...features] {
                 return $acc
             }
 
-            if $line =~ '^// ENDIF' {
+            if $line =~ '^// ENDIF' or $line =~ '^# ENDIF' {
                 if $acc.should_delete {
                     if $acc.depth == 0 {
                         let return_acc = ($acc | update should_delete false)
@@ -50,12 +50,17 @@ def main [...features] {
         }
         | get content
         | str trim
+        | $in + "\n"
         | save -f $file.name
     }
 
     echo $"Wrote to ($tmp_dir)!"
 
-    cargo check
+    just compile-scss
+
     cargo clippy
     cargo test
+
+    git clone https://github.com/wini-rs/wini-template ../clone-repo
+    diff -ru --exclude=.git ../clone-repo . | delta
 }

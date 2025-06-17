@@ -7,7 +7,7 @@ pub(crate) fn is_str_eq_to_path(str: &str, path: &syn::Path) -> bool {
         .is_some_and(|source_text| {
             source_text
                 .split(':')
-                .last()
+                .next_back()
                 .is_some_and(|last| last == str)
         })
 }

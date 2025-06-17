@@ -1,8 +1,8 @@
 use {
     super::{
-        err::ExitWithMessageIfErr,
-        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
         JS_FILES,
+        err::ExitWithMessageIfErr,
+        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
     },
     crate::concat_paths,
     regex::Regex,
@@ -201,19 +201,16 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             relatives_dependencies.push(dep_relative_path.clone());
 
             // If it's not a package, we need to look at the dependencies of this file
-            if !is_dep_package {
-                if let Some(sub_deps) = script_dependencies(&dep_relative_path) {
-                    for sub_dep in sub_deps {
-                        if relatives_dependencies.contains(&sub_dep) {
-                            let maybe_index =
-                                relatives_dependencies.iter().position(|d| *d == sub_dep);
-                            if let Some(index) = maybe_index {
-                                relatives_dependencies.remove(index);
-                            }
+            if !is_dep_package && let Some(sub_deps) = script_dependencies(&dep_relative_path) {
+                for sub_dep in sub_deps {
+                    if relatives_dependencies.contains(&sub_dep) {
+                        let maybe_index = relatives_dependencies.iter().position(|d| *d == sub_dep);
+                        if let Some(index) = maybe_index {
+                            relatives_dependencies.remove(index);
                         }
-
-                        relatives_dependencies.push(sub_dep);
                     }
+
+                    relatives_dependencies.push(sub_dep);
                 }
             }
         }

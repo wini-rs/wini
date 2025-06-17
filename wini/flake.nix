@@ -27,6 +27,7 @@
                     fd
                     ripgrep
                     rust-bin.nightly.latest.default
+                    delta
                 ];
             };
         }
