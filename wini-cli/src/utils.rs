@@ -1,19 +1,16 @@
-use {rand::random_range, std::path::Path};
+use {rand::Rng, std::path::Path};
 
 /// Creates a random string of length `length`.
 pub fn generate_random_string(length: usize) -> String {
-    let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    (0..length)
-        .map(|_| {
-            let idx = random_range(0..characters.len());
-            characters.chars().nth(idx).unwrap()
-        })
+    let rng = rand::rng();
+    rng.sample_iter(rand::distr::Alphanumeric)
+        .take(length)
+        .map(char::from)
         .collect()
 }
 
 /// Copy recursively a directory
-pub fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {
+pub fn copy_dir_all<Src: AsRef<Path>, Dst: AsRef<Path>>(src: Src, dst: Dst) -> std::io::Result<()> {
     std::fs::create_dir_all(&dst)?;
     for entry in std::fs::read_dir(src)? {
         let entry = entry?;

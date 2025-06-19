@@ -10,6 +10,7 @@ use {
     std::{
         borrow::Cow,
         fmt::Write,
+        iter::once,
         path::Path,
         process::Command,
         time::{SystemTime, UNIX_EPOCH},
@@ -35,7 +36,9 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
         Cow::Owned(username)
     };
 
-    let credentials = match selection {
+
+
+    match selection {
         0 => {
             let mut path_to_key: Option<String> = None;
 
@@ -68,9 +71,7 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
             Cred::userpass_plaintext(&username, &password.unwrap())
         },
         _ => unreachable!(),
-    };
-
-    credentials
+    }
 }
 
 
@@ -172,7 +173,7 @@ pub fn clone(url: &str) -> Result<String, InitError> {
 pub fn first_commit(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut index = repo.index()?;
-    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
+    index.add_all(once("*"), IndexAddOption::DEFAULT, None)?;
     index.write()?;
 
 
@@ -181,7 +182,14 @@ pub fn first_commit(repo_path: &str) -> Result<(), git2::Error> {
         .expect("UNIX_EPOCH is always a valid date.")
         .as_secs();
 
-    let author = Signature::new("Wini", "wini", &Time::new(now as i64, 0))?;
+    let author = Signature::new(
+        "Wini",
+        "wini",
+        &Time::new(
+            i64::try_from(now).expect("Current timestamp should be a valid i64"),
+            0,
+        ),
+    )?;
 
     let tree_id = index.write_tree()?;
     let tree = repo.find_tree(tree_id)?;
