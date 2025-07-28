@@ -1467,9 +1467,9 @@ dependencies = [
 
 [[package]]
 name = "wini-maud"
-version = "0.26.6"
+version = "0.26.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8c301c297d4635c471e5e0226a34c905b7c6eb4df300832999cd2a366c67a38"
+checksum = "1460f1c0acc3a84af5af97b65b64a7a52893ee0cb18d64470b071a10462d5786"
 dependencies = [
  "axum-core",
  "hashbrown 0.15.2",
