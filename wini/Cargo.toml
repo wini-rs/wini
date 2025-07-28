@@ -31,7 +31,7 @@ tower-http = { version = "0.6", features = [
 tokio = { version = "1", features = ["macros", "rt-multi-thread", "fs"] }
 toml = "0.8"
 walkdir = "2.5"
-wini-maud = { version = "0.26.5", features = ["axum"] }
+wini-maud = { version = "0.26.6", features = ["axum"] }
 wini-macros = { path = "./macros/" }
 
 [package.metadata.cargo-machete]

@@ -1,18 +1,18 @@
 use {
     crate::shared::wini::{
-        cache::{AddCache, CacheCategory},
-        config::SERVER_CONFIG,
-        err::{ServerError, ServerResult},
         CSS_FILES,
         JS_FILES,
         PUBLIC_ENDPOINTS,
+        cache::{AddCache, CacheCategory},
+        config::SERVER_CONFIG,
+        err::{ServerError, ServerResult},
     },
     axum::{
         extract::Request,
         http::HeaderValue,
         response::{IntoResponse, Response},
     },
-    hyper::{header::CONTENT_TYPE, StatusCode},
+    hyper::{StatusCode, header::CONTENT_TYPE},
     tower_http::services::ServeFile,
 };
 

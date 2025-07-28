@@ -240,7 +240,7 @@ impl<T: AsRef<str>> Render for PreEscaped<T> {
 /// A block of markup is a string that does not need to be escaped.
 ///
 /// The `html!` macro expands to an expression of this type.
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default)]
 pub struct Markup {
     pub content: PreEscaped<String>,
     pub linked_files: HashSet<String>,
@@ -261,6 +261,15 @@ impl Render for Markup {
 impl From<Markup> for PreEscaped<String> {
     fn from(val: Markup) -> Self {
         val.content
+    }
+}
+
+impl Clone for Markup {
+    fn clone(&self) -> Self {
+        Markup {
+            content: self.content.clone(),
+            linked_files: self.linked_files.clone(),
+        }
     }
 }
 

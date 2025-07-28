@@ -1,8 +1,8 @@
 use {
     axum::response::{IntoResponse, Response},
     hyper::{
-        header::{InvalidHeaderValue, ToStrError},
         StatusCode,
+        header::{InvalidHeaderValue, ToStrError},
     },
     std::{convert::Infallible, str::Utf8Error},
 };

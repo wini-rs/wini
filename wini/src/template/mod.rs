@@ -2,11 +2,11 @@ use {
     crate::{
         concat_paths,
         shared::wini::{
-            config::SERVER_CONFIG,
-            dependencies::{normalize_relative_path, SCRIPTS_DEPENDENCIES},
-            err::{ServerError, ServerResult},
-            packages_files::{VecOrString, PACKAGES_FILES},
             PUBLIC_ENDPOINTS,
+            config::SERVER_CONFIG,
+            dependencies::{SCRIPTS_DEPENDENCIES, normalize_relative_path},
+            err::{ServerError, ServerResult},
+            packages_files::{PACKAGES_FILES, VecOrString},
         },
         utils::wini::buffer::buffer_to_string,
     },
@@ -153,7 +153,9 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
                 }
             },
             None => {
-                log::warn!("The package {pkg:#?} doesn't have any associated minified file. Therefore, nothing will be send for this package.");
+                log::warn!(
+                    "The package {pkg:#?} doesn't have any associated minified file. Therefore, nothing will be send for this package."
+                );
             },
         }
     }

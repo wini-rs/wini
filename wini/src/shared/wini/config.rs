@@ -1,5 +1,5 @@
 use {
-    super::{cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType, ENV_TYPE},
+    super::{ENV_TYPE, cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType},
     crate::concat_paths,
     serde::{Deserialize, Deserializer},
     std::{

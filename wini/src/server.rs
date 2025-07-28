@@ -9,7 +9,7 @@ use {
             handling_file::{self},
         },
     },
-    axum::{middleware, routing::get, Router},
+    axum::{Router, middleware, routing::get},
     log::info,
     tower_http::compression::CompressionLayer,
 };

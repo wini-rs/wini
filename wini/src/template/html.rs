@@ -1,4 +1,4 @@
-use maud::{Markup, PreEscaped, DOCTYPE};
+use maud::{DOCTYPE, Markup, PreEscaped};
 
 pub fn html(
     s: &str,
