@@ -36,7 +36,7 @@ wini-macros = { path = "./macros/" }
 
 [package.metadata.cargo-machete]
 ignored = [
-  # Used with the procedural macro #[cache]
+  # Used with the procedural macros #[page], #[component], #[layout]
   "itertools",
   "wini-maud",
   # Used with the procedural macro #[cache]
