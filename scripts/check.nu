@@ -1,4 +1,5 @@
-def main [...features] {
+# Returns a string
+def check-with-features [features: list] {
     let tmp_dir = mktemp -d
     cp -r wini $tmp_dir
     cd $'($tmp_dir)/wini'
@@ -54,14 +55,10 @@ def main [...features] {
         | save -f $file.name
     }
 
-    echo $"Wrote to ($tmp_dir)!"
-
     just compile-scss
 
     cargo clippy
     cargo test
 
-    git clone https://github.com/wini-rs/wini-template ../clone-repo
-    diff -ru --exclude=.git ../clone-repo . | delta
-
+    $'($tmp_dir)/wini'
 }
