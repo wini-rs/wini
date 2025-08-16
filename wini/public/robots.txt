@@ -1,0 +1,7 @@
+# Allow crawling from duckduckgo
+User-agent: DuckDuckBot
+Allow: /
+
+# Disallow access from other bots
+User-agent: *
+Disallow: /
