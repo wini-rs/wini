@@ -16,7 +16,7 @@ def main [] {
     let wini_template_dir = mktemp -d
     cd $wini_template_dir
 
-    git clone https://github.com/wini-rs/wini-template
+    git clone git@github.com:wini-rs/wini-template.git
 
     cd wini-template
 
@@ -43,12 +43,10 @@ def main [] {
         let resp = input "Ok to push ? [y/N] " | str downcase
 
         if ($resp | str contains 'y') {
-            print "git push"
+            git push -u origin $branch_and_path.branch
         } else {
             print "EXIT!"
             exit 1
         }
     }
-
 }
-
