@@ -10,6 +10,9 @@ env:
 run:
     @./scripts/run.sh
 
+check: compile-ts compile-scss
+    cargo check
+
 # Create the binary for the production
 build-prod: compile-ts compile-scss
     ENV_TYPE="PROD" cargo build --release
@@ -83,3 +86,11 @@ compile-ts:
 # Terminate process running on port `PORT` and start a new server
 clean-launch:
     @./scripts/launch.sh
+
+on-install:
+# IFFEAT posix-sh
+    @./scripts/on-install.sh
+# ENDIF
+# IFFEAT nushell
+    @./scripts/on-install.nu
+# ENDIF

@@ -9,14 +9,15 @@ use {
 /// Converts an axum body to String
 pub async fn buffer_to_string<B>(body: B) -> ServerResult<String>
 where
-    B: axum::body::HttpBody<Data = Bytes>,
-    B: Debug,
+    B: axum::body::HttpBody<Data = Bytes> + Debug,
     B::Error: std::fmt::Display + std::fmt::Debug,
 {
-    let bytes = body
-        .collect()
-        .await
-        .map_err(|e| ServerError::DebugedError(format!("{e}")))?
-        .to_bytes();
-    Ok(std::str::from_utf8(&bytes)?.to_string())
+    Ok(std::str::from_utf8(
+        &body
+            .collect()
+            .await
+            .map_err(|e| ServerError::DebugedError(format!("{e}")))?
+            .to_bytes(),
+    )?
+    .to_string())
 }

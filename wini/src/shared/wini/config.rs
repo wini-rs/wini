@@ -1,5 +1,5 @@
 use {
-    super::{cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType, ENV_TYPE},
+    super::{ENV_TYPE, cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType},
     crate::concat_paths,
     serde::{Deserialize, Deserializer},
     std::{
@@ -11,6 +11,15 @@ use {
     },
     strum::IntoEnumIterator,
 };
+
+
+pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
+    Arc::new(Config::from_file().unwrap_or_else(|error| {
+        log::error!("{error}");
+        log::info!("Terminating program...");
+        std::process::exit(1);
+    }))
+});
 
 
 /// The config parsed from `./wini.toml`
@@ -103,16 +112,14 @@ pub struct Caches {
     environments: HashMap<EnvType, Option<ConfigCache>>,
 }
 
-
-
 impl Caches {
     /// Get the current cache rule for a specific cache category
-    pub fn get(&self, cache_for: CacheCategory) -> String {
-        self.get_opt(cache_for).unwrap()
+    pub fn get_or_panic(&self, cache_for: CacheCategory) -> String {
+        self.get(cache_for).expect("Expected some data")
     }
 
     /// Get the current cache rule for a specific cache category
-    pub fn get_opt(&self, cache_for: CacheCategory) -> Option<String> {
+    pub fn get(&self, cache_for: CacheCategory) -> Option<String> {
         self.get_opt_with_env_type(*ENV_TYPE, cache_for)
     }
 
@@ -178,12 +185,3 @@ impl Display for TomlLoadingError {
         }
     }
 }
-
-
-pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
-    Arc::new(Config::from_file().unwrap_or_else(|error| {
-        log::error!("{error}");
-        log::info!("Terminating program...");
-        std::process::exit(1);
-    }))
-});

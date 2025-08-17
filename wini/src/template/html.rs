@@ -1,15 +1,20 @@
-use maud::{Markup, PreEscaped, DOCTYPE};
+use maud::{DOCTYPE, Markup, PreEscaped};
 
 pub fn html(
     s: &str,
     scripts_files: Vec<String>,
     style_sheets: Vec<String>,
-    meta: Markup,
+    meta: &Markup,
 ) -> String {
     maud::html! {
         (DOCTYPE)
-        html {
+        html lang="en" {
             head {
+                meta charset="UTF-8";
+                meta name="viewport" content="width=device-width, initial-scale=1.0";
+                meta name="description" content="PROJECT_NAME_TO_RESOLVE";
+                title { "PROJECT_NAME_TO_RESOLVE" }
+
                 style { (include_str!("./always_loaded.css").trim_end()) }
                 @for style_sheet in style_sheets {
                     link rel="stylesheet" href=(style_sheet);

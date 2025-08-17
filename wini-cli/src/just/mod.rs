@@ -35,7 +35,7 @@ impl From<MinimalRecipe> for Command {
         }
 
         if let Some(aliases) = val.aliases {
-            command = command.aliases(aliases)
+            command = command.aliases(aliases);
         }
 
         command = command.args(
@@ -50,8 +50,7 @@ impl From<MinimalRecipe> for Command {
                         },
                         ParameterKind::Singular => Arg::new(p.name),
                     }
-                })
-                .collect::<Vec<Arg>>(),
+                }),
         );
 
         command.clone()

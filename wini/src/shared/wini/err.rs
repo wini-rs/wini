@@ -1,6 +1,9 @@
 use {
     axum::response::{IntoResponse, Response},
-    hyper::{header::InvalidHeaderValue, StatusCode},
+    hyper::{
+        StatusCode,
+        header::{InvalidHeaderValue, ToStrError},
+    },
     std::{convert::Infallible, str::Utf8Error},
 };
 
@@ -11,6 +14,8 @@ pub enum ServerError {
     Utf8Error(Utf8Error),
     InvalidHeader(InvalidHeaderValue),
     DebugedError(String),
+    PublicRessourceNotFound(String),
+    ToStrError(ToStrError),
 }
 
 /// Macro to easily implement errors into
@@ -29,12 +34,13 @@ impl_from_error!(Infallible, Self::Infaillible);
 impl_from_error!(Utf8Error, Self::Utf8Error);
 impl_from_error!(String, Self::DebugedError);
 impl_from_error!(InvalidHeaderValue, Self::InvalidHeader);
+impl_from_error!(ToStrError, Self::ToStrError);
 
 pub type ServerResult<T> = Result<T, ServerError>;
 
 impl IntoResponse for ServerError {
     fn into_response(self) -> Response {
-        eprintln!("{:#?}", self);
+        eprintln!("{self:#?}");
         let err_msg = match self {
             Self::InvalidHeader(err) => {
                 format!("Unexpected header value: {err}")
@@ -45,8 +51,15 @@ impl IntoResponse for ServerError {
             Self::Infaillible(err) => {
                 format!("This error should not be possible: {err:#?}")
             },
+            Self::ToStrError(err) => {
+                format!("Invalid str: {err}")
+            },
             Self::Utf8Error(err) => {
                 format!("Error decoding buffer to UTF-8: {err:#?}")
+            },
+            Self::PublicRessourceNotFound(path) => {
+                return (StatusCode::NOT_FOUND, format!("Couldn't find file: {path}"))
+                    .into_response();
             },
             Self::Status(status_code) => return status_code.into_response(),
         };
@@ -83,6 +96,7 @@ pub trait ExitWithMessageIfErr<T> {
     /// Handles a `Result` by either returning the success value or exiting the program
     /// with a custom error message if an error occurs.
     fn exit_with_msg_if_err(self, msg: impl std::fmt::Display) -> T;
+    fn exit_with_msg_to_compute_if_err<S: std::fmt::Display, F: Fn() -> S>(self, msg: F) -> T;
 }
 
 impl<T, E> ExitWithMessageIfErr<T> for Result<T, E>
@@ -92,6 +106,14 @@ where
     fn exit_with_msg_if_err(self, msg: impl std::fmt::Display) -> T {
         self.map_err(|err| {
             log::error!("{msg}: {err:?}");
+            std::process::exit(1);
+        })
+        .expect("Already exited if `Err`")
+    }
+
+    fn exit_with_msg_to_compute_if_err<S: std::fmt::Display, F: Fn() -> S>(self, msg: F) -> T {
+        self.map_err(|err| {
+            log::error!("{}: {err:?}", msg());
             std::process::exit(1);
         })
         .unwrap()

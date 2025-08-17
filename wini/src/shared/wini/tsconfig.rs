@@ -53,7 +53,10 @@ pub trait TsConfigPathsPrefix {
 
 impl TsConfigPathsPrefix for HashMap<String, Vec<String>> {
     fn prefixes(&self) -> Vec<&str> {
-        let mut prefixes = self.keys().map(|e| e.as_str()).collect::<Vec<&str>>();
+        let mut prefixes = self
+            .keys()
+            .map(std::string::String::as_str)
+            .collect::<Vec<&str>>();
         // We sort them from the longest to shortest, because we need to first get the complete
         // path.
         // In case of:

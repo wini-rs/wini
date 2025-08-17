@@ -1,4 +1,5 @@
 use {
+    super::err::ServerResult,
     crate::utils::wini::cache::add_cache,
     axum::response::Response,
     strum_macros::{EnumIter, EnumString},
@@ -30,12 +31,15 @@ pub enum CacheCategory {
 
 
 /// Add cache to an axum response
-pub trait AddCache {
-    fn add_cache(self, cache_rule: &str) -> Self;
+pub trait AddCache
+where
+    Self: Sized,
+{
+    fn add_cache(self, cache_rule: &str) -> ServerResult<Self>;
 }
 
 impl AddCache for Response {
-    fn add_cache(self, cache_rule: &str) -> Self {
+    fn add_cache(self, cache_rule: &str) -> ServerResult<Self> {
         add_cache(self, cache_rule)
     }
 }

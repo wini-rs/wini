@@ -264,6 +264,15 @@ impl From<Markup> for PreEscaped<String> {
     }
 }
 
+impl Clone for Markup {
+    fn clone(&self) -> Self {
+        Markup {
+            content: self.content.clone(),
+            linked_files: self.linked_files.clone(),
+        }
+    }
+}
+
 
 impl Deref for Markup {
     type Target = PreEscaped<String>;
@@ -346,12 +355,12 @@ mod actix_support {
     use {
         crate::PreEscaped,
         actix_web_dep::{
-            body::{BodySize, MessageBody},
-            http::header,
-            web::Bytes,
             HttpRequest,
             HttpResponse,
             Responder,
+            body::{BodySize, MessageBody},
+            http::header,
+            web::Bytes,
         },
         alloc::string::String,
         core::{
@@ -392,7 +401,7 @@ mod tide_support {
     use {
         crate::PreEscaped,
         alloc::string::String,
-        tide::{http::mime, Response, StatusCode},
+        tide::{Response, StatusCode, http::mime},
     };
 
     impl From<PreEscaped<String>> for Response {
@@ -410,7 +419,7 @@ mod axum_support {
     use {
         crate::Markup,
         axum_core::response::{IntoResponse, Response},
-        http::{header, HeaderMap, HeaderValue},
+        http::{HeaderMap, HeaderValue, header},
     };
 
     impl IntoResponse for Markup {
@@ -446,7 +455,7 @@ mod submillisecond_support {
         crate::PreEscaped,
         alloc::string::String,
         submillisecond::{
-            http::{header, HeaderMap, HeaderValue},
+            http::{HeaderMap, HeaderValue, header},
             response::{IntoResponse, Response},
         },
     };
@@ -469,7 +478,7 @@ mod submillisecond_support {
 pub mod macro_private {
     pub use hashbrown::HashSet;
     use {
-        crate::{display, Render},
+        crate::{Render, display},
         alloc::string::String,
         core::fmt::Display,
     };

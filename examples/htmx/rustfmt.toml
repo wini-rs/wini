@@ -1,6 +1,6 @@
 # https://github.com/rust-lang/rustfmt
 # Configuration: https://rust-lang.github.io/rustfmt
-edition = "2021"
+edition = "2024"
 newline_style = "Unix"
 array_width = 50
 reorder_impl_items = true

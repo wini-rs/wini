@@ -4,7 +4,7 @@ version = "0.26.3"
 documentation = "https://docs.rs/wini-maud-macros"
 description = "Internal crate. Please use 'wini-maud' instead."
 repository = "https://github.com/wini-rs/wini"
-edition = "2021"
+edition = "2024"
 authors = ["Chris Wong <lambda.fairy@gmail.com>", "tk"]
 license = "LGPL-3.0-or-later"
 

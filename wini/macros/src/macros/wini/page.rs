@@ -3,6 +3,7 @@ use {
     crate::utils::wini::{
         files::get_js_or_css_files_in_current_dir,
         params_from_itemfn::params_from_itemfn,
+        result::is_ouput_ty_result,
     },
     proc_macro::TokenStream,
     quote::quote,
@@ -26,6 +27,12 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     );
     original_function.sig.ident = new_name.clone();
 
+    let early_return_if_is_result_err = if is_ouput_ty_result(&original_function) {
+        quote!(?)
+    } else {
+        Default::default()
+    };
+
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
@@ -37,12 +44,15 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
         #original_function
 
         #[allow(non_snake_case)]
-        pub async fn #original_name(#arguments) -> axum::response::Response<axum::body::Body> {
-            use itertools::Itertools;
+        pub async fn #original_name(#arguments) -> crate::shared::wini::err::ServerResult<axum::response::Response<axum::body::Body>> {
+            use {
+                axum::response::IntoResponse,
+                itertools::Itertools,
+            };
 
             const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
 
-            let html = #new_name(#(#param_names),*).await;
+            let html = #new_name(#(#param_names),*).await #early_return_if_is_result_err;
 
             let files = html.linked_files.iter().join(";");
 
@@ -59,7 +69,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
             // Modify header with meta tags in it
             #meta_headers
 
-            res
+            Ok(res)
         }
     };
 

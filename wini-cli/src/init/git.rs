@@ -1,15 +1,18 @@
 use {
     super::err::InitError,
     crate::{
-        init::{select, sep, SEP},
+        init::{select, sep},
         utils::generate_random_string,
     },
+    clap::builder::OsStr,
     git2::{BranchType, Cred, CredentialType, IndexAddOption, Repository, Signature, Time},
     inquire::{Password, Text},
     std::{
         borrow::Cow,
         fmt::Write,
+        iter::once,
         path::Path,
+        process::Command,
         time::{SystemTime, UNIX_EPOCH},
     },
 };
@@ -33,7 +36,9 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
         Cow::Owned(username)
     };
 
-    let credentials = match selection {
+
+
+    match selection {
         0 => {
             let mut path_to_key: Option<String> = None;
 
@@ -66,9 +71,7 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
             Cred::userpass_plaintext(&username, &password.unwrap())
         },
         _ => unreachable!(),
-    };
-
-    credentials
+    }
 }
 
 
@@ -114,7 +117,7 @@ pub fn use_branch(repo_path: &str, branch_name: &str) -> Result<String, git2::Er
     let last_commit_oid = target_commit.id();
     let mut last_commit_sha = String::with_capacity(40);
     for byte in last_commit_oid.as_bytes() {
-        write!(&mut last_commit_sha, "{:02x}", byte).unwrap();
+        write!(&mut last_commit_sha, "{byte:02x}").unwrap();
     }
 
 
@@ -122,6 +125,16 @@ pub fn use_branch(repo_path: &str, branch_name: &str) -> Result<String, git2::Er
 }
 
 
+pub fn clone_and_init(url: &str) -> Result<String, InitError> {
+    let path = clone(url)?;
+    Command::new("cd")
+        .arg(&path)
+        .spawn()
+        .map_err(InitError::IoError)?;
+    pub_just::run([OsStr::from("just"), OsStr::from("on-install")].into_iter())
+        .map_err(InitError::JustError)?;
+    Ok(path)
+}
 
 pub fn clone(url: &str) -> Result<String, InitError> {
     let clone_to = generate_random_string(64);
@@ -143,7 +156,9 @@ pub fn clone(url: &str) -> Result<String, InitError> {
             match why.code() {
                 git2::ErrorCode::Auth => {
                     println!("{}", InitError::BadCredentials);
-                    println!("{SEP}");
+
+                    sep();
+
                     clone(url)
                 },
                 _ => Err(InitError::OtherGitError(why)),
@@ -158,7 +173,7 @@ pub fn clone(url: &str) -> Result<String, InitError> {
 pub fn first_commit(repo_path: &str) -> Result<(), git2::Error> {
     let repo = Repository::open(repo_path)?;
     let mut index = repo.index()?;
-    index.add_all(["*"].iter(), IndexAddOption::DEFAULT, None)?;
+    index.add_all(once("*"), IndexAddOption::DEFAULT, None)?;
     index.write()?;
 
 
@@ -167,7 +182,14 @@ pub fn first_commit(repo_path: &str) -> Result<(), git2::Error> {
         .expect("UNIX_EPOCH is always a valid date.")
         .as_secs();
 
-    let author = Signature::new("Wini", "wini", &Time::new(now as i64, 0))?;
+    let author = Signature::new(
+        "Wini",
+        "wini",
+        &Time::new(
+            i64::try_from(now).expect("Current timestamp should be a valid i64"),
+            0,
+        ),
+    )?;
 
     let tree_id = index.write_tree()?;
     let tree = repo.find_tree(tree_id)?;

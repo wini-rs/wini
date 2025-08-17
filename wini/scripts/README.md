@@ -10,6 +10,7 @@ If all these scripts are included here, it's because they are meant to be custom
 Below is a quick overview of what each script is doing.
 
 ## Overview
+// IFFEAT posix-sh
 - `ask-path-package.sh`: Ask the user the path of the files to include from the javascript package they installed
 - `clean-js-without-ts.sh`: Clean javascript files that don't have an associated typescript file.
 - `fmt.sh`: Format files of the project
@@ -24,3 +25,4 @@ Below is a quick overview of what each script is doing.
 - `typescript.sh`: Compile all the ts files into js.
 - `yesno.sh`: Provide utility function for `[y/n]` prompts in bash.
 - `template/`: Template for creating *something* when running `./new.sh`
+// ENDIF

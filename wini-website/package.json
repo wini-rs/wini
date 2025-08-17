@@ -4,6 +4,7 @@
         "@types/node": "^22.9.3"
     },
     "dependencies": {
-        "htmx.org": "^1.9.12"
+        "htmx.org": "^1.9.12",
+        "hyperscript.org": "^0.9.14"
     }
 }

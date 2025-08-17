@@ -1,20 +1,22 @@
-use walkdir::WalkDir;
+use {std::path::Path, walkdir::WalkDir};
 
 /// This function will try to get all the files in a directory, including subdirectories and return
 /// their relative paths.
 ///
 /// # Example
 ///
+/// ```ignore
 /// ├── a
 /// ├── b/
 /// │   └── d
 /// ├── c
 /// └── d/
+/// ```
 ///
 /// Will result in
 ///
 /// `["a", "b/d", "c"]`
-pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<String>> {
+pub fn get_files_in_directory<P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<String>> {
     let mut files = Vec::new();
 
     // Read the directory
@@ -26,10 +28,10 @@ pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<Stri
         if path.is_file() {
             // Get the file name and its path
             if path.file_name().and_then(|n| n.to_str()).is_some() {
-                files.push(format!("{}", path.to_string_lossy()).replace("./public", ""));
+                files.push(path.to_string_lossy().replace("./public", ""));
             }
         } else if path.is_dir() {
-            files.extend(get_files_in_directory(path.to_str().unwrap())?);
+            files.extend(get_files_in_directory(path)?);
         }
     }
 
@@ -41,6 +43,7 @@ pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<Stri
 ///
 /// # Example
 ///
+/// ```ignore
 /// ├── a.js
 /// ├── a_not_js
 /// ├── b/
@@ -48,6 +51,8 @@ pub fn get_files_in_directory<S: AsRef<str>>(dir: S) -> std::io::Result<Vec<Stri
 /// ├── c
 /// ├── d/
 /// └── e.css
+/// ```
+///
 /// Searching extensions `["js", "css"]`
 ///
 /// Will result in
@@ -63,21 +68,17 @@ pub fn get_files_in_directory_per_extensions(dir: &str, extensions: &[&str]) -> 
         .follow_links(true)
         .into_iter()
         .filter_map(|entry| {
-            match entry {
-                Ok(file)
-                    if extensions_with_dots
-                        .iter()
-                        .any(|ext| file.path().to_str().is_some_and(|s| s.ends_with(ext))) =>
-                {
-                    Some(
+            entry.ok().and_then(|file| {
+                extensions_with_dots
+                    .iter()
+                    .any(|ext| file.path().to_str().is_some_and(|s| s.ends_with(ext)))
+                    .then(|| {
                         file.path()
                             .to_str()
                             .expect("Already verified before")
-                            .to_string(),
-                    )
-                },
-                _ => None,
-            }
+                            .to_string()
+                    })
+            })
         })
         .collect::<Vec<_>>()
 }

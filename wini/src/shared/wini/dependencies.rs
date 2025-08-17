@@ -1,15 +1,13 @@
 use {
     super::{
-        err::ExitWithMessageIfErr,
-        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
         JS_FILES,
+        err::ExitWithMessageIfErr,
+        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
     },
     crate::concat_paths,
     regex::Regex,
     std::{
         collections::HashMap,
-        fs::File,
-        io::Read,
         path::{Component, Path, PathBuf},
         sync::LazyLock,
     },
@@ -19,8 +17,10 @@ pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#)
         .expect("This should always be a valid regex.")
 });
+
 pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r#"^[A-Za-z_0-9]"#).expect("This should always be a valid regex."));
+    LazyLock::new(|| Regex::new(r"^[A-Za-z_0-9]").expect("This should always be a valid regex."));
+
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
         LazyLock::force(&REGEX_IS_PACKAGE);
@@ -55,10 +55,10 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
             Component::ParentDir => {
                 // Remove the last component if possible, but only if it's not a root or a prefix
                 if let Some(last) = components.last() {
-                    if *last != Component::ParentDir {
-                        components.pop();
-                    } else {
+                    if *last == Component::ParentDir {
                         components.push(component);
+                    } else {
+                        components.pop();
                     }
                 } else {
                     components.push(component); // If it's at the start, keep it
@@ -114,12 +114,7 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         path = std::path::Path::new(&path_str);
     }
 
-    let mut file = File::open(path).exit_with_msg_if_err(format!("Couldn't find {path:?}"));
-    let mut contents = String::new();
-    if let Err(err) = file.read_to_string(&mut contents) {
-        log::error!("Couldn't read to string: {err:?}");
-        std::process::exit(1)
-    }
+    let contents = std::fs::read_to_string(path).exit_with_msg_if_err("IO Error");
 
     let caps = REGEX_DEPENDENCY.captures_iter(&contents);
 
@@ -129,7 +124,9 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
         .map(|ex| ex.1[1].to_string())
         .collect::<Vec<String>>();
 
-    if !dependencies.is_empty() {
+    if dependencies.is_empty() {
+        None
+    } else {
         let mut relatives_dependencies = vec![];
 
         // Ok to clone since this function will only be called on initialization of LazyLock
@@ -140,7 +137,7 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
 
             // If an import starts with a ".", it's a path to a file. In this case, we want to
             // have it's path relative to the file it's referenced from.
-            let dep_relative_path = if dep.starts_with(".") {
+            let dep_relative_path = if dep.starts_with('.') {
                 let dep = concat_paths!(
                     path.parent().expect("Path should have a parent."),
                     if dep.ends_with(".js") {
@@ -167,8 +164,8 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
                     .expect("Already matched the key");
 
                 // If there is only one path to resolve, we know which one it is! (the first)
-                if vec.len() == 1 {
-                    concat_paths!(&vec[0], &dep[prefix_path.len()..])
+                if let Some(first) = vec.first() {
+                    concat_paths!(first, &dep[prefix_path.len()..])
                         .display()
                         .to_string()
                 } else {
@@ -204,25 +201,20 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             relatives_dependencies.push(dep_relative_path.clone());
 
             // If it's not a package, we need to look at the dependencies of this file
-            if !is_dep_package {
-                if let Some(sub_deps) = script_dependencies(&dep_relative_path) {
-                    for sub_dep in sub_deps {
-                        if relatives_dependencies.contains(&sub_dep) {
-                            let maybe_index =
-                                relatives_dependencies.iter().position(|d| *d == sub_dep);
-                            if let Some(index) = maybe_index {
-                                relatives_dependencies.remove(index);
-                            }
+            if !is_dep_package && let Some(sub_deps) = script_dependencies(&dep_relative_path) {
+                for sub_dep in sub_deps {
+                    if relatives_dependencies.contains(&sub_dep) {
+                        let maybe_index = relatives_dependencies.iter().position(|d| *d == sub_dep);
+                        if let Some(index) = maybe_index {
+                            relatives_dependencies.remove(index);
                         }
-
-                        relatives_dependencies.push(sub_dep);
                     }
+
+                    relatives_dependencies.push(sub_dep);
                 }
             }
         }
 
         Some(relatives_dependencies)
-    } else {
-        None
     }
 }

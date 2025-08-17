@@ -1,20 +1,23 @@
 use {
-    crate::just::{args_from_file::arguments_from_justfile_path, search_justfile::search},
+    crate::{
+        init::err::InitError,
+        just::{args_from_file::arguments_from_justfile_path, search_justfile::search},
+    },
     anstyle::AnsiColor,
     clap::{crate_version, Command},
 };
 
-pub fn build() -> clap::ArgMatches {
+pub fn build() -> Result<clap::ArgMatches, InitError> {
     let mut command = base_command();
 
     if let Some(justfile_path) = search() {
-        let justfile = arguments_from_justfile_path(&justfile_path).unwrap();
-        command = command.subcommands(justfile.recipes)
+        let justfile = arguments_from_justfile_path(&justfile_path)?;
+        command = command.subcommands(justfile.recipes);
     } else {
         command = command.after_help("No justfile found.");
     }
 
-    command.get_matches()
+    Ok(command.get_matches())
 }
 
 fn base_command() -> Command {
@@ -30,7 +33,7 @@ fn base_command() -> Command {
         )
 }
 
-pub fn get_styles() -> clap::builder::Styles {
+pub const fn get_styles() -> clap::builder::Styles {
     clap::builder::Styles::styled()
         .placeholder(AnsiColor::White.on_default().italic().underline())
         .usage(AnsiColor::Blue.on_default())

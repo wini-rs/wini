@@ -1,7 +1,7 @@
 use {
     super::{config::TomlLoadingError, err::ExitWithMessageIfErr},
     crate::{concat_paths, shared::wini::config::SERVER_CONFIG},
-    serde::{de::Visitor, Deserialize, Deserializer},
+    serde::{Deserialize, Deserializer, de::Visitor},
     std::{collections::HashMap, io, sync::LazyLock},
 };
 
@@ -58,6 +58,22 @@ impl<'de> Deserialize<'de> for VecOrString {
 
 /// The files on which a package depend on
 pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::new(|| {
+    fn module_path_from_short_name(package: &str, file: &str) -> String {
+        if file.starts_with("https://") {
+            file.to_string()
+        } else {
+            concat_paths!(
+                &SERVER_CONFIG.path.modules,
+                &package,
+                std::path::Path::new(&file).file_name().unwrap_or_default()
+            )
+            .display()
+            .to_string()
+            .trim_start_matches('.')
+            .to_string()
+        }
+    }
+
     let file_to_read_from = "./packages-files.toml";
 
     let file = std::fs::read_to_string(file_to_read_from)
@@ -73,19 +89,6 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
 
     let hashmap: HashMap<String, VecOrString> =
         toml::from_str(&file).exit_with_msg_if_err("Unexpected error while parsing TOML");
-
-
-    fn module_path_from_short_name(package: &str, file: &str) -> String {
-        concat_paths!(
-            &SERVER_CONFIG.path.modules,
-            &package,
-            std::path::Path::new(&file).file_name().unwrap_or_default()
-        )
-        .display()
-        .to_string()
-        .trim_start_matches(".")
-        .to_string()
-    }
 
     hashmap
         .into_iter()

@@ -2,11 +2,11 @@ use {
     crate::{
         concat_paths,
         shared::wini::{
-            config::SERVER_CONFIG,
-            dependencies::{normalize_relative_path, SCRIPTS_DEPENDENCIES},
-            err::ServerResult,
-            packages_files::{VecOrString, PACKAGES_FILES},
             PUBLIC_ENDPOINTS,
+            config::SERVER_CONFIG,
+            dependencies::{SCRIPTS_DEPENDENCIES, normalize_relative_path},
+            err::{ServerError, ServerResult},
+            packages_files::{PACKAGES_FILES, VecOrString},
         },
         utils::wini::buffer::buffer_to_string,
     },
@@ -35,7 +35,7 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
         return Ok(ServeFile::new(format!("./public{path}"))
             .try_call(req)
             .await
-            .unwrap()
+            .map_err(|_| ServerError::PublicRessourceNotFound(path.to_owned()))
             .into_response());
     }
 
@@ -43,7 +43,7 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
     let rep = next.run(req).await;
     let (mut res_parts, res_body) = rep.into_parts();
 
-    let resp_str = buffer_to_string(res_body).await.unwrap();
+    let resp_str = buffer_to_string(res_body).await?;
 
     // Extract and remove the meta tags from the response headers
     let meta_tags = add_meta_tags(&mut res_parts);
@@ -52,7 +52,7 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
 
     let (scripts, styles) = match res_parts.headers.remove("files") {
         Some(files) => {
-            let files = files.to_str().unwrap();
+            let files = files.to_str()?;
 
             // Convert the string separated by ; into a vec
             let mut scripts = vec![];
@@ -79,13 +79,13 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
     };
 
     // Compute the HTML to send
-    let html = html::html(&resp_str, scripts, styles, meta_tags);
+    let html = html::html(&resp_str, scripts, styles, &meta_tags);
 
     // Recalculate the length
     *res_parts
         .headers
         .entry("content-length")
-        .or_insert(0.into()) = (html.len() as i32).into();
+        .or_insert(0.into()) = html.len().into();
 
     res_parts.headers.remove("transfer-encoding");
 
@@ -105,7 +105,7 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
     let dependencies = scripts
         .iter()
         .filter_map(|script| (*SCRIPTS_DEPENDENCIES).get(script))
-        .filter_map(|e| e.clone())
+        .filter_map(std::clone::Clone::clone)
         .flatten()
         .map(|dep| {
             let public_path =
@@ -117,7 +117,7 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
                 dep[SERVER_CONFIG.path.public.len() - 3..].to_string()
             } else {
                 if !dep.ends_with(".js") {
-                    packages.push(dep.to_owned());
+                    packages.push(dep.clone());
                 }
                 dep
             }
@@ -130,7 +130,7 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
             scripts.retain(|script| *script != dep);
         }
         if !packages.contains(&dep) {
-            scripts.push(dep.to_owned())
+            scripts.push(dep.clone());
         }
     }
 
@@ -153,8 +153,9 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
                 }
             },
             None => {
-                log::warn!("The package {pkg:#?} doesn't have any associated minified file. Therefore, nothing will be send for this package.");
-                continue;
+                log::warn!(
+                    "The package {pkg:#?} doesn't have any associated minified file. Therefore, nothing will be send for this package."
+                );
             },
         }
     }

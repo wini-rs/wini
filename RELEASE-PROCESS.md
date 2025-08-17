@@ -10,6 +10,8 @@
 
 5. cd wini && cargo clippy && cd -
 
-6. git push
+6. nix flake update
 
-7. nix flake update
+7. git tag -a vMAJOR.MID.MINOR -m "wini: v"
+
+8. git push

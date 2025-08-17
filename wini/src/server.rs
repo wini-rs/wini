@@ -9,7 +9,7 @@ use {
             handling_file::{self},
         },
     },
-    axum::{middleware, routing::get, Router},
+    axum::{Router, middleware, routing::get},
     log::info,
     tower_http::compression::CompressionLayer,
 };
@@ -26,8 +26,8 @@ pub async fn start() {
         .layer(middleware::from_fn(header::render))
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
-        .route("/*.", get(handling_file::handle_file))
-        .layer(compression_layer);
+        .route("/{*wildcard}", get(handling_file::handle_file))
+        .layer(comression_layer);
 
 
     // Start the server

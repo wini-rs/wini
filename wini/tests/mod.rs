@@ -14,7 +14,7 @@ pub fn get_mean_execution_time<F, R>(f: F) -> Duration
 where
     F: FnOnce() -> R + Copy,
 {
-    const NUM_ITERATIONS: usize = 10000;
+    const NUM_ITERATIONS: u32 = 10000;
 
     let mut total_time = Duration::from_secs(0);
 
@@ -23,7 +23,7 @@ where
         total_time += result;
     }
 
-    total_time / NUM_ITERATIONS as u32
+    total_time / NUM_ITERATIONS
 }
 
 

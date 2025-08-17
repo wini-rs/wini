@@ -30,8 +30,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 }
 
 #[proc_macro_attribute]
-pub fn cache(args: TokenStream, item: TokenStream) -> TokenStream {
-    macros::wini::cache::cache(args, item)
+pub fn init_cache(args: TokenStream, item: TokenStream) -> TokenStream {
+    macros::wini::cache::init_cache(args, item)
 }
 
 /// Doesn't panic if there is an error. This will be the job of the server initialization to handle
@@ -43,7 +43,7 @@ pub(crate) static SHOULD_CACHE_FN: LazyLock<bool> = LazyLock::new(|| {
         Err(_) => return false,
     };
 
-    dotenv().ok();
+    dotenv().expect("Couldn't load environment");
     let env_type = match std::env::var("ENV_TYPE") {
         Ok(env_type) => env_type.to_lowercase(),
         Err(_) => return false,
@@ -54,7 +54,7 @@ pub(crate) static SHOULD_CACHE_FN: LazyLock<bool> = LazyLock::new(|| {
         .environments
         .get(&env_type)
         .and_then(|maybe_config| maybe_config.as_ref().map(|c| c.function))
-        .unwrap_or_else(|| toml.cache.default.map(|env| env.function).unwrap_or(false))
+        .unwrap_or_else(|| toml.cache.default.is_some_and(|env| env.function))
 });
 
 

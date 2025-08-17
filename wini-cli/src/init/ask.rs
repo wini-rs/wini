@@ -1,5 +1,10 @@
 use {
-    super::{err::InitError, git::clone, sep, RepoSummary},
+    super::{
+        err::InitError,
+        git::clone_and_init,
+        sep,
+        RepoSummary,
+    },
     crate::{
         init::{
             git::use_branch,
@@ -50,6 +55,7 @@ pub fn ask() -> Result<(), InitError> {
     rename_fields(&repo_summary)?;
 
     sep();
+
     println!(
         "\x1B[32m◆\x1B[0m Project created at `\x1B[32;1m./{}\x1b[0m`!",
         repo_summary.dir
@@ -61,7 +67,7 @@ pub fn ask() -> Result<(), InitError> {
 
 /// Creates the repository project from one of the official template of wini
 pub fn from_official_repository() -> Result<RepoSummary, InitError> {
-    let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
+    let handle_clone_official_repository = std::thread::spawn(|| clone_and_init(WINI_REPO));
 
     let result = (|| {
         let branch_index = select(
@@ -177,7 +183,7 @@ pub fn handle_project_setup_for_custom(
 pub fn from_custom_remote_repository() -> Result<RepoSummary, InitError> {
     let remote_url = input("Remote repository URL:")?;
 
-    let current_repository_name = match clone(&remote_url) {
+    let current_repository_name = match clone_and_init(&remote_url) {
         Ok(n) => n,
         Err(InitError::OtherGitError(git_error)) => {
             if git_error.code() == git2::ErrorCode::NotFound ||
@@ -226,10 +232,10 @@ pub fn from_custom_local_repository() -> Result<RepoSummary, InitError> {
                     eprintln!(
                         "{}",
                         InitError::PathExistsButIsNotGit(input_repository_path)
-                    )
+                    );
                 }
             } else {
-                eprintln!("{}", InitError::InvalidPath(input_repository_path))
+                eprintln!("{}", InitError::InvalidPath(input_repository_path));
             }
         }
 
@@ -273,7 +279,7 @@ fn get_project_name() -> Result<String, InitError> {
             .unwrap_or(false);
 
             if is_ok_for_renaming {
-                project_name = project_name.replace(char, "_")
+                project_name = project_name.replace(char, "_");
             } else {
                 return Err(InitError::ManualExit);
             }

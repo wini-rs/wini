@@ -1,18 +1,18 @@
 use {
     crate::shared::wini::{
-        cache::{AddCache, CacheCategory},
-        config::SERVER_CONFIG,
-        err::ServerResult,
         CSS_FILES,
         JS_FILES,
         PUBLIC_ENDPOINTS,
+        cache::{AddCache, CacheCategory},
+        config::SERVER_CONFIG,
+        err::{ServerError, ServerResult},
     },
     axum::{
         extract::Request,
         http::HeaderValue,
         response::{IntoResponse, Response},
     },
-    hyper::{header::CONTENT_TYPE, StatusCode},
+    hyper::{StatusCode, header::CONTENT_TYPE},
     tower_http::services::ServeFile,
 };
 
@@ -28,7 +28,7 @@ pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body
         return Ok(ServeFile::new(format!("./public{path}"))
             .try_call(req)
             .await
-            .unwrap()
+            .map_err(|_| ServerError::PublicRessourceNotFound(path.clone()))?
             .into_response());
     }
 
@@ -52,13 +52,13 @@ pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body
 }
 
 fn js_into_response(file_content: &str) -> ServerResult<Response<axum::body::Body>> {
-    Ok(file_into_response(file_content, "javascript")?
-        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Javascript)))
+    file_into_response(file_content, "javascript")?
+        .add_cache(&SERVER_CONFIG.cache.get_or_panic(CacheCategory::Javascript))
 }
 
 fn css_into_response(file_content: &str) -> ServerResult<Response<axum::body::Body>> {
-    Ok(file_into_response(file_content, "css")?
-        .add_cache(&SERVER_CONFIG.cache.get(CacheCategory::Css)))
+    file_into_response(file_content, "css")?
+        .add_cache(&SERVER_CONFIG.cache.get_or_panic(CacheCategory::Css))
 }
 
 /// Create a response from the content of the file and add the content_type header accordingly with
