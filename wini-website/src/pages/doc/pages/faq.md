@@ -1,3 +1,0 @@
-## Why maud ?
-
-Blazingly fast
