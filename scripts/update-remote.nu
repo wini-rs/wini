@@ -7,7 +7,6 @@ def main [] {
         print $"# -------------------------------------- #"
         print $"# --- Testing feature \"($i.name)\" --- #"
         print $"# -------------------------------------- #"
-        print $"($i.features | append "test")"
         let path = check-with-features ($i.features | append "test")
         $branches_and_paths = ($branches_and_paths | append { "path": $path, "branch": $i.name })
     }
@@ -25,7 +24,12 @@ def main [] {
 
         rm -rf *
 
-        cp -r $branch_and_path.path $wini_template_dir
-        diff -ru --exclude=.git $branch_and_path.path $wini_template_dir | delta
+        cp -r $branch_and_path.path $"($wini_template_dir)/wini-template"
+        diff -ru --exclude=.git $branch_and_path.path $"($wini_template_dir)/wini-template" | delta
+
+        git push
+        rm -rf $branch_and_path.path
     }
+
+    
 }
