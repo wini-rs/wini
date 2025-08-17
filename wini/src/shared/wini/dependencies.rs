@@ -164,8 +164,8 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
                     .expect("Already matched the key");
 
                 // If there is only one path to resolve, we know which one it is! (the first)
-                if vec.len() == 1 {
-                    concat_paths!(&vec[0], &dep[prefix_path.len()..])
+                if let Some(first) = vec.first() {
+                    concat_paths!(first, &dep[prefix_path.len()..])
                         .display()
                         .to_string()
                 } else {

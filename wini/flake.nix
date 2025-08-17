@@ -26,7 +26,7 @@
                     dart-sass
                     fd
                     ripgrep
-                    rust-bin.nightly.latest.default
+                    (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
                     delta
                 ];
             };

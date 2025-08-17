@@ -55,10 +55,10 @@ def check-with-features [features: list] {
         | save -f $file.name
     }
 
-    just compile-scss
+    nix develop -c nu -c "just compile-scss; cargo clippy -- --deny warnings --allow non-snake-case; cargo test"
 
-    cargo clippy
-    cargo test
+    # Free space after computation
+    rm -rf $'($tmp_dir)/wini/target'
 
     $'($tmp_dir)/wini'
 }
