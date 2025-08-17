@@ -17,11 +17,11 @@ Below is a quick overview of what each script is doing.
 - `launch.sh`: Terminate all the running servers and launch a new one
 - `lint.sh`: Lint the project
 - `log.sh`: Provide utilities function for other scripts. 
-- `new.sh`: Creates a new *something*. This *something* can be, a page, a layout or a component.
+- `new.sh`: Create a new *something*. This *something* can be, a page, a layout or a component.
 - `run.sh`: Run the project in a dev environment.
 - `scss.sh`: Compile all the scss files into css.
 - `sync-packages.sh`: Sync packages from node_modules to `modules`
-- `terminate.sh`: Terminates the currently running wini server.
+- `terminate.sh`: Terminate the currently running wini server.
 - `typescript.sh`: Compile all the ts files into js.
 - `yesno.sh`: Provide utility function for `[y/n]` prompts in bash.
 - `template/`: Template for creating *something* when running `./new.sh`
