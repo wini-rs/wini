@@ -23,7 +23,7 @@ struct MyUser {
 
 pub async fn start() {
     // Support for compression
-    let comression_layer = CompressionLayer::new();
+    let compression_layer = CompressionLayer::new();
 
     // let random_user = sqlx::query_as!(
     //     MyUser,
@@ -35,7 +35,7 @@ pub async fn start() {
     // )
     // .fetch_one(&*crate::POOL)
     // .await
-    // .expect("An error occured");
+    // .expect("An error occurred");
 
 
     // The main router of the application is defined here
@@ -44,7 +44,7 @@ pub async fn start() {
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/*.", get(handling_file::handle_file))
-        .layer(comression_layer);
+        .layer(compression_layer);
 
 
     // Start the server

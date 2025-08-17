@@ -6,7 +6,7 @@ pub enum InitError {
     PathExistsButIsNotGit(String),
     BranchDoesntExists(String),
     ManualExit,
-    CloneNeedsAuthentification,
+    CloneNeedsAuthentication,
     BadCredentials,
     AlreadyExists(String),
     IoError(std::io::Error),
@@ -28,7 +28,7 @@ impl Display for InitError {
                     format!("The path `{path}` exists, but is not a git repository."),
                 Self::BranchDoesntExists(branch) => format!("Branch {branch} doesn't exists"),
                 Self::InvalidPath(path) => format!("File `{path}` doesn't exists."),
-                Self::CloneNeedsAuthentification =>
+                Self::CloneNeedsAuthentication =>
                     "You need to authenticate to clone this repository.".to_string(),
                 Self::OtherGitError(err) => format!("{:?}", err.message()),
                 Self::IoError(err) => err.to_string(),

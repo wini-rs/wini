@@ -48,7 +48,7 @@ pub fn ask() -> Result<(), InitError> {
     let repo_summary = match selection {
         0 => from_official_repository()?,
         1 => from_custom_remote_repository()?,
-        2 => from_cutom_local_repository()?,
+        2 => from_custom_local_repository()?,
         _ => unreachable!(),
     };
 
@@ -127,7 +127,7 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
 
 
 
-/// Ask informations about the branch and the project name, and proceed to setup the repository
+/// Ask information about the branch and the project name, and proceed to setup the repository
 /// correctly.
 pub fn handle_project_setup_for_custom(
     current_repository_name: &str,
@@ -212,7 +212,7 @@ pub fn from_custom_remote_repository() -> Result<RepoSummary, InitError> {
 
 
 /// Creates the repository project from a local repository (probably not a good thing)
-pub fn from_cutom_local_repository() -> Result<RepoSummary, InitError> {
+pub fn from_custom_local_repository() -> Result<RepoSummary, InitError> {
     // The repository path to copy from
     let repository_path = {
         let mut repository_path: Option<String> = None;

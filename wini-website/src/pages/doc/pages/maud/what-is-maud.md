@@ -5,7 +5,7 @@ Maud is also really fast, because the procedural macro `html!`, transforms this 
 
 ## Quick tutorial
 
-_If you want a complete tutorial, I encourage you to read <https://maud.lambda-fairy.xyz/> which goes in depth of the complete syntax of Maud and is really a great ressource_
+_If you want a complete tutorial, I encourage you to read <https://maud.lambda-fairy.xyz/> which goes in depth of the complete syntax of Maud and is really a great resource_
 
 ### Element declaration
 
@@ -34,7 +34,7 @@ The syntax of maud is really inspired by the one of CSS. So, you can declare an 
 div #my-id .my-class-1 .my-class-2 {}
 ```
 
-To declare some special attribtues, here is the following syntax:
+To declare some special attributes, here is the following syntax:
 
 ```css
 div my-attribute="hello" {}
@@ -42,7 +42,7 @@ div my-attribute="hello" {}
 
 <div class="note">
 
-When you defined a div with an id or a class, you don't have to write `div`: it will be infered automatically
+When you defined a div with an id or a class, you don't have to write `div`: it will be inferred automatically
 
 This means that `#my-id {}` <=> `div #my-id {}`
 
@@ -69,7 +69,7 @@ This also works with all types of expressions in Rust when the expression return
 
 ### Conditions, Match and loops
 
-Maud supports `match`, `if`, `else`, `while` and `for` statements. To use them, you just need to preceed them by a `@` and you can use them like you would have in a normal context.
+Maud supports `match`, `if`, `else`, `while` and `for` statements. To use them, you just need to prefix them with a `@` and you can use them like you would have in a normal context.
 
 ```rs
 let my_vec = vec!["hello", "world", "!"];

@@ -4,7 +4,7 @@ Hosting your own template is something that is really encouraged in wini.
 
 Wini has some subjectives defaults that might not fit everybody. It's normal that you don't agree with all of them.
 
-Therefore, hosting your own template is really straigthforward:
+Therefore, hosting your own template is really straightforward:
 
 1. Clone the template
 
@@ -41,7 +41,7 @@ And
 ◆ Which branch should be used ?
 ```
 
-where you just have to enter informations about your remote git repository. And... that's really it! Congrats!
+where you just have to enter information about your remote git repository. And... that's really it! Congrats!
 
 ## Update your template
 

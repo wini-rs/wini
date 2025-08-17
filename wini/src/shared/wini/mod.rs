@@ -9,7 +9,7 @@ use {
 type FileContent = String;
 type FileName = String;
 
-/// The list of all the public endoints <=> all the files in `../public`
+/// The list of all the public endpoints <=> all the files in `../public`
 pub static PUBLIC_ENDPOINTS: LazyLock<Vec<String>> =
     LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_default());
 

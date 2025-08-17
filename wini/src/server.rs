@@ -17,7 +17,7 @@ use {
 
 pub async fn start() {
     // Support for compression
-    let comression_layer = CompressionLayer::new();
+    let compression_layer = CompressionLayer::new();
 
 
     // The main router of the application is defined here
@@ -27,7 +27,7 @@ pub async fn start() {
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/{*wildcard}", get(handling_file::handle_file))
-        .layer(comression_layer);
+        .layer(compression_layer);
 
 
     // Start the server

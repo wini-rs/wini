@@ -41,6 +41,6 @@ Will send back in header:
 
 <div class="note">
 
-This is the same thing with the `#[component]` and `#[layout]` macros that we wil see next. Tho, they don't do _exactly_ the same thing
+This is the same thing with the `#[component]` and `#[layout]` macros that we will see next. Tho, they don't do _exactly_ the same thing.
 
 </div>
