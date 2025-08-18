@@ -21,7 +21,9 @@ fi
 
 origin="$(yq -p toml ".origin" < ./wini.toml)"
 
+last_commit_hash="$(yq ".last_commit_hash" <<< "$origin")"
 remote_url="$(yq ".remote_url" <<< "$origin")"
+branch="$(yq ".branch" <<< "$origin")"
 
 if [ "$remote_url" = 'NONE' ]; then
     error "No remote repository. The project was created using a local repository."
@@ -31,5 +33,12 @@ fi
 
 git remote add wini-template "$remote_url"
 git fetch wini-template
-git cherry-pick "$(yq ".last_commit_hash" <<< "$origin")"..wini-template/"$(yq ".branch" <<< "$origin")"
+
+# Check for coherent last_commit_hash
+if  ! git log "wini-template/$branch" --pretty=format:"%H" | rg "^$last_commit_hash"; then
+    error 'Invalid `last_commit_hash`: doesn'"'t exists in remote wini-template/$branch"
+    git remote remove wini-template
+fi
+
+git cherry-pick "$last_commit_hash"..wini-template/"$branch" || git remote remove wini-template
 git remote remove wini-template
