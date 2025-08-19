@@ -31,7 +31,7 @@ macro_rules! generate_extension_function {
         pub fn $name(&self) -> proc_macro2::TokenStream {
             if let Some(value) = &self.$name {
                 quote::quote! {
-                    let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+                    let meta_tags: &mut crate::shared::wini::layer::Tags = res.get_mut();
                     meta_tags.insert(stringify!($name), Cow::Borrowed(#value))
                 }
             } else {
@@ -91,7 +91,7 @@ impl ProcMacroParameters {
         if let Some(value) = &self.keywords {
             let keyword_joined = value.join(", ");
             quote::quote! {
-                let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+                let meta_tags: &mut crate::shared::wini::layer::Tags = res.get_mut();
 
                 meta_tags.insert(
                     "keywords"
@@ -118,7 +118,7 @@ impl ProcMacroParameters {
                 .collect::<Vec<_>>();
 
             quote::quote! {
-                let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+                let meta_tags: &mut crate::shared::wini::layer:: = res.get_mut();
                 #(#quotes)*
             }
         } else {
@@ -153,10 +153,10 @@ impl ProcMacroParameters {
                     let lit_array: ExprArray = meta.value()?.parse()?;
                     let mut vec_elements = vec![];
                     for elem in lit_array.elems {
-                        if let syn::Expr::Lit(lit) = elem {
-                            if let syn::Lit::Str(lit_str) = lit.lit {
-                                vec_elements.push(lit_str.value());
-                            }
+                        if let syn::Expr::Lit(lit) = elem &&
+                            let syn::Lit::Str(lit_str) = lit.lit
+                        {
+                            vec_elements.push(lit_str.value());
                         }
                     }
 

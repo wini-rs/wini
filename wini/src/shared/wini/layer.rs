@@ -11,6 +11,7 @@ use {
     tower::{Layer, Service},
 };
 
+pub type Tags = HashMap<&'static str, Cow<'static, str>>;
 
 #[derive(Clone, Builder)]
 pub struct MetaLayer {
@@ -19,21 +20,33 @@ pub struct MetaLayer {
     /// # Example
     /// To add a default meta description if the page doesn't have one
     /// ```
+    /// use {
+    ///     PROJECT_NAME_TO_RESOLVE::shared::wini::layer::MetaLayerBuilder,
+    ///     std::collections::HashMap,
+    /// };
+    ///
     /// MetaLayerBuilder::default()
     ///     .default_meta(HashMap::from([("description", "Hello world!".into())]))
-    ///     .build()
+    ///     .build();
     /// ```
-    default_meta: HashMap<&'static str, Cow<'static, str>>,
+    #[builder(default)]
+    default_meta: Tags,
     /// Will always render theses meta tags, whatever the page sends has meta tags
     ///
     /// # Example
     /// To always send "Hello world!" as the meta description
     /// ```
+    /// use {
+    ///     PROJECT_NAME_TO_RESOLVE::shared::wini::layer::MetaLayerBuilder,
+    ///     std::collections::HashMap,
+    /// };
+    ///
     /// MetaLayerBuilder::default()
     ///     .force_meta(HashMap::from([("description", "Hello world!".into())]))
-    ///     .build()
+    ///     .build();
     /// ```
-    force_meta: HashMap<&'static str, Cow<'static, str>>,
+    #[builder(default)]
+    force_meta: Tags,
 }
 
 impl<S> Layer<S> for MetaLayer {
@@ -51,8 +64,8 @@ impl<S> Layer<S> for MetaLayer {
 #[derive(Clone)]
 pub struct MetaService<S> {
     inner: S,
-    default_meta: Arc<HashMap<&'static str, Cow<'static, str>>>,
-    force_meta: Arc<HashMap<&'static str, Cow<'static, str>>>,
+    default_meta: Arc<Tags>,
+    force_meta: Arc<Tags>,
 }
 
 impl<S> Service<Request> for MetaService<S>
@@ -81,10 +94,7 @@ where
             let (mut resp_parts, resp_body) = resp.into_parts();
 
             {
-                if let Some(extensions) = resp_parts
-                    .extensions
-                    .get_mut::<HashMap<&'static str, Cow<'static, str>>>()
-                {
+                if let Some(extensions) = resp_parts.extensions.get_mut::<Tags>() {
                     // extensions.extend(&*force_meta);
                     for (tag, value) in &*force_meta {
                         extensions.insert(
@@ -108,7 +118,7 @@ where
                         }
                     }
                 } else {
-                    let mut hm: HashMap<&'static str, Cow<'static, str>> = HashMap::new();
+                    let mut hm: Tags = HashMap::new();
 
                     for (tag, value) in &*force_meta {
                         hm.insert(
@@ -135,6 +145,8 @@ where
                     resp_parts.extensions.insert(hm);
                 }
             }
+
+            println!("{:#?}", resp_parts.extensions.get::<Tags>());
 
             Ok(Response::from_parts(resp_parts, resp_body))
         })

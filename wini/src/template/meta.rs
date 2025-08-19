@@ -1,7 +1,8 @@
 use {
+    crate::shared::wini::layer::Tags,
     axum::http::response::Parts,
     maud::{Markup, html},
-    std::{borrow::Cow, collections::HashMap, sync::LazyLock},
+    std::{collections::HashMap, sync::LazyLock},
 };
 
 
@@ -20,10 +21,7 @@ pub static META_MAPPINGS: LazyLock<HashMap<&'static str, Vec<&'static str>>> =
     });
 
 pub fn add_meta_tags(res_parts: &mut Parts) -> Markup {
-    if let Some(meta_tags) = res_parts
-        .extensions
-        .get::<HashMap<&'static str, Cow<'static, str>>>()
-    {
+    if let Some(meta_tags) = res_parts.extensions.get::<Tags>() {
         html! {
             @if let Some(title) = meta_tags.get("title") {
                 title { (title) }
@@ -33,7 +31,7 @@ pub fn add_meta_tags(res_parts: &mut Parts) -> Markup {
                     @for name in names {
                         meta name=(name) content=(tag_value);
                     }
-                } else {
+                } @else {
                     meta name=(tag_name) content=(tag_value);
                 }
             }

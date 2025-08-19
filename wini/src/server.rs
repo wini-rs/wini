@@ -24,15 +24,19 @@ pub async fn start() {
     let app = Router::new()
         .route("/", get(pages::hello::render))
         .layer(middleware::from_fn(header::render))
-        .layer(middleware::from_fn(template::template))
-        .layer(middleware::from_fn(cache::html_middleware))
-        .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(
             MetaLayerBuilder::default()
-                .default_meta(hash_map! { "title" => "test".into() })
+                .default_meta(hash_map! {
+                    "title" => "PROJECT_NAME_TO_RESOLVE".into(),
+                    "description" => "PROJECT_NAME_TO_RESOLVE".into(),
+                    "lang" => "en".into(),
+                })
                 .build()
                 .unwrap(),
         )
+        .layer(middleware::from_fn(template::template))
+        .layer(middleware::from_fn(cache::html_middleware))
+        .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(compression_layer);
 
 
