@@ -42,3 +42,5 @@ fi
 
 git cherry-pick "$last_commit_hash"..wini-template/"$branch" || git remote remove wini-template
 git remote remove wini-template
+
+just sync-commit-hash

@@ -43,9 +43,13 @@ fmt:
 lint:
     @./scripts/lint.sh
 
-# Updates the template that you're using by pulling latest commits
-update-template:
-    @./scripts/update-template.sh
+# Synchornises the template that you're using by pulling latest commits
+sync-template:
+    @./scripts/sync.sh
+
+# Synchronises the `last_commit_hash` from you wini.toml
+sync-commit-hash:
+    @./scripts/sync-commit-hash.sh
 
 # Adds a javascript package
 js-add pkg: && js-sync-packages
