@@ -1,8 +1,8 @@
 use {
-    crate::{utils::wini::path::is_str_eq_to_path, SHOULD_CACHE_FN},
+    crate::{SHOULD_CACHE_FN, utils::wini::path::is_str_eq_to_path},
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Ident},
+    syn::{Ident, parse_macro_input},
 };
 
 
@@ -18,7 +18,7 @@ pub fn init_cache(_args: TokenStream, item: TokenStream) -> TokenStream {
     // We always want to check that there is `#[cached]`
     let cache_fn_name = match input.attrs.iter().find(|attr| {
         match &attr.meta {
-            syn::Meta::Path(path) => is_str_eq_to_path("cached", &path),
+            syn::Meta::Path(path) => is_str_eq_to_path("cached", path),
             syn::Meta::List(meta_list) => is_str_eq_to_path("cached", &meta_list.path),
             syn::Meta::NameValue(_) => false,
         }
