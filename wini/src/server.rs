@@ -2,7 +2,7 @@ use {
     crate::{
         layout::header,
         pages,
-        shared::wini::PORT,
+        shared::wini::{PORT, layer::MetaLayerBuilder},
         template,
         utils::wini::{
             cache,
@@ -27,6 +27,12 @@ pub async fn start() {
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/{*wildcard}", get(handling_file::handle_file))
+        .layer(
+            MetaLayerBuilder::default()
+                .default_meta(hash_map! { "title" => "test".into() })
+                .build()
+                .unwrap(),
+        )
         .layer(compression_layer);
 
 

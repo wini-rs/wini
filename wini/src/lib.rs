@@ -1,3 +1,4 @@
+#![feature(hash_map_macro)]
 #![feature(impl_trait_in_fn_trait_return)]
 pub mod components;
 pub mod cron;

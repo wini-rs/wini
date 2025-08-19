@@ -1,6 +1,6 @@
 use {
     std::collections::HashMap,
-    syn::{meta::ParseNestedMeta, ExprArray, LitStr},
+    syn::{ExprArray, LitStr, meta::ParseNestedMeta},
 };
 
 /// The arguments expected in attribute
@@ -26,15 +26,13 @@ pub struct ProcMacroParameters {
     pub other_meta: Option<HashMap<String, String>>,
 }
 
-macro_rules! generate_header_functions {
+macro_rules! generate_extension_function {
     ($name:ident) => {
         pub fn $name(&self) -> proc_macro2::TokenStream {
             if let Some(value) = &self.$name {
                 quote::quote! {
-                    res.headers_mut().insert(
-                        concat!("meta-", stringify!($name)),
-                        axum::http::HeaderValue::from_str(#value).unwrap(),
-                    );
+                    let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+                    meta_tags.insert(stringify!($name), Cow::Borrowed(#value))
                 }
             } else {
                 quote::quote!()
@@ -43,9 +41,9 @@ macro_rules! generate_header_functions {
     };
 }
 
-macro_rules! generate_combined_headers_function {
+macro_rules! generate_combined_extensions_function {
     ($($field:ident),*) => {
-        pub fn generate_all_headers(&self) -> proc_macro2::TokenStream {
+        pub fn generate_all_extensions(&self) -> proc_macro2::TokenStream {
             // Generate all individual TokenStreams
             $(
                 let $field = self.$field();
@@ -63,7 +61,7 @@ macro_rules! generate_combined_headers_function {
 
 
 impl ProcMacroParameters {
-    generate_combined_headers_function!(
+    generate_combined_extensions_function!(
         title,
         description,
         robots,
@@ -75,27 +73,29 @@ impl ProcMacroParameters {
         other_meta
     );
 
-    generate_header_functions!(title);
+    generate_extension_function!(title);
 
-    generate_header_functions!(description);
+    generate_extension_function!(description);
 
-    generate_header_functions!(robots);
+    generate_extension_function!(robots);
 
-    generate_header_functions!(author);
+    generate_extension_function!(author);
 
-    generate_header_functions!(site_name);
+    generate_extension_function!(site_name);
 
-    generate_header_functions!(lang);
+    generate_extension_function!(lang);
 
-    generate_header_functions!(img);
+    generate_extension_function!(img);
 
     pub fn keywords(&self) -> proc_macro2::TokenStream {
         if let Some(value) = &self.keywords {
-            let str_value = value.join(", ");
+            let keyword_joined = value.join(", ");
             quote::quote! {
-                res.headers_mut().insert(
-                    "meta-keywords"
-                    HeaderValue::from_str(#str_value).unwrap(),
+                let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+
+                meta_tags.insert(
+                    "keywords"
+                    std::borrow::Cow::Borrowed(#keyword_joined),
                 );
             }
         } else {
@@ -109,15 +109,18 @@ impl ProcMacroParameters {
                 .iter()
                 .map(|(meta_name, meta_value)| {
                     quote::quote! {
-                        res.headers_mut().insert(
-                            concat!("meta-", #meta_name),
-                            HeaderValue::from_str(#meta_value).unwrap(),
+                        meta_tags.insert(
+                            #meta_name,
+                            std::borrow::Cow::Owned(#meta_value),
                         );
                     }
                 })
                 .collect::<Vec<_>>();
 
-            quote::quote! { #(#quotes)* }
+            quote::quote! {
+                let meta_tags: &mut HashMap<&'static str, std::borrow::Cow<'static, str>> = res.get_mut();
+                #(#quotes)*
+            }
         } else {
             quote::quote!()
         }

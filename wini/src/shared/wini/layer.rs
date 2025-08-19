@@ -3,8 +3,9 @@ use {
     derive_builder::Builder,
     std::{
         borrow::Cow,
-        collections::{HashMap, hash_map},
+        collections::HashMap,
         pin::Pin,
+        sync::Arc,
         task::{Context, Poll},
     },
     tower::{Layer, Service},
@@ -19,20 +20,20 @@ pub struct MetaLayer {
     /// To add a default meta description if the page doesn't have one
     /// ```
     /// MetaLayerBuilder::default()
-    ///     .default_meta(HashMap::from(["description".into(), "Hello world!".into()]))
+    ///     .default_meta(HashMap::from([("description", "Hello world!".into())]))
     ///     .build()
     /// ```
-    default_meta: HashMap<Cow<'static, str>, Cow<'static, str>>,
+    default_meta: HashMap<&'static str, Cow<'static, str>>,
     /// Will always render theses meta tags, whatever the page sends has meta tags
     ///
     /// # Example
     /// To always send "Hello world!" as the meta description
     /// ```
     /// MetaLayerBuilder::default()
-    ///     .default_meta(HashMap::from(["description".into(), "Hello world!".into()]))
+    ///     .force_meta(HashMap::from([("description", "Hello world!".into())]))
     ///     .build()
     /// ```
-    force_meta: HashMap<Cow<'static, str>, Cow<'static, str>>,
+    force_meta: HashMap<&'static str, Cow<'static, str>>,
 }
 
 impl<S> Layer<S> for MetaLayer {
@@ -41,8 +42,8 @@ impl<S> Layer<S> for MetaLayer {
     fn layer(&self, service: S) -> Self::Service {
         MetaService {
             inner: service,
-            default_meta: self.default_meta.clone(),
-            force_meta: self.force_meta.clone(),
+            default_meta: Arc::new(self.default_meta.clone()),
+            force_meta: Arc::new(self.force_meta.clone()),
         }
     }
 }
@@ -50,8 +51,8 @@ impl<S> Layer<S> for MetaLayer {
 #[derive(Clone)]
 pub struct MetaService<S> {
     inner: S,
-    default_meta: HashMap<Cow<'static, str>, Cow<'static, str>>,
-    force_meta: HashMap<Cow<'static, str>, Cow<'static, str>>,
+    default_meta: Arc<HashMap<&'static str, Cow<'static, str>>>,
+    force_meta: Arc<HashMap<&'static str, Cow<'static, str>>>,
 }
 
 impl<S> Service<Request> for MetaService<S>
@@ -60,7 +61,8 @@ where
     S::Future: Send + 'static,
 {
     type Error = S::Error;
-    type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
+    type Future =
+        Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>> + 'static + Send>>;
     type Response = S::Response;
 
     fn poll_ready(&mut self, cx: &mut Context<'_>) -> Poll<Result<(), Self::Error>> {
@@ -69,10 +71,72 @@ where
 
     fn call(&mut self, req: Request) -> Self::Future {
         let fut = self.inner.call(req);
+
+        let default_meta = Arc::clone(&self.force_meta);
+        let force_meta = Arc::clone(&self.default_meta);
+
         Box::pin(async move {
-            let response: Response = fut.await?;
-            // TODO
-            Ok(response)
+            let resp: Response = fut.await?;
+
+            let (mut resp_parts, resp_body) = resp.into_parts();
+
+            {
+                if let Some(extensions) = resp_parts
+                    .extensions
+                    .get_mut::<HashMap<&'static str, Cow<'static, str>>>()
+                {
+                    // extensions.extend(&*force_meta);
+                    for (tag, value) in &*force_meta {
+                        extensions.insert(
+                            tag,
+                            match value {
+                                Cow::Owned(string) => Cow::Owned(string.to_owned()),
+                                Cow::Borrowed(str) => Cow::Borrowed(str),
+                            },
+                        );
+                    }
+
+                    for (tag, value) in &*default_meta {
+                        if !extensions.contains_key(tag) {
+                            extensions.insert(
+                                tag,
+                                match value {
+                                    Cow::Owned(string) => Cow::Owned(string.to_owned()),
+                                    Cow::Borrowed(str) => Cow::Borrowed(str),
+                                },
+                            );
+                        }
+                    }
+                } else {
+                    let mut hm: HashMap<&'static str, Cow<'static, str>> = HashMap::new();
+
+                    for (tag, value) in &*force_meta {
+                        hm.insert(
+                            tag,
+                            match value {
+                                Cow::Owned(string) => Cow::Owned(string.to_owned()),
+                                Cow::Borrowed(str) => Cow::Borrowed(*str),
+                            },
+                        );
+                    }
+
+                    for (tag, value) in &*default_meta {
+                        if !hm.contains_key(tag) {
+                            hm.insert(
+                                tag,
+                                match value {
+                                    Cow::Owned(string) => Cow::Owned(string.to_owned()),
+                                    Cow::Borrowed(str) => Cow::Borrowed(*str),
+                                },
+                            );
+                        }
+                    }
+
+                    resp_parts.extensions.insert(hm);
+                }
+            }
+
+            Ok(Response::from_parts(resp_parts, resp_body))
         })
     }
 }

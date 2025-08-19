@@ -5,7 +5,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident},
+    syn::{FnArg, Ident, parse_macro_input, spanned::Spanned},
 };
 
 
@@ -42,10 +42,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             match first_arg {
                 FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
                 FnArg::Typed(pat_ty) => {
-                    match (*pat_ty.ty)
-                        .span()
-                        .source_text()
-                    {
+                    match (*pat_ty.ty).span().source_text() {
                         Some(ty) => {
                             if ty == "&str" {
                                 InputKind::Str
@@ -61,12 +58,16 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                                 panic!("Unknown child type: {ty}")
                             }
                         },
-                        None => panic!("Expected Layout to have a it's first argument being typed")
+                        None => panic!("Expected Layout to have a it's first argument being typed"),
                     }
                 },
             }
         },
-        None => panic!("Layouts should always take the child in parameter.\nDid you meant to create a component or a page ?"),
+        None => {
+            panic!(
+                "Layouts should always take the child in parameter.\nDid you meant to create a component or a page ?"
+            )
+        },
     };
     let handling_of_response = match input_kind {
         InputKind::Str => {
@@ -101,7 +102,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
-    let meta_headers = attributes.generate_all_headers();
+    let meta_extensions = attributes.generate_all_extensions();
 
     // Generate the output code
     let expanded = quote! {
@@ -141,8 +142,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             ).unwrap();
 
 
-            // Modify header with meta tags in it
-            #meta_headers
+            // Modify extensions with meta tags in it
+            #meta_extensions
 
             let res = axum::response::Response::from_parts(resp_parts, html.into_string().into());
 
