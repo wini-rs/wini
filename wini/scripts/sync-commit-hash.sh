@@ -10,7 +10,7 @@ on_interrupt() {
     git remote remove wini-template
 }
 
-trap on_interrupt SIGINT
+trap on_interrupt SIGINT TERM EXIT
 
 
 origin="$(yq -p toml ".origin" < ./wini.toml)"

@@ -11,7 +11,7 @@ on_interrupt() {
     git remote remove wini-template
 }
 
-trap on_interrupt SIGINT
+trap on_interrupt SIGINT TERM EXIT
 
 
 if ! git status | rg 'nothing to commit, working tree clean'; then
