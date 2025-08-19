@@ -15,7 +15,6 @@ pub fn html(
                 meta name="description" content="PROJECT_NAME_TO_RESOLVE";
                 title { "PROJECT_NAME_TO_RESOLVE" }
 
-                style { (include_str!("./always_loaded.css").trim_end()) }
                 @for style_sheet in style_sheets {
                     link rel="stylesheet" href=(style_sheet);
                 }
