@@ -37,8 +37,8 @@ while IFS= read -r remote_hash; do
             if [[ $last_commit_hash == $remote_hash ]]; then
                 info 'Up to date!'
             else
-                sed -E -i "s/last_commit_hash(\s*)=(\s*)(.*)/last_commit_hash\1=\2\"$1\"/g" wini.toml
-                info 'Sucessfully updated `last_commit_hash` to '$1
+                sed -E -i "s/last_commit_hash(\s*)=(\s*)(.*)/last_commit_hash\1=\2\"$remote_hash\"/g" wini.toml
+                info 'Sucessfully updated `last_commit_hash` to '$remote_hash
             fi
 
             git remote remove wini-template
