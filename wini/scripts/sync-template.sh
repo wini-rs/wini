@@ -35,12 +35,17 @@ git remote add wini-template "$remote_url"
 git fetch wini-template
 
 # Check for coherent last_commit_hash
-if ! git log "wini-template/$branch" --pretty=format:"%H" | rg "^$last_commit_hash"; then
+if ! git merge-base --is-ancestor "$last_commit_hash" "wini-template/$branch"; then
     error 'Invalid `last_commit_hash`: doesn'"'t exists in remote wini-template/$branch"
     git remote remove wini-template
 fi
 
-git cherry-pick "$last_commit_hash"..wini-template/"$branch" || git remote remove wini-template
-git remote remove wini-template
+if ! git cherry-pick "$last_commit_hash"..wini-template/"$branch"; then
+    git remote remove wini-template || true
+    error 'Cherry-pick failed; please resolve conflicts and after that, do `wini sync-commit-hash`'
+    exit 1
+fi
+
+git remote remove wini-template || true
 
 just sync-commit-hash
