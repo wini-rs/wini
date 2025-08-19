@@ -45,7 +45,7 @@ lint:
 
 # Synchornises the template that you're using by pulling latest commits
 sync-template:
-    @./scripts/sync.sh
+    @./scripts/sync-template.sh
 
 # Synchronises the `last_commit_hash` from you wini.toml
 sync-commit-hash:
