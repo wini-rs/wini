@@ -1,4 +1,6 @@
 set shell := ["nu", "-c"]
+
+
 # Check that all the branches are OK
 check-all:
     nu ./scripts/check-all.nu
