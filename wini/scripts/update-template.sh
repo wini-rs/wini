@@ -35,7 +35,7 @@ git remote add wini-template "$remote_url"
 git fetch wini-template
 
 # Check for coherent last_commit_hash
-if  ! git log "wini-template/$branch" --pretty=format:"%H" | rg "^$last_commit_hash"; then
+if ! git log "wini-template/$branch" --pretty=format:"%H" | rg "^$last_commit_hash"; then
     error 'Invalid `last_commit_hash`: doesn'"'t exists in remote wini-template/$branch"
     git remote remove wini-template
 fi
