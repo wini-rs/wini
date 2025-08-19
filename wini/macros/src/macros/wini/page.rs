@@ -7,7 +7,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Ident},
+    syn::{Ident, parse_macro_input},
 };
 
 
@@ -36,7 +36,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
-    let meta_headers = attributes.generate_all_headers();
+    let meta_headers = attributes.generate_all_extensions();
 
     // Generate the output code
     let expanded = quote! {
