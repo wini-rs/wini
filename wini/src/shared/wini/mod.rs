@@ -66,5 +66,6 @@ pub mod config;
 pub mod dependencies;
 pub mod env;
 pub mod err;
+pub mod layer;
 pub mod packages_files;
 pub mod tsconfig;
