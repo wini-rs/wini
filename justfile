@@ -1,3 +1,4 @@
+set shell := ["nu", "-c"]
 # Check that all the branches are OK
 check-all:
     nu ./scripts/check-all.nu
@@ -15,5 +16,5 @@ sync-default-main:
 sync-codeberg-with-github:
     nu ./scripts/sync-codeberg-with-github.nu
 
-see-branch:
-    nu ./scripts/see-branch.nu
+see-branch *ARGS:
+    nu ./scripts/see-branch.nu ...[{{ARGS}}]

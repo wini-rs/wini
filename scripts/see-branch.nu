@@ -1,9 +1,9 @@
-let tmp_dir = mktemp -d
+source ./check.nu
 
-cd $tmp_dir
 
-git clone git@github.com:wini-rs/wini-template
-chmod -R -w wini-template
-cd wini-template
+def main [...features: string] {
+    let dir = check-with-features $features
 
-print $"cd ($tmp_dir)/wini-template"
+    print "# --- You can now --- #"
+    print $"cd ($dir)"
+}
