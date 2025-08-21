@@ -6,6 +6,7 @@ use {
             config::SERVER_CONFIG,
             dependencies::{SCRIPTS_DEPENDENCIES, normalize_relative_path},
             err::{ServerError, ServerResult},
+            layer::Files,
             packages_files::{PACKAGES_FILES, VecOrString},
         },
         utils::wini::buffer::buffer_to_string,
@@ -16,6 +17,7 @@ use {
         middleware::Next,
         response::{IntoResponse, Response},
     },
+    hyper::header::{CONTENT_LENGTH, TRANSFER_ENCODING},
     meta::add_meta_tags,
     std::collections::HashSet,
     tower_http::services::ServeFile,
@@ -45,20 +47,18 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
 
     let resp_str = buffer_to_string(res_body).await?;
 
-    // Extract and remove the meta tags from the response headers
+    // Extract the meta tags from the response headers
     let meta_tags = add_meta_tags(&mut res_parts);
 
 
 
-    let (scripts, styles) = match res_parts.headers.remove("files") {
+    let (scripts, styles) = match res_parts.extensions.get::<Files>() {
         Some(files) => {
-            let files = files.to_str()?;
-
             // Convert the string separated by ; into a vec
             let mut scripts = vec![];
             let mut styles = vec![];
 
-            for file in files[..files.len() - 1].split(';') {
+            for file in files {
                 if !file.is_empty() {
                     let formatted_file = format!("/{file}");
                     if file.ends_with("css") {
@@ -82,12 +82,9 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
     let html = html::html(&resp_str, scripts, styles, &meta_tags);
 
     // Recalculate the length
-    *res_parts
-        .headers
-        .entry("content-length")
-        .or_insert(0.into()) = html.len().into();
+    *res_parts.headers.entry(CONTENT_LENGTH).or_insert(0.into()) = html.len().into();
 
-    res_parts.headers.remove("transfer-encoding");
+    res_parts.headers.remove(TRANSFER_ENCODING);
 
     let res = Response::from_parts(res_parts, Body::from(html));
 
