@@ -24,6 +24,31 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::layout::layout(args, item)
 }
 
+/// Creates a wini page
+///
+/// # Usage
+/// ```
+/// #[page(
+///     title = "Hello world!",
+///     keywords = ["hello", "world"],
+///     other_meta = [
+///         "custom_meta1" = "hello",
+///         "custom_meta2" = "world",
+///     ]
+/// )]
+/// fn render() -> Markup {
+///     html! {
+///         main {
+///             h1 {
+///                 "Hello world"
+///             }
+///             p {
+///                 "Some really, realy nice hello world!"
+///             }
+///         }
+///     }
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::page::page(args, item)
