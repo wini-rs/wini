@@ -432,17 +432,6 @@ mod axum_support {
             (headers, self.content.0).into_response()
         }
     }
-
-    impl IntoResponse for PreEscaped<String> {
-        fn into_response(self) -> Response {
-            let mut headers = HeaderMap::new();
-            headers.insert(
-                header::CONTENT_TYPE,
-                HeaderValue::from_static("text/html; charset=utf-8"),
-            );
-            (headers, self.content.0).into_response()
-        }
-    }
 }
 
 #[cfg(feature = "warp")]
