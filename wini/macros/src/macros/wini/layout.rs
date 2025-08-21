@@ -65,7 +65,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
         },
         None => {
             panic!(
-                "Layouts should always take the child in parameter.\nDid you meant to create a component or a page ?"
+                "Layouts must take the child as a parameter.\nDid you mean to create a component or a page?"
             )
         },
     };
