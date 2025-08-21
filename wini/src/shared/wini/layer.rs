@@ -96,7 +96,6 @@ where
 
             {
                 if let Some(extensions) = resp_parts.extensions.get_mut::<Tags>() {
-                    // extensions.extend(&*force_meta);
                     for (tag, value) in &*force_meta {
                         extensions.insert(
                             tag,
