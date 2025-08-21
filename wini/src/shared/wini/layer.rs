@@ -85,8 +85,8 @@ where
     fn call(&mut self, req: Request) -> Self::Future {
         let fut = self.inner.call(req);
 
-        let default_meta = Arc::clone(&self.force_meta);
-        let force_meta = Arc::clone(&self.default_meta);
+        let default_meta = Arc::clone(&self.default_meta);
+        let force_meta = Arc::clone(&self.force_meta);
 
         Box::pin(async move {
             let resp: Response = fut.await?;
