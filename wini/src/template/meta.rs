@@ -11,12 +11,15 @@ pub static META_MAPPINGS: LazyLock<HashMap<&'static str, Vec<&'static str>>> =
         HashMap::from([
             ("title", vec!["og:title"]),
             ("description", vec!["description", "og:description"]),
-            // ("keywords", vec!["keywords"]),
-            // ("robots", vec!["robots"]),
-            // ("author", vec!["author"]),
             ("site_name", vec!["og:site_name"]),
             ("lang", vec!["language"]),
             ("img", vec!["og:image"]),
+            // Theses are valid and supported tags, bu the meta name doesn't differ from the field
+            // name and there is only one meta tag to be created
+            //
+            // ("keywords", vec!["keywords"]),
+            // ("robots", vec!["robots"]),
+            // ("author", vec!["author"]),
         ])
     });
 
