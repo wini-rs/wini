@@ -101,7 +101,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
         },
     };
 
-    let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
+    let files_in_current_dir = get_js_or_css_files_in_current_dir();
+    let len_files_in_current_dir = files_in_current_dir.len();
     let meta_extensions = attributes.generate_all_extensions(true);
 
     // Generate the output code
@@ -118,34 +119,27 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             use {
                 axum::response::IntoResponse,
                 itertools::Itertools,
+                std::borrow::Cow,
             };
 
-            const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
+            const FILES_IN_CURRENT_DIR: [Cow<'static, str>; #len_files_in_current_dir] = [#(Cow::Borrowed(#files_in_current_dir)),*];
 
 
             let mut resp = next.run(req).await;
 
             #handling_of_response
 
-            let files_from_components = html.linked_files.iter().join(";");
+            let files: &mut crate::shared::wini::layer::Files = resp_parts
+                .extensions
+                .get_or_insert_default();
 
-            let files = resp_parts
-                .headers
-                .entry("files")
-                .or_insert_with(|| axum::http::HeaderValue::from_str("").unwrap());
-
-            *files = axum::http::HeaderValue::from_str(
-                &format!(
-                    "{FILES_IN_CURRENT_DIR};{files_from_components};{};",
-                    files.to_str().unwrap(),
-                )
-            ).unwrap();
-
+            files.extend(html.linked_files.into_iter().map(Cow::Owned));
+            files.extend(FILES_IN_CURRENT_DIR);
 
             // Modify extensions with meta tags in it
             #meta_extensions
 
-            let res = axum::response::Response::from_parts(resp_parts, html.into_string().into());
+            let res = axum::response::Response::from_parts(resp_parts, html.content.0.into());
 
             Ok(res)
         }

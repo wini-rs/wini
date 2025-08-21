@@ -35,7 +35,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
-    let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
+    let files_in_current_dir = get_js_or_css_files_in_current_dir();
+    let len_files_in_current_dir = files_in_current_dir.len();
     let meta_headers = attributes.generate_all_extensions(false);
 
     // Generate the output code
@@ -46,25 +47,23 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
         #[allow(non_snake_case)]
         pub async fn #original_name(#arguments) -> crate::shared::wini::err::ServerResult<axum::response::Response<axum::body::Body>> {
             use {
-                axum::response::IntoResponse,
+                axum::response::{IntoResponse, Html},
                 itertools::Itertools,
+                std::borrow::Cow,
             };
 
-            const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
+            const FILES_IN_CURRENT_DIR: [Cow<'static, str>; #len_files_in_current_dir] = [#(Cow::Borrowed(#files_in_current_dir)),*];
 
             let html = #new_name(#(#param_names),*).await #early_return_if_is_result_err;
 
-            let files = html.linked_files.iter().join(";");
+            let linked_files = html.linked_files.into_iter().map(Cow::Owned);
 
-            let mut resp = axum::response::IntoResponse::into_response(html);
+            let mut resp = axum::response::IntoResponse::into_response(Html(html.content.0));
 
-            resp.headers_mut().insert(
-                "files",
-                axum::http::HeaderValue::from_str(&format!(
-                    "{FILES_IN_CURRENT_DIR};{files};",
-                )).unwrap()
-            );
+            let files: &mut crate::shared::wini::layer::Files = resp.extensions_mut().get_or_insert_default();
 
+            files.extend(FILES_IN_CURRENT_DIR);
+            files.extend(linked_files);
 
             // Modify header with meta tags in it
             #meta_headers

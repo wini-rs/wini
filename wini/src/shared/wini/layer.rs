@@ -3,7 +3,7 @@ use {
     derive_builder::Builder,
     std::{
         borrow::Cow,
-        collections::HashMap,
+        collections::{HashMap, HashSet},
         pin::Pin,
         sync::Arc,
         task::{Context, Poll},
@@ -12,6 +12,7 @@ use {
 };
 
 pub type Tags = HashMap<&'static str, Cow<'static, str>>;
+pub type Files = HashSet<Cow<'static, str>>;
 
 #[derive(Clone, Builder)]
 pub struct MetaLayer {

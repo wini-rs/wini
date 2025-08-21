@@ -15,7 +15,6 @@ pub async fn render() -> Markup {
     }
 }
 
-
 // IFFEAT test
 use crate::{components::button, shared::wini::err::ServerResult};
 
@@ -29,7 +28,7 @@ pub async fn test_button() -> ServerResult<Markup> {
     })
 }
 
-#[page(title = "Hey", keywords = ["hey", "b"], other_meta = ["a" = "a", "b" = "b"])]
+#[page(title = "hello world", keywords = ["hello", "world"], other_meta = ["hello" = "world", "world" = "hello"])]
 pub async fn test_meta() -> Markup {
     html! {
         button #hello {
