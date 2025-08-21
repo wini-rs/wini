@@ -32,10 +32,18 @@ pub fn add_meta_tags(res_parts: &mut Parts) -> Markup {
             @for (tag_name, tag_value) in meta_tags {
                 @if let Some(names) = META_MAPPINGS.get(tag_name) {
                     @for name in names {
-                        meta name=(name) content=(tag_value);
+                          @if name.contains(':') {
+                            meta property=(name) content=(tag_value);
+                        } @else {
+                            meta name=(name) content=(tag_value);
+                        }
                     }
                 } @else {
-                    meta name=(tag_name) content=(tag_value);
+                    @if tag_name.contains(':') {
+                        meta property=(tag_name) content=(tag_value);
+                    } @else {
+                        meta name=(tag_name) content=(tag_value);
+                    }
                 }
             }
         }
