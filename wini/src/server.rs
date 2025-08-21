@@ -32,7 +32,7 @@ pub async fn start() {
                     "lang" => "en".into(),
                 })
                 .build()
-                .unwrap(),
+                .expect("Failed to build MetaLayer"),
         )
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
