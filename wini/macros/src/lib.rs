@@ -36,14 +36,14 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///         "custom_meta2" = "world",
 ///     ]
 /// )]
-/// fn render() -> Markup {
+/// async fn render() -> Markup {
 ///     html! {
 ///         main {
 ///             h1 {
 ///                 "Hello world"
 ///             }
 ///             p {
-///                 "Some really, realy nice hello world!"
+///                 "Some really, really nice hello world!"
 ///             }
 ///         }
 ///     }
