@@ -28,4 +28,14 @@ pub async fn test_button() -> ServerResult<Markup> {
         }
     })
 }
+
+#[page(title = "Hey", keywords = ["hey", "b"], other_meta = ["a" = "a", "b" = "b"])]
+pub async fn test_meta() -> Markup {
+    html! {
+        button #hello {
+            "Say hello!"
+        }
+    }
+}
+
 // ENDIF

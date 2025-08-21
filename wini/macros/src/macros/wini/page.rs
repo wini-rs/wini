@@ -36,7 +36,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
-    let meta_headers = attributes.generate_all_extensions();
+    let meta_headers = attributes.generate_all_extensions(false);
 
     // Generate the output code
     let expanded = quote! {
@@ -56,9 +56,9 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
             let files = html.linked_files.iter().join(";");
 
-            let mut res = axum::response::IntoResponse::into_response(html);
+            let mut resp = axum::response::IntoResponse::into_response(html);
 
-            res.headers_mut().insert(
+            resp.headers_mut().insert(
                 "files",
                 axum::http::HeaderValue::from_str(&format!(
                     "{FILES_IN_CURRENT_DIR};{files};",
@@ -69,7 +69,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
             // Modify header with meta tags in it
             #meta_headers
 
-            Ok(res)
+            Ok(resp)
         }
     };
 

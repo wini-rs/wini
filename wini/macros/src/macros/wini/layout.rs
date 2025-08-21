@@ -102,7 +102,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir().join(";");
-    let meta_extensions = attributes.generate_all_extensions();
+    let meta_extensions = attributes.generate_all_extensions(true);
 
     // Generate the output code
     let expanded = quote! {
@@ -123,7 +123,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             const FILES_IN_CURRENT_DIR: &str = #files_in_current_dir;
 
 
-            let resp = next.run(req).await;
+            let mut resp = next.run(req).await;
 
             #handling_of_response
 
