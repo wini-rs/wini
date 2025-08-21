@@ -147,8 +147,6 @@ where
                 }
             }
 
-            println!("{:#?}", resp_parts.extensions.get::<Tags>());
-
             Ok(Response::from_parts(resp_parts, resp_body))
         })
     }
