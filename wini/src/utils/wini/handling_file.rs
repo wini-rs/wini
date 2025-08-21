@@ -67,7 +67,7 @@ fn file_into_response(file_content: &str, kind: &str) -> ServerResult<Response<a
     Ok((
         AppendHeaders([(
             CONTENT_TYPE,
-            HeaderValue::from_str(&format!("text/{kind}"))?,
+            HeaderValue::from_str(&format!("text/{kind}; charset=utf-8"))?,
         )]),
         Box::<str>::from(file_content),
     )
