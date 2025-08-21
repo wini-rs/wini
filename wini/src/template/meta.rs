@@ -14,7 +14,7 @@ pub static META_MAPPINGS: LazyLock<HashMap<&'static str, Vec<&'static str>>> =
             ("site_name", vec!["og:site_name"]),
             ("lang", vec!["language"]),
             ("img", vec!["og:image"]),
-            // Theses are valid and supported tags, bu the meta name doesn't differ from the field
+            // These are valid and supported tags, but the meta name doesn't differ from the field
             // name and there is only one meta tag to be created
             //
             // ("keywords", vec!["keywords"]),
