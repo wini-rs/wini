@@ -119,10 +119,10 @@ where
                         }
                     }
                 } else {
-                    let mut hm: Tags = HashMap::new();
+                    let mut tags: Tags = HashMap::new();
 
                     for (tag, value) in &*force_meta {
-                        hm.insert(
+                        tags.insert(
                             tag,
                             match value {
                                 Cow::Owned(string) => Cow::Owned(string.to_owned()),
@@ -132,8 +132,8 @@ where
                     }
 
                     for (tag, value) in &*default_meta {
-                        if !hm.contains_key(tag) {
-                            hm.insert(
+                        if !tags.contains_key(tag) {
+                            tags.insert(
                                 tag,
                                 match value {
                                     Cow::Owned(string) => Cow::Owned(string.to_owned()),
@@ -143,7 +143,7 @@ where
                         }
                     }
 
-                    resp_parts.extensions.insert(hm);
+                    resp_parts.extensions.insert(tags);
                 }
             }
 
