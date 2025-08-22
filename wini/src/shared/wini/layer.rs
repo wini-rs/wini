@@ -32,7 +32,7 @@ pub struct MetaLayer {
     /// ```
     #[builder(default)]
     default_meta: Tags,
-    /// Will always render theses meta tags, whatever the page sends has meta tags
+    /// Will always render these meta tags, regardless of what the page sends as meta tags
     ///
     /// # Example
     /// To always send "Hello world!" as the meta description

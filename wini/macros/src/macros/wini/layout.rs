@@ -58,7 +58,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                                 panic!("Unknown child type: {ty}")
                             }
                         },
-                        None => panic!("Expected Layout to have a it's first argument being typed"),
+                        None => panic!("Expected Layout to have its first argument typed"),
                     }
                 },
             }
