@@ -64,4 +64,56 @@ async fn test_meta_page() {
     assert!(txt.contains(r#"<meta name="world" content="hello">"#));
     assert!(txt.contains(r#"<meta name="hello" content="world">"#));
 }
+
+#[tokio::test]
+async fn test_meta_layer_with_page() {
+    use {
+        crate::{shared::wini::layer::MetaLayerBuilder, template},
+        axum::{Router, middleware::from_fn, routing::get},
+        axum_test::TestServer,
+    };
+
+    let app = Router::new()
+        .route("/meta", get(test_meta))
+        .route("/default", get(render))
+        .layer(
+            MetaLayerBuilder::default()
+                .default_meta(hash_map! {
+                    "hello" => "world".into(),
+                    "world" => "hello".into(),
+                    "keywords" => "hello, world".into(),
+                })
+                .force_meta(hash_map! {"title" => "hi world!".into()})
+                .build()
+                .unwrap(),
+        )
+        .layer(from_fn(template::template));
+    let server = TestServer::new(app).expect("creates a server");
+
+    let resp = server.get("/meta").await;
+
+    resp.assert_status_ok();
+    let txt = resp.text();
+    // Title
+    assert!(txt.contains("<title>hi world!</title>"));
+    assert!(txt.contains(r#"<meta property="og:title" content="hi world!">"#));
+    // Keywords
+    assert!(txt.contains(r#"<meta name="keywords" content="hello, world">"#));
+    // Other meta
+    assert!(txt.contains(r#"<meta name="world" content="hello">"#));
+    assert!(txt.contains(r#"<meta name="hello" content="world">"#));
+
+    let resp = server.get("/default").await;
+
+    resp.assert_status_ok();
+    let txt = resp.text();
+    // Title
+    assert!(txt.contains("<title>hi world!</title>"));
+    assert!(txt.contains(r#"<meta property="og:title" content="hi world!">"#));
+    // Keywords
+    assert!(txt.contains(r#"<meta name="keywords" content="hello, world">"#));
+    // Other meta
+    assert!(txt.contains(r#"<meta name="world" content="hello">"#));
+    assert!(txt.contains(r#"<meta name="hello" content="world">"#));
+}
 // ENDIF
