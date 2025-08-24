@@ -1,7 +1,7 @@
 [formatting]
 column_width = 100
 
-indent_entries = true
+indent_entries = false
 indent_tables = true
 
 allowed_blank_lines = 3
