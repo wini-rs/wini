@@ -10,6 +10,9 @@ walkdir = "2.5.0"
 
 [dependencies]
 axum = { version = "0.8", features = ["macros"] }
+# IFFEAT test
+axum-test = "18"
+# ENDIF
 cached = { version = "0.54", features = ["async_tokio_rt_multi_thread"] }
 colog = "1.3"
 ctor = "0.3"
