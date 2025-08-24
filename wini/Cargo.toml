@@ -10,9 +10,6 @@ walkdir = "2.5.0"
 
 [dependencies]
 axum = { version = "0.8", features = ["macros"] }
-# IFFEAT test
-axum-test = "18"
-# ENDIF
 cached = { version = "0.54", features = ["async_tokio_rt_multi_thread"] }
 colog = "1.3"
 ctor = "0.3"
@@ -38,6 +35,11 @@ toml = "0.8"
 walkdir = "2.5"
 wini-maud = { version = "0.26.7", features = ["axum"] }
 wini-macros = { path = "./macros/" }
+
+# IFFEAT test
+[dev-dependencies]
+axum-test = "18"
+# ENDIF
 
 [package.metadata.cargo-machete]
 ignored = [
