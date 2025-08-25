@@ -53,12 +53,12 @@ fmt:
 lint:
     @./scripts/lint.sh
 
-# Synchornises the template that you're using by pulling latest commits
+# Synchronises the template that you're using by pulling latest commits
 [group: "wini"]
 sync-template:
     @./scripts/sync-template.sh
 
-# Synchronises the `last_commit_hash` from you wini.toml
+# Synchronises the `last_commit_hash` from your wini.toml
 [group: "wini"]
 sync-commit-hash:
     @./scripts/sync-commit-hash.sh
