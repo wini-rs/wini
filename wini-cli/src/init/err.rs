@@ -1,4 +1,7 @@
-use {crate::init::SEP, std::fmt::Display};
+use {
+    crate::init::SEP,
+    std::fmt::{Display, format},
+};
 
 #[derive(Debug)]
 pub enum InitError {
@@ -8,6 +11,7 @@ pub enum InitError {
     ManualExit,
     CloneNeedsAuthentication,
     BadCredentials,
+    EmtpyProjectName,
     AlreadyExists(String),
     IoError(std::io::Error),
     InvalidPath(String),
@@ -35,6 +39,7 @@ impl Display for InitError {
                 Self::AlreadyExists(path) => format!("There is already a directory at {path:#?}"),
                 Self::JustError(exit_code) =>
                     format!("A just command failed with exit code: {exit_code}"),
+                Self::EmtpyProjectName => "The project name can't be empty".to_string(),
             }
         ))
     }
