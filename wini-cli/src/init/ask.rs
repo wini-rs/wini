@@ -1,5 +1,5 @@
 use {
-    super::{RepoSummary, err::InitError, git::clone_and_init, sep},
+    super::{RepoSummary, err::InitError, sep},
     crate::{
         init::{
             HEADER,
@@ -178,7 +178,7 @@ pub fn handle_project_setup_for_custom(
 pub fn from_custom_remote_repository() -> Result<RepoSummary, InitError> {
     let remote_url = input("Remote repository URL:")?;
 
-    let current_repository_name = match clone_and_init(&remote_url) {
+    let current_repository_name = match clone(&remote_url) {
         Ok(n) => n,
         Err(InitError::OtherGitError(git_error)) => {
             if git_error.code() == git2::ErrorCode::NotFound ||

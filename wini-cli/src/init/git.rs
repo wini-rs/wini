@@ -4,7 +4,6 @@ use {
         init::{select, sep},
         utils::generate_random_string,
     },
-    clap::builder::OsStr,
     git2::{BranchType, Cred, CredentialType, IndexAddOption, Repository, Signature, Time},
     inquire::{Password, Text},
     std::{
@@ -124,17 +123,6 @@ pub fn use_branch(repo_path: &str, branch_name: &str) -> Result<String, git2::Er
     Ok(last_commit_sha)
 }
 
-
-pub fn clone_and_init(url: &str) -> Result<String, InitError> {
-    let path = clone(url)?;
-    Command::new("cd")
-        .arg(&path)
-        .spawn()
-        .map_err(InitError::IoError)?;
-    // pub_just::run([OsStr::from("just"), OsStr::from("on-install")].into_iter())
-    //     .map_err(InitError::JustError)?;
-    Ok(path)
-}
 
 pub fn clone(url: &str) -> Result<String, InitError> {
     let clone_to = generate_random_string(64);
