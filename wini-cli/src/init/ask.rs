@@ -87,7 +87,9 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
     // rename it.
     // Else, if there was an error, we will need to delete it. In both case, we want it to be
     // created.
-    let current_repository_name = handle_clone_official_repository.join().unwrap()?;
+    let current_repository_name = handle_clone_official_repository
+        .join()
+        .expect("thread panic")?;
 
     match result {
         Ok((project_name, branch)) => {

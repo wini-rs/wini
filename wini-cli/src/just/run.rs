@@ -10,13 +10,16 @@ pub fn resolve_args_from_arg_match(arg_match: &ArgMatches) -> Option<Vec<OsStrin
         }
 
         args.extend(arg.1.ids().flat_map(|id| {
-            let occurrences = arg.1.get_occurrences::<String>(id.as_ref()).unwrap();
             let mut res = Vec::new();
-            for mut occurrence_values in occurrences {
-                for occurrence in occurrence_values.by_ref() {
-                    res.push(occurrence.into());
+
+            if let Some(occurrences) = arg.1.get_occurrences::<String>(id.as_ref()) {
+                for mut occurrence_values in occurrences {
+                    for occurrence in occurrence_values.by_ref() {
+                        res.push(occurrence.into());
+                    }
                 }
             }
+
             res
         }));
 
