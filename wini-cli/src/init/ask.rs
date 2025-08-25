@@ -114,7 +114,6 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
             }
         },
         Err(err) => {
-            println!("here :> {current_repository_name}");
             std::fs::remove_dir_all(current_repository_name).map_err(InitError::IoError)?;
             Err(err)
         },
