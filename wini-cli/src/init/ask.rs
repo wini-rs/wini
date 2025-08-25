@@ -7,7 +7,7 @@ use {
             OFFICIAL_REPOSITORY_OPTIONS,
             RENDER_CONFIG,
             WINI_REPO,
-            git::use_branch,
+            git::{clone, use_branch},
             input,
             rename::rename_fields,
             select,
@@ -62,7 +62,7 @@ pub fn ask() -> Result<(), InitError> {
 
 /// Creates the repository project from one of the official template of wini
 pub fn from_official_repository() -> Result<RepoSummary, InitError> {
-    let handle_clone_official_repository = std::thread::spawn(|| clone_and_init(WINI_REPO));
+    let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
 
     let result = (|| {
         let branch_index = select(
@@ -114,6 +114,7 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
             }
         },
         Err(err) => {
+            println!("here :> {current_repository_name}");
             std::fs::remove_dir_all(current_repository_name).map_err(InitError::IoError)?;
             Err(err)
         },
