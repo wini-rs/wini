@@ -1,26 +1,21 @@
 use {
-    super::{
-        err::InitError,
-        git::clone_and_init,
-        sep,
-        RepoSummary,
-    },
+    super::{RepoSummary, err::InitError, git::clone_and_init, sep},
     crate::{
         init::{
-            git::use_branch,
-            input,
-            rename::rename_fields,
-            select,
             HEADER,
             OFFICIAL_REPOSITORY_BRANCHES,
             OFFICIAL_REPOSITORY_OPTIONS,
             RENDER_CONFIG,
             WINI_REPO,
+            git::{clone, use_branch},
+            input,
+            rename::rename_fields,
+            select,
         },
         utils::{copy_dir_all, generate_random_string},
     },
     git2::{BranchType, Repository},
-    inquire::{set_global_render_config, Confirm},
+    inquire::{Confirm, set_global_render_config},
     std::{fs, path::Path},
 };
 
@@ -67,7 +62,7 @@ pub fn ask() -> Result<(), InitError> {
 
 /// Creates the repository project from one of the official template of wini
 pub fn from_official_repository() -> Result<RepoSummary, InitError> {
-    let handle_clone_official_repository = std::thread::spawn(|| clone_and_init(WINI_REPO));
+    let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
 
     let result = (|| {
         let branch_index = select(
@@ -257,6 +252,12 @@ pub fn from_custom_local_repository() -> Result<RepoSummary, InitError> {
 
 fn get_project_name() -> Result<String, InitError> {
     let mut project_name = input("Project name:")?;
+
+    if project_name.is_empty() {
+        println!("{}", InitError::EmtpyProjectName);
+        sep();
+        return get_project_name();
+    }
 
     let illegal_chars = project_name
         .chars()

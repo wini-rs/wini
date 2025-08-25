@@ -1,4 +1,7 @@
-use {crate::init::SEP, std::fmt::Display};
+use {
+    crate::init::SEP,
+    std::fmt::{Display, format},
+};
 
 #[derive(Debug)]
 pub enum InitError {
@@ -8,6 +11,7 @@ pub enum InitError {
     ManualExit,
     CloneNeedsAuthentication,
     BadCredentials,
+    EmtpyProjectName,
     AlreadyExists(String),
     IoError(std::io::Error),
     InvalidPath(String),
@@ -30,11 +34,12 @@ impl Display for InitError {
                 Self::InvalidPath(path) => format!("File `{path}` doesn't exists."),
                 Self::CloneNeedsAuthentication =>
                     "You need to authenticate to clone this repository.".to_string(),
-                Self::OtherGitError(err) => format!("{:?}", err.message()),
+                Self::OtherGitError(err) => format!("Git error: {:?}", err.message()),
                 Self::IoError(err) => err.to_string(),
                 Self::AlreadyExists(path) => format!("There is already a directory at {path:#?}"),
                 Self::JustError(exit_code) =>
                     format!("A just command failed with exit code: {exit_code}"),
+                Self::EmtpyProjectName => "The project name can't be empty".to_string(),
             }
         ))
     }

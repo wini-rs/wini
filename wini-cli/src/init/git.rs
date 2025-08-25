@@ -131,8 +131,8 @@ pub fn clone_and_init(url: &str) -> Result<String, InitError> {
         .arg(&path)
         .spawn()
         .map_err(InitError::IoError)?;
-    pub_just::run([OsStr::from("just"), OsStr::from("on-install")].into_iter())
-        .map_err(InitError::JustError)?;
+    // pub_just::run([OsStr::from("just"), OsStr::from("on-install")].into_iter())
+    //     .map_err(InitError::JustError)?;
     Ok(path)
 }
 
