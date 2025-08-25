@@ -254,7 +254,7 @@ fn get_project_name() -> Result<String, InitError> {
     let mut project_name = input("Project name:")?;
 
     if project_name.is_empty() {
-        println!("{}", InitError::EmtpyProjectName);
+        println!("{}", InitError::EmptyProjectName);
         sep();
         return get_project_name();
     }
