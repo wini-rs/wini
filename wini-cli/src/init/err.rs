@@ -34,7 +34,7 @@ impl Display for InitError {
                 Self::InvalidPath(path) => format!("File `{path}` doesn't exists."),
                 Self::CloneNeedsAuthentication =>
                     "You need to authenticate to clone this repository.".to_string(),
-                Self::OtherGitError(err) => format!("{:?}", err.message()),
+                Self::OtherGitError(err) => format!("Git error: {:?}", err.message()),
                 Self::IoError(err) => err.to_string(),
                 Self::AlreadyExists(path) => format!("There is already a directory at {path:#?}"),
                 Self::JustError(exit_code) =>
