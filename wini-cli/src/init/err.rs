@@ -19,7 +19,8 @@ pub enum InitError {
 
 impl Display for InitError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(&format!(
+        write!(
+            f,
             "{SEP}\n\x1b[31m◆\x1b[91;1m {}",
             match self {
                 Self::CouldntCloneRepo(url) => format!("Couldn't clone repo with url: {url}"),
@@ -38,6 +39,6 @@ impl Display for InitError {
                     format!("A just command failed with exit code: {exit_code}"),
                 Self::EmptyProjectName => "The project name can't be empty".to_string(),
             }
-        ))
+        )
     }
 }
