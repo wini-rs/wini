@@ -80,12 +80,22 @@ js-sync-packages:
 # Compile and watch for SCSS files
 compile-scss:
     @echo -e '\e[34m[\e[32m+\e[34m]\e[0m Reloading SCSS...'
+# IFFEAT posix-sh
     @./scripts/scss.sh
+# ENDIF
+# IFFEAT nushell
+    @nu ./scripts/scss.nu
+# ENDIF
 
 # Compile and watch for Typescript files
 compile-ts:
     @echo -e '\e[34m[\e[32m+\e[34m]\e[0m Reloading TypeScript...'
+# IFFEAT posix-sh
     @./scripts/typescript.sh
+# ENDIF
+# IFFEAT nushell
+    @nu ./scripts/typescript.nu
+# ENDIF
 
 # Terminate process running on port `PORT` and start a new server
 clean-launch:

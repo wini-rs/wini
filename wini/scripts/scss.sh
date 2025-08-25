@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# This script is in charge of compiling scss files to javascript.
+# This script is in charge of compiling scss files to css.
 
 set -euo pipefail
 
