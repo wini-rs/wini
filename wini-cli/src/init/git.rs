@@ -11,7 +11,6 @@ use {
         fmt::Write,
         iter::once,
         path::Path,
-        process::Command,
         time::{SystemTime, UNIX_EPOCH},
     },
 };
@@ -54,7 +53,12 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
                 }
             }
 
-            Cred::ssh_key(&username, None, Path::new(&path_to_key.unwrap()), None)
+            Cred::ssh_key(
+                &username,
+                None,
+                Path::new(&path_to_key.expect("Can't be None")),
+                None,
+            )
         },
         1 => {
             let mut password: Option<String> = None;
@@ -67,7 +71,7 @@ pub fn auth(_: &str, username: Option<&str>, _: CredentialType) -> Result<Cred, 
                 password = Some(imaginary_path);
             }
 
-            Cred::userpass_plaintext(&username, &password.unwrap())
+            Cred::userpass_plaintext(&username, &password.expect("Can't be None"))
         },
         _ => unreachable!(),
     }
@@ -116,7 +120,7 @@ pub fn use_branch(repo_path: &str, branch_name: &str) -> Result<String, git2::Er
     let last_commit_oid = target_commit.id();
     let mut last_commit_sha = String::with_capacity(40);
     for byte in last_commit_oid.as_bytes() {
-        write!(&mut last_commit_sha, "{byte:02x}").unwrap();
+        write!(&mut last_commit_sha, "{byte:02x}").expect("write");
     }
 
 
