@@ -20,9 +20,6 @@ fi
 # Function to get the kind of file to create
 get_kind_new() {
     case "$1" in
-        'article'|'md'|'markdown')
-            echo 'markdown'
-            ;;
         'layout'|'outlet'|'lay'|'l')
             echo 'layout'
             ;;
@@ -37,28 +34,18 @@ get_kind_new() {
 
 
 get_directory_of_kind_new() {
-    case "$1" in
-        # In case it's in wini.toml
-        'layout'|'component'|'page')
-            case "$1" in 
-                'layout')
-                    yq ".path.layout" ./wini.toml
-                    ;;
-                'component')
-                    yq ".path.components" ./wini.toml
-                    ;;
-                'page')
-                    yq ".path.pages" ./wini.toml
-                    ;;
-            esac 
+    case "$1" in 
+        'layout')
+            yq ".path.layout" ./wini.toml
             ;;
-        'markdown')
-            echo "$(yq ".path.pages" ./wini.toml)/articles"
+        'component')
+            yq ".path.components" ./wini.toml
             ;;
-        *)
-            echo 'pages'
+        'page')
+            yq ".path.pages" ./wini.toml
             ;;
-    esac
+    esac 
+    ;;
 }
 
 
