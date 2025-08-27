@@ -20,7 +20,7 @@ def prompt_yesno [prompt, default_opt] {
 
 # Logging
 def ask [str] {
-    print $"\e[34m[\e[35m?\e[34m]\e[0m ($str)"
+    print -n $"\e[34m[\e[35m?\e[34m]\e[0m ($str)"
 }
 
 def info [str] {
