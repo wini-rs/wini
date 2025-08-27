@@ -18,6 +18,7 @@ rm -r "${relative_modules_path:?}"/* || info "Continuing..."
 
 keys=$(yq -p toml "keys" < ./packages-files.toml | yq '.[]')
 
+# Sync node_modules with modules
 for key in $keys; do
     if [ ! -d "node_modules/$key" ]; then
         error "$key is not installed!!!"
