@@ -8,7 +8,7 @@ name = "TEMPLATE_NAME_TO_RESOLVE"
 [path]
 pages = "./pages"
 components = "./components"
-layout = "./layout"
+layouts = "./layouts"
 cron = "./cron"
 public = "../public"
 # Modules is relative to `public`, because it should always be public.
