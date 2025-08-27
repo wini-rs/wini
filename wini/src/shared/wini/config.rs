@@ -54,7 +54,7 @@ impl Config {
 #[derive(Debug, serde::Deserialize)]
 pub struct ConfigPath {
     pub pages: String,
-    pub layout: String,
+    pub layouts: String,
     pub public: String,
     pub components: String,
     pub modules: String,
