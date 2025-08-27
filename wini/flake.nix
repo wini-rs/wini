@@ -19,8 +19,10 @@
         {
             devShells.default = with pkgs; mkShell {
                 buildInputs = [
+# IFFEAT posix-sh
                     watchexec
                     yq-go
+# ENDIF
                     coreutils
                     bun
                     dart-sass
