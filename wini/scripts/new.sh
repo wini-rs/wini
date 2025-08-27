@@ -36,7 +36,7 @@ get_kind_new() {
 get_directory_of_kind_new() {
     case "$1" in 
         'layout')
-            yq ".path.layout" ./wini.toml
+            yq ".path.layouts" ./wini.toml
             ;;
         'component')
             yq ".path.components" ./wini.toml
@@ -45,7 +45,6 @@ get_directory_of_kind_new() {
             yq ".path.pages" ./wini.toml
             ;;
     esac 
-    ;;
 }
 
 
@@ -55,7 +54,7 @@ src_directory_of_kind_new="./src/${directory_of_kind_new#./}"
 
 
 
-info "Going to create a new page based on the template of '$kind'"
+info "Going to create a new directory based on the template of '$kind'"
 ask "Which path should it be located at: " 
 read -r path
 

@@ -7,4 +7,3 @@ indent_tables = true
 allowed_blank_lines = 3
 reoder_inline_tables = true
 reorder_arrays = true
-reorder_keys = true

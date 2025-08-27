@@ -1,6 +1,6 @@
 # Replace the extension by another one
 def replace-ext [from, to] {
-    str replace $'\.($from)$' $'.($to)'
+    str replace -r $'\.($from)$' $'.($to)'
 }
 
 # Create a colored Yes/No prompt askind for input
@@ -38,4 +38,16 @@ def error [str] {
 # Useful to do `expr | pipeline | neg` instead of `not (expr | pipeline)`
 def neg [] {
     not $in
+}
+
+# Terminate
+def get_port [] {
+}
+
+def terminate [] {
+    let pids_to_kill = (ss -tulnp | rg $":(rg '^PORT=' .env | split row '=' | get 1)" | str replace -r '.*pid=([0-9]+).*' '$1')
+
+    $pids_to_kill | lines | each { |pid_to_kill|
+        kill -9 $pid_to_kill
+    }
 }
