@@ -46,17 +46,32 @@ new kind:
 # Format
 [group: "check"]
 fmt:
+# IFFEAT nushell
+    @nu ./scripts/fmt.nu
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/fmt.sh
+# ENDIF
 
 # Lint
 [group: "check"]
 lint:
+# IFFEAT nushell
+    @nu ./scripts/lint.nu
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/lint.sh
+# ENDIF
 
 # Synchronises the template that you're using by pulling latest commits
 [group: "wini"]
 sync-template:
+# IFFEAT nushell
+    @nu ./scripts/sync-template.nu
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/sync-template.sh
+# ENDIF
 
 # Synchronises the `last_commit_hash` from your wini.toml
 [group: "wini"]
