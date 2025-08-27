@@ -9,34 +9,35 @@ let modules_path = ($path | get "modules" | path parse)
 let relative_modules_path = './src/' | path join $public_path | path join $modules_path;
 
 # Remove everything in the modules directory
-rm -r "${relative_modules_path:?}"/* || info "Continuing..."
+try {
+    rm -r ($"($relative_modules_path)/*" | into glob)
+} catch {
+    info "Continuing..."
+}
 
-
-keys=$(yq -p toml "keys" < ./packages-files.toml | yq '.[]')
-
-for key in $keys; do
-    if [ ! -d "node_modules/$key" ]; then
+# Sync node_modules with modules
+open ./packages-files.toml | get "keys" | items { |key, value|
+    if ($"./node_modules/($key)" | path exists | neg) {
         error "$key is not installed!!!"
         info "File(s) of $key not copied."
-        continue
-    fi
+    } else {
+        mkdir -p $"($relative_modules_path)/($key)"
 
-
-    mkdir -p "$relative_modules_path/$key"
-
-    key_type="$(yq -p toml ".\"$key\" | type" < ./packages-files.toml)"
-
-
-    # Multiple files vs one file
-    # NOTE: In yq, array has type "!!seq"
-    # All types: `yq 'map(type)' <<< '[0, false, ["aa", "b"], {}, null, "hello"]'`
-    if [ "$key_type" = '!!seq' ]; then
-        for value in $(yq -r ".\"$key\"[]" ./packages-files.toml); do
-            cp "./node_modules/$key/$value" "$relative_modules_path/$key" || error "Package $key doesn't have the file $value"
-        done
-    else
-        value=$(yq -p toml ".\"$key\"" < ./packages-files.toml)
-        cp "./node_modules/$key/$value" "$relative_modules_path/$key" || error "Package $key doesn't have the file $value"
-    fi
-done
-
+        # Multiple files vs one file
+        if ($value | describe | str contains 'list') { 
+            $value | each { |file|
+                try {
+                    cp $"./node_modules/($key)/($file)" $"($relative_modules_path)/($key)"
+                } catch {
+                    error $"Package ($key) doesn't have the file ($file)"
+                }
+            }
+        } else {
+            try {
+                cp $"./node_modules/($key)/($value)" $"($relative_modules_path)/($key)"
+            } catch {
+                error $"Package ($key) doesn't have the file ($value)"
+            }
+        }
+    }
+}

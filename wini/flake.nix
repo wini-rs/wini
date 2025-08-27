@@ -28,6 +28,9 @@
                     ripgrep
                     (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
                     delta
+# IFFEAT nushell
+                    nushell
+# ENDIF
                 ];
             };
         }

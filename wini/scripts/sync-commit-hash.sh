@@ -29,7 +29,7 @@ git remote add wini-template "$remote_url"
 git fetch wini-template
 
 remote_template_hashes="$(git log "wini-template/$branch" --pretty=format:"%H")"
-current_repo_hash="$(git log --pretty=format:"%H")"
+current_repo_hashes="$(git log --pretty=format:"%H")"
 
 while IFS= read -r remote_hash; do
     while IFS= read -r current_hash; do
@@ -44,7 +44,7 @@ while IFS= read -r remote_hash; do
             git remote remove wini-template
             exit 0
         fi
-    done <<< "$current_repo_hash"
+    done <<< "$current_repo_hashes"
 done <<< "$remote_template_hashes"
 
 git remote remove wini-template
