@@ -10,7 +10,12 @@ env:
 # Run in dev
 [group: "build"]
 run:
+# IFFEAT nushell
+    @nu ./scripts/run.nu
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/run.sh
+# ENDIF
 
 [group: "check"]
 check: compile-ts compile-scss
@@ -41,7 +46,12 @@ run-staging: js-i js-sync-packages compile-ts compile-scss
 # Create a new *something* based on a template
 [group: "wini"]
 new kind:
+# IFFEAT nushell
+    @nu ./scripts/run.nu {{kind}}
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/new.sh {{kind}}
+# ENDIF
 
 # Format
 [group: "check"]
@@ -76,7 +86,12 @@ sync-template:
 # Synchronises the `last_commit_hash` from your wini.toml
 [group: "wini"]
 sync-commit-hash:
+# IFFEAT nushell
+    @nu ./scripts/sync-commit-hash.nu
+# ENDIF
+# IFFEAT posix-sh
     @./scripts/sync-commit-hash.sh
+# ENDIF
 
 # Adds a javascript package
 [group: "javascript"]
@@ -86,7 +101,12 @@ js-add pkg: && js-sync-packages
     bun i
     @echo -e "\e[1m=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
     @echo -e "Adding {{pkg}} to ./packages-files.toml\e[0m"
+# IFFEAT posix-sh
     @./scripts/ask-path-packages.sh {{pkg}}
+# ENDIF
+# IFFEAT nushell
+    @nu ./scripts/ask-path-packages.nu {{pkg}}
+# ENDIF
 
 # Removes a javascript package
 [group: "javascript"]
@@ -106,7 +126,12 @@ js-i:
 # Sync all the javascript packages in ./public/modules/
 [group: "javascript"]
 js-sync-packages:
+# IFFEAT posix-sh
     @./scripts/sync-packages.sh
+# ENDIF
+# IFFEAT nushell
+    @nu ./scripts/sync-packages.nu
+# ENDIF
 
 
 # Compile and watch for SCSS files
@@ -134,7 +159,12 @@ compile-ts:
 # Terminate process running on port `PORT` and start a new server
 [group: "build"]
 clean-launch:
+# IFFEAT posix-sh
     @./scripts/launch.sh
+# ENDIF
+# IFFEAT nushell
+    @nu ./scripts/launch.nu
+# ENDIF
 
 on-install:
 # IFFEAT posix-sh

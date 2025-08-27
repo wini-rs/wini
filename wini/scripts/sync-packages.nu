@@ -3,8 +3,8 @@
 source ./utils.nu
 
 let path = (open ./wini.toml | get "path")
-let public_path = ($path | get "public" | path parse)
-let modules_path = ($path | get "modules" | path parse)
+let public_path = ($path | get "public")
+let modules_path = ($path | get "modules")
 
 let relative_modules_path = './src/' | path join $public_path | path join $modules_path;
 
@@ -16,12 +16,12 @@ try {
 }
 
 # Sync node_modules with modules
-open ./packages-files.toml | get "keys" | items { |key, value|
+open ./packages-files.toml | items { |key, value|
     if ($"./node_modules/($key)" | path exists | neg) {
         error "$key is not installed!!!"
         info "File(s) of $key not copied."
     } else {
-        mkdir -p $"($relative_modules_path)/($key)"
+        mkdir $"($relative_modules_path)/($key)"
 
         # Multiple files vs one file
         if ($value | describe | str contains 'list') { 
