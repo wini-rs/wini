@@ -24,6 +24,7 @@ if $remote_url == 'NONE' {
 }
 
 
+try { git remote remove wini-template }
 git remote add wini-template $remote_url
 git fetch wini-template
 

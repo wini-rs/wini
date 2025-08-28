@@ -19,6 +19,7 @@ if $remote_url == 'NONE' {
     exit 1
 }
 
+try { git remote remove wini-template }
 git remote add wini-template $remote_url
 git fetch wini-template
 
