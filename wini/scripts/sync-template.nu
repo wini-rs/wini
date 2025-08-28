@@ -30,7 +30,7 @@ git fetch wini-template
 
 # Check for coherent last_commit_hash
 if (git merge-base --is-ancestor $last_commit_hash $"wini-template/($branch)" | neg) {
-    error $"Invalid `last_commit_hash`: doesn't exists in remote wini-template/($branch)"
+    error $"Invalid `last_commit_hash`: doesn't exist in remote wini-template/($branch)"
     git remote remove wini-template
     exit 1
 }

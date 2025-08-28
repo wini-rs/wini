@@ -19,7 +19,7 @@ pub struct TsConfig {
 
 /// Get all the abbreviations of a path from `./tsconfig.json`.
 ///
-/// If tsconfig.json doesn't exists - for some reason - an empty HashMap will be returned.
+/// If tsconfig.json doesn't exist - for some reason - an empty HashMap will be returned.
 pub static TSCONFIG_PATHS: LazyLock<HashMap<String, Vec<String>>> = LazyLock::new(|| {
     let tsconfig = match std::fs::read_to_string("./tsconfig.json") {
         Ok(s) => s,
