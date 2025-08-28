@@ -5,20 +5,19 @@ source ./utils.nu
 
 # Helper function to show error for invalid paths
 def show_invalid_path [file, node_modules_pkg] {
-    echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+    print "=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
     error $"Invalid path: `($node_modules_pkg)/($file)`"
     info $"Files in ($node_modules_pkg):"
-    ls $node_modules_pkg
-    echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+    print (ls ...(glob $"($node_modules_pkg)/**/*.{js,css}" | into glob))
+    print "=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
 }
 
 
-# TODO: multiple pkgs
 def main [pkg] {
     let pkg_files = (open ./packages-files.toml | get -o $pkg)
 
     if $pkg_files != null {
-        error "$PKG is already installed"
+        error $"($pkg) is already installed"
         exit 1
     }
 
