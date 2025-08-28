@@ -47,7 +47,7 @@ run-staging: js-i js-sync-packages compile-ts compile-scss
 [group: "wini"]
 new kind:
 # IFFEAT nushell
-    @nu ./scripts/run.nu {{kind}}
+    @nu ./scripts/new.nu {{kind}}
 # ENDIF
 # IFFEAT posix-sh
     @./scripts/new.sh {{kind}}
