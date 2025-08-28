@@ -15,7 +15,7 @@ def prompt_yesno [prompt, default_opt] {
 
     let yes_or_no = input
 
-    return (($yes_or_no | str downcase) == (if $default_opt == 'y' {'n'} else {'y'}));
+    return (($yes_or_no | str downcase) != (if $default_opt == 'y' {'n'} else {'y'}));
 }
 
 # Logging

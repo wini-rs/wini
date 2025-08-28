@@ -18,7 +18,7 @@ def main [$raw_kind_str: string] {
     info $"Going to create a new directory based on the template of '($kind)'"
     ask "Which path should it be located at: " 
     let path = input
-    let relative_path = ($src_directory_of_kind_new | path join $path)
+    mut relative_path = ($src_directory_of_kind_new | path join $path)
 
     # Check if this already exists.
     if ($relative_path | path exists) {
@@ -26,20 +26,22 @@ def main [$raw_kind_str: string] {
         exit 1;
     }
 
-    let yn = prompt_yn $"Creating a new page at '\e[1m($relative_path)\e[0m' ?" 'y'
+    let yn = prompt_yesno $"Creating a new page at '\e[1m($relative_path)\e[0m' ?" 'y'
 
     if not $yn {
         error "Aborting." 
         exit 1
     }
 
-    mkdir -p $relative_path
+    mkdir $relative_path
     cp -r ($"./scripts/templates/($kind)/*" | into glob) $relative_path
     info $"Created '\e[1m($path)\e[0m'."
 
     while $relative_path != $src_directory_of_kind_new {
         let basename = ($relative_path | path basename)
-        let relative_path = ($relative_path | path dirname)
+        $relative_path = ($relative_path | path dirname)
+
+        print $"($relative_path) ($src_directory_of_kind_new)"
 
         $"pub mod ($basename);" | save -a $"($relative_path)/mod.rs"
     }
