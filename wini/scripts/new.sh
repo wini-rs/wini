@@ -7,23 +7,13 @@ source ./scripts/yesno.sh
 
 set -euo pipefail
 
-
-# Check that `yq` exists.
-# This is needed to parse wini.toml
-if ! command -v "yq" &> /dev/null; then
-    error 'You need to have `yq` installed on your system to parse wini.toml'
-    info 'Install instruction are available here: https://github.com/mikefarah/yq#install'
-    info 'If you have nix installed, use `nix develop` (https://nixos.org/learn/)'
-    exit 1
-fi
-
 # Function to get the kind of file to create
 get_kind_new() {
     case "$1" in
-        'layout'|'outlet'|'lay'|'l')
+        'layout'|'l')
             echo 'layout'
             ;;
-        'component'|'comp'|'c')
+        'component'|'c')
             echo 'component'
             ;;
         *)
