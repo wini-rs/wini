@@ -33,6 +33,7 @@
                     ripgrep
                     (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
                     delta
+                    just
 # IFFEAT nushell
                     nushell
 # ENDIF
