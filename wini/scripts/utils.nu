@@ -3,7 +3,7 @@ def replace-ext [from, to] {
     str replace -r $'\.($from)$' $'.($to)'
 }
 
-# Create a colored Yes/No prompt askind for input
+# Create a colored Yes/No prompt asking for input
 def prompt_yesno [prompt, default_opt] {
     print -n $'($prompt) (
         if $default_opt == 'y' {
