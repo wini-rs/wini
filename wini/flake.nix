@@ -25,6 +25,9 @@
 # ENDIF
                     coreutils
                     bun
+                    gnused
+                    git 
+                    iproute2
                     dart-sass
                     fd
                     ripgrep
