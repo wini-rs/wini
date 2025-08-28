@@ -41,9 +41,6 @@ def neg [] {
 }
 
 # Terminate
-def get_port [] {
-}
-
 def terminate [] {
     let pids_to_kill = (ss -tulnp | rg $":(rg '^PORT=' .env | split row '=' | get 1)" | str replace -r '.*pid=([0-9]+).*' '$1')
 
