@@ -26,7 +26,7 @@
                     coreutils
                     bun
                     gnused
-                    git 
+                    git
                     iproute2
                     dart-sass
                     fd
