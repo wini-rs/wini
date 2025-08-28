@@ -53,7 +53,7 @@ relative_path="$src_directory_of_kind_new/$path"
 [ -e "$relative_path" ] && { error "Already exists."; exit 1; }
 
 
-ask "Creating a new page at '\e[1m$relative_path\e[0m' ? $(yesno y) "
+ask "Create a new page at '\e[1m$relative_path\e[0m' ? $(yesno y) "
 read -r yn
 
 if [ "$yn" = 'N' ] || [ "$yn" = 'n' ]; then

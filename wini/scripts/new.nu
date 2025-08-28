@@ -26,7 +26,7 @@ def main [$raw_kind_str: string] {
         exit 1;
     }
 
-    let yn = prompt_yesno $"Creating a new page at '\e[1m($relative_path)\e[0m' ?" 'y'
+    let yn = prompt_yesno $"Create a new page at '\e[1m($relative_path)\e[0m' ?" 'y'
 
     if not $yn {
         error "Aborting." 
