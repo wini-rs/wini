@@ -15,7 +15,7 @@ def main [$raw_kind_str: string] {
     let src_directory_of_kind_new = ("./src/" | path join $directory_of_kind_new)
 
 
-    info $"Going to create a new directory based on the template of '($kind)'"
+    info $"Going to create a new '($kind)' from template"
     ask "Which path should it be located at: " 
     let path = input
     mut relative_path = ($src_directory_of_kind_new | path join $path)

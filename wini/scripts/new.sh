@@ -44,7 +44,7 @@ src_directory_of_kind_new="./src/${directory_of_kind_new#./}"
 
 
 
-info "Going to create a new directory based on the template of '$kind'"
+info "Going to create a new '$kind' from template"
 ask "Which path should it be located at: " 
 read -r path
 
