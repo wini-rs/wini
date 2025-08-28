@@ -41,8 +41,6 @@ def main [$raw_kind_str: string] {
         let basename = ($relative_path | path basename)
         $relative_path = ($relative_path | path dirname)
 
-        print $"($relative_path) ($src_directory_of_kind_new)"
-
         $"pub mod ($basename);" | save -a $"($relative_path)/mod.rs"
     }
 }
