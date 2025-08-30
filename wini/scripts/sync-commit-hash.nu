@@ -32,8 +32,12 @@ $remote_template_hashes | lines | each { |remote_hash|
             if $wini_toml_last_commit_hash == $remote_hash {
                 info 'Up to date!'
             } else {
-                sed -E -i $"s/last_commit_hash\(\s*\)=\(\s*\)\(.*\)/last_commit_hash\1=\2\"($remote_hash)\"/g" wini.toml
-                info $'Successfully updated `last_commit_hash` to ($remote_hash)'
+                open ./wini.toml
+                | update origin.last_commit_hash $common_hash
+                | to toml
+                | save -f wini.toml
+                taplo format wini.toml
+                info $'Successfully updated `last_commit_hash` to ($common_hash)'
             }
 
             git remote remove wini-template
