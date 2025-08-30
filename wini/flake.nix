@@ -34,6 +34,7 @@
                     (rust-bin.selectLatestNightlyWith (toolchain: toolchain.default))
                     delta
                     just
+                    taplo
 # IFFEAT nushell
                     nushell
 # ENDIF
