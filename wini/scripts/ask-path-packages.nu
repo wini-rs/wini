@@ -24,8 +24,6 @@ def main [pkg] {
     let node_modules_pkg = $"./node_modules/($pkg)";
     mut default_file: any = null;
     mut default_file_prompt: any = null;
-    # let default_file = null;
-    # let default_file_prompt = null;
 
     if ($"($node_modules_pkg)/dist" | path exists) {
         let guess_default_file = (du ($"($node_modules_pkg)/dist/*.js" | into glob) | sort-by apparent | get -o 0)
@@ -39,7 +37,6 @@ def main [pkg] {
     }
 
     mut path_of_file = '';
-    # let path_of_file = null;
 
     while ($path_of_file == '') {
         info $"The path\(s\) that you will enter are relatives to ($node_modules_pkg)"
