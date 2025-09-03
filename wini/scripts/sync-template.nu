@@ -1,10 +1,3 @@
-# When <https://github.com/nushell/nushell/issues/8360> is solved
-# def on_interrupt [] {
-#     git remote remove wini-template
-# }
-# trap on_interrupt SIGINT TERM EXIT
-
-
 source ./utils.nu
 
 if (git status | str contains 'nothing to commit, working tree clean' | neg) {
@@ -24,25 +17,29 @@ if $remote_url == 'NONE' {
 }
 
 
-try { git remote remove wini-template }
-git remote add wini-template $remote_url
-git fetch wini-template
+try {
+    try { git remote remove wini-template }
+    git remote add wini-template $remote_url
+    git fetch wini-template
 
-# Check for coherent last_commit_hash
-if (git merge-base --is-ancestor $last_commit_hash $"wini-template/($branch)" | neg) {
-    error $"Invalid `last_commit_hash`: doesn't exist in remote wini-template/($branch)"
-    git remote remove wini-template
-    exit 1
-}
-
-if (git cherry-pick $"($last_commit_hash)..wini-template/($branch)" | neg) {
-    try {
+    # Check for coherent last_commit_hash
+    if (git merge-base --is-ancestor $last_commit_hash $"wini-template/($branch)" | neg) {
+        error $"Invalid `last_commit_hash`: doesn't exist in remote wini-template/($branch)"
         git remote remove wini-template
+        exit 1
     }
-    error 'Cherry-pick failed; please resolve conflicts and after that, do `wini sync-commit-hash`'
-    exit 1
+
+    if (git cherry-pick $"($last_commit_hash)..wini-template/($branch)" | neg) {
+        try {
+            git remote remove wini-template
+        }
+        error 'Cherry-pick failed; please resolve conflicts and after that, do `wini sync-commit-hash`'
+        exit 1
+    }
+
+    try { git remote remove wini-template }
+
+    just sync-commit-hash
+} catch {
+    git remote remove wini-template
 }
-
-try { git remote remove wini-template }
-
-just sync-commit-hash
