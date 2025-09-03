@@ -1,11 +1,5 @@
 # This script is in charge of syncing the `last_commit_hash` of `wini.toml`
 
-# When <https://github.com/nushell/nushell/issues/8360> is solved
-# def on_interrupt [] {
-#     git remote remove wini-template
-# }
-# trap on_interrupt SIGINT TERM EXIT
-
 source ./utils.nu
 
 let origin = (open ./wini.toml | get "origin")
@@ -19,31 +13,35 @@ if $remote_url == 'NONE' {
     exit 1
 }
 
-try { git remote remove wini-template }
-git remote add wini-template $remote_url
-git fetch wini-template
+try {
+    try { git remote remove wini-template }
+    git remote add wini-template $remote_url
+    git fetch wini-template
 
-let remote_template_hashes = (git log $"wini-template/($branch)" --pretty=format:"%H")
-let current_repo_hashes = (git log --pretty=format:"%H")
+    let remote_template_hashes = (git log $"wini-template/($branch)" --pretty=format:"%H")
+    let current_repo_hashes = (git log --pretty=format:"%H")
 
-$remote_template_hashes | lines | each { |remote_hash|
-    $current_repo_hashes | lines | each { |current_hash|
-        if $current_hash == $remote_hash {
-            if $wini_toml_last_commit_hash == $remote_hash {
-                info 'Up to date!'
-            } else {
-                open ./wini.toml
-                | update origin.last_commit_hash $common_hash
-                | to toml
-                | save -f wini.toml
-                taplo format wini.toml
-                info $'Successfully updated `last_commit_hash` to ($common_hash)'
+    $remote_template_hashes | lines | each { |remote_hash|
+        $current_repo_hashes | lines | each { |current_hash|
+            if $current_hash == $remote_hash {
+                if $wini_toml_last_commit_hash == $remote_hash {
+                    info 'Up to date!'
+                } else {
+                    open ./wini.toml
+                    | update origin.last_commit_hash $remote_hash
+                    | to toml
+                    | save -f wini.toml
+                    taplo format wini.toml
+                    info $'Successfully updated `last_commit_hash` to ($remote_hash)'
+                }
+
+                git remote remove wini-template
+                exit 0
             }
-
-            git remote remove wini-template
-            exit 0
         }
     }
-}
 
-git remote remove wini-template
+    git remote remove wini-template
+} catch {
+    git remote remove wini-template
+}
