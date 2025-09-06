@@ -76,7 +76,7 @@ async fn button() -> Markup {
 
 ## What is wini ?
 
-Wini is a set of templates written in [Rust](https://www.rust-lang.org/), that are made to create websites. Instead of using [WebAssembly](https://webassembly.org/) like other common Rust front-end frameworks, Wini templates rely on server side rendering, and, when needed, [Typescript](https://www.typescriptlang.org/). Other options are also available like [`htmx`](https://htmx.org/), [`alpinejs`](https://alpinejs.dev/), [`_hyperscript`](https://hyperscript.org/) (See the integration with [`htmx`](https://wini.rocks/doc/htmx) and [`alpinejs`](https://wini.rocks/doc/htmx))
+Wini is a set of templates written in [Rust](https://www.rust-lang.org/), that are made to create websites. Instead of using [WebAssembly](https://webassembly.org/) like other common Rust front-end frameworks, Wini templates rely on server side rendering, and, when needed, [Typescript](https://www.typescriptlang.org/). Other options are also available like [`htmx`](https://htmx.org/), [`alpinejs`](https://alpinejs.dev/), [`_hyperscript`](https://hyperscript.org/) (See the integration with [`htmx`](https://wini.rocks/doc/htmx) and [`alpinejs`](https://wini.rocks/doc/alpinejs))
 
 The goal of wini is therefore to be **fast**, **lightweight**, and to handle the maximum of things that can be handled on the server, **server-side**.
 
