@@ -1,8 +1,4 @@
 {
     "default": ["posix-sh"],
-    "nushell": ["nushell"],
-    "htmx": ["htmx", "posix-sh"],
-    "htmx-nushell": ["htmx", "nushell"],
-    "hyperscript": ["hyperscript", "htmx", "posix-sh"],
-    "hyperscript-nushell": ["hyperscript", "htmx", "nushell"]
+    "nushell": ["nushell"]
 }
