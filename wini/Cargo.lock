@@ -27,7 +27,6 @@ dependencies = [
  "toml",
  "tower",
  "tower-http",
- "uuid",
  "walkdir",
  "wini-macros",
  "wini-maud",

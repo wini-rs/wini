@@ -2,19 +2,22 @@ use {
     crate::{
         layouts::header,
         pages,
-        shared::wini::{PORT, layer::MetaLayerBuilder},
+        shared::wini::{layer::MetaLayerBuilder, ssg::render_routes_to_files, PORT},
         template,
         utils::wini::{
             cache,
             handling_file::{self},
         },
     },
-    axum::{Router, middleware, routing::get},
+    axum::{middleware, routing::get, Router},
     log::info,
     tower_http::compression::CompressionLayer,
 };
 
 
+// IFFEAT remove
+#[rustfmt::skip]
+// ENDIF
 pub async fn start() {
     // Support for compression
     let compression_layer = CompressionLayer::new();
@@ -39,6 +42,9 @@ pub async fn start() {
         .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(compression_layer);
 
+// IFFEAT ssg
+    render_routes_to_files().await;
+// ENDIF
 
     // Start the server
     info!("Starting listening on port {}...", *PORT);

@@ -3,6 +3,7 @@ use {
     std::{
         collections::{HashMap, HashSet},
         fs::create_dir_all,
+        path::{Path, PathBuf},
         sync::{Arc, LazyLock, Mutex},
     },
 };
@@ -43,13 +44,29 @@ static ROUTES_TO_AXUM: LazyLock<Arc<Mutex<HashSet<String>>>> =
     LazyLock::new(|| Arc::new(Mutex::new(HashSet::new())));
 
 pub async fn render_routes_to_files() {
-    std::fs::create_dir_all("public/ssg-out");
-    let mut path_to_uuid = HashMap::new();
+    std::fs::create_dir_all("dist/");
     for route in &*ROUTES_TO_AXUM.lock().unwrap() {
         let resp_text = reqwest::get(route).await.unwrap().text().await.unwrap();
-        let filename = uuid::Uuid::new();
-        std::fs::write("public/ssg-out", contents).expect("Couldn't write the ")
+        let mut path = PathBuf::new();
+        path.extend(route.split('/'));
+        std::fs::create_dir_all(path.parent().unwrap());
+        std::fs::write(path, resp_text).expect("Couldn't write the file")
     }
+    copy_dir_all("public", "dist");
+}
+
+fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {
+    std::fs::create_dir_all(&dst)?;
+    for entry in std::fs::read_dir(src)? {
+        let entry = entry?;
+        let ty = entry.file_type()?;
+        if ty.is_dir() {
+            copy_dir_all(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        } else {
+            std::fs::copy(entry.path(), dst.as_ref().join(entry.file_name()))?;
+        }
+    }
+    Ok(())
 }
 
 enum PathSegment<'l> {
