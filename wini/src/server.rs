@@ -1,10 +1,15 @@
+// IFFEAT remove
+#[rustfmt::skip]
+// ENDIF
 use {
     crate::{
         layouts::header,
         pages,
         shared::wini::{
             layer::MetaLayerBuilder,
+// IFFEAT ssg
             ssg::{render_routes_to_files, SsgRouter},
+// ENDIF
             PORT,
         },
         template,
