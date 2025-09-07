@@ -1,6 +1,6 @@
 use {
     crate::shared::wini::PORT,
-    axum::{handler::Handler, routing::MethodRouter, Router},
+    axum::{routing::MethodRouter, Router},
     select::{document::Document, predicate::Name},
     std::{
         borrow::Cow,
@@ -21,11 +21,13 @@ impl<'l> SsgRouter<'l> {
         Self::default()
     }
 
+    #[allow(unused, reason = "Not necessarly used")]
     pub fn route(mut self, path: &'l str, m: MethodRouter<()>) -> Self {
         self.routes.insert(path, (m, None));
         self
     }
 
+    #[allow(unused, reason = "Not necessarly used")]
     pub fn route_with_params(
         mut self,
         path: &'l str,
@@ -41,11 +43,30 @@ impl<'l> SsgRouter<'l> {
 
         for (path, (method_router, vec_params)) in self.routes {
             router = router.route(path, method_router);
-            let path_segments = string_to_path_segments(path);
-            for params in vec_params {
-                // path_segments
+            let path_segments = PathSegments::from_str(path);
+
+            let nb_of_param_or_wildcard = path_segments.nb_of_param_or_wildcard();
+            match vec_params {
+                Some(vec_params) => {
+                    if let Some(params) = vec_params
+                        .iter()
+                        .find(|params| params.len() != nb_of_param_or_wildcard)
+                    {
+                        panic!("For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: {params_len} ({params:?})", params_len=params.len());
+                    }
+
+                    for params in vec_params {
+                        ROUTES_TO_AXUM
+                            .lock()
+                            .unwrap()
+                            .insert(path_segments.to_string_route(&params));
+                    }
+                },
+                None => {
+                    assert!(nb_of_param_or_wildcard != 0, "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: None", );
+                    ROUTES_TO_AXUM.lock().unwrap().insert(path.to_owned());
+                },
             }
-            ROUTES_TO_AXUM.lock().unwrap().insert(path.to_owned());
         }
 
         router
@@ -128,19 +149,52 @@ enum PathSegment<'l> {
     Wildcard,
 }
 
-fn string_to_path_segments<'l>(s: &'l str) -> Vec<PathSegment<'l>> {
-    s.split('/')
-        .skip(1)
-        .map(|segment| {
-            match segment
-                .chars()
-                .nth(1)
-                .unwrap_or_else(|| panic!("Invalid path: {s}"))
-            {
-                '*' => PathSegment::Wildcard,
-                ':' | '{' => PathSegment::Param,
-                _ => PathSegment::String(segment),
-            }
+struct PathSegments<'l>(Vec<PathSegment<'l>>);
+
+impl<'l> PathSegments<'l> {
+    fn from_str(s: &'l str) -> Self {
+        Self(
+            s.split('/')
+                .skip(1)
+                .map(|segment| {
+                    match segment
+                        .chars()
+                        .nth(1)
+                        .unwrap_or_else(|| panic!("Invalid path: {s}"))
+                    {
+                        '*' => PathSegment::Wildcard,
+                        ':' | '{' => {
+                            if segment.chars().nth(1) == Some('*') {
+                                PathSegment::Wildcard
+                            } else {
+                                PathSegment::Param
+                            }
+                        },
+                        _ => PathSegment::String(segment),
+                    }
+                })
+                .collect(),
+        )
+    }
+
+    fn nb_of_param_or_wildcard(&self) -> usize {
+        self.0
+            .iter()
+            .filter(|seg| matches!(seg, PathSegment::Param | PathSegment::Wildcard))
+            .count()
+    }
+
+    fn to_string_route(&'l self, params: &[Cow<'l, str>]) -> String {
+        let mut current_idx_params = 0;
+        self.0.iter().fold(String::from("/"), |mut acc, it| {
+            acc.push_str(match it {
+                PathSegment::String(s) => s,
+                PathSegment::Wildcard | PathSegment::Param => {
+                    current_idx_params += 1;
+                    &params[current_idx_params - 1]
+                },
+            });
+            acc
         })
-        .collect()
+    }
 }
