@@ -47,24 +47,42 @@ pub async fn start() {
         .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(compression_layer);
 
-    // // Start the server
-    // info!("Starting listening on port {}...", *PORT);
-    // let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", *PORT))
-    //     .await
-    //     .expect("Couldn't start the TcpListener of the specified port.");
-    //
-    // info!("Starting the server...");
-    // axum::serve(listener, app)
-    //     .await
-    //     .expect("Couldn't start the server.");
+    // Start the server
+    info!("Starting listening on port {}...", *PORT);
+    let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", *PORT))
+        .await
+        .expect("Couldn't start the TcpListener of the specified port.");
+
+    info!("Starting the server...");
+    axum::serve(listener, app)
+        .await
+        .expect("Couldn't start the server.");
 // ENDIF
 // IFFEAT ssg
     // Support for compression
     let compression_layer = CompressionLayer::new();
 
 
+// IFFEAT test
+#[allow(unused, reason = "test")]
+// ENDIF
     let ssg_router = SsgRouter::new()
         .route("/", get(pages::hello::render));
+
+// IFFEAT test
+    use maud::html;
+    let ssg_router = SsgRouter::new()
+        .route("/", get(pages::hello::render))
+        .route_with_params(
+            "/param-test/{hey}",
+            get(async |p: axum::extract::Path<String>| html! {"test: "(p.to_string())}),
+            vec![
+                vec!["hello".into()],
+                vec!["world".into()]
+            ]
+        );
+// ENDIF
+
 
     // The main router of the application is defined here
     let app = Router::<()>::new()

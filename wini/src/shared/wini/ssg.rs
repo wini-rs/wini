@@ -63,7 +63,7 @@ impl<'l> SsgRouter<'l> {
                     }
                 },
                 None => {
-                    assert!(nb_of_param_or_wildcard != 0, "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: None", );
+                    assert!(nb_of_param_or_wildcard == 0, "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: None", );
                     ROUTES_TO_AXUM.lock().unwrap().insert(path.to_owned());
                 },
             }
@@ -80,7 +80,8 @@ pub async fn render_routes_to_files() {
     std::fs::create_dir_all("dist/").unwrap();
     let mut static_assets = Vec::new();
 
-    for route in &*ROUTES_TO_AXUM.lock().unwrap() {
+    let routes = ROUTES_TO_AXUM.lock().unwrap().clone();
+    for route in &routes {
         let resp_text = reqwest::get(format!("http://localhost:{}{route}", *PORT))
             .await
             .unwrap()
@@ -105,7 +106,8 @@ pub async fn render_routes_to_files() {
         let mut path = PathBuf::new();
         path.push("dist");
         path.extend(route.split('/'));
-        std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+        println!("{route:#?} {path:?}");
+        std::fs::create_dir_all(&path).unwrap();
         path.push("index.html");
         std::fs::write(path, resp_text).expect("Couldn't write the file");
     }
@@ -153,17 +155,14 @@ struct PathSegments<'l>(Vec<PathSegment<'l>>);
 
 impl<'l> PathSegments<'l> {
     fn from_str(s: &'l str) -> Self {
+        println!("{:#?}", s.split('/').collect::<Vec<_>>());
         Self(
             s.split('/')
                 .skip(1)
                 .map(|segment| {
-                    match segment
-                        .chars()
-                        .nth(1)
-                        .unwrap_or_else(|| panic!("Invalid path: {s}"))
-                    {
-                        '*' => PathSegment::Wildcard,
-                        ':' | '{' => {
+                    match segment.chars().nth(0) {
+                        Some('*') => PathSegment::Wildcard,
+                        Some(':' | '{') => {
                             if segment.chars().nth(1) == Some('*') {
                                 PathSegment::Wildcard
                             } else {
@@ -186,12 +185,15 @@ impl<'l> PathSegments<'l> {
 
     fn to_string_route(&'l self, params: &[Cow<'l, str>]) -> String {
         let mut current_idx_params = 0;
-        self.0.iter().fold(String::from("/"), |mut acc, it| {
+        self.0.iter().fold(String::new(), |mut acc, it| {
+            acc.push('/');
             acc.push_str(match it {
                 PathSegment::String(s) => s,
                 PathSegment::Wildcard | PathSegment::Param => {
                     current_idx_params += 1;
-                    &params[current_idx_params - 1]
+                    params
+                        .get(current_idx_params - 1)
+                        .expect("current_idx_params starts at 0, params length has been verified")
                 },
             });
             acc
