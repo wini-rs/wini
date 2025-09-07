@@ -68,4 +68,7 @@ pub mod env;
 pub mod err;
 pub mod layer;
 pub mod packages_files;
+// IFFEAT ssg
+pub mod ssg;
+// ENDIF
 pub mod tsconfig;
