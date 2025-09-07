@@ -21,7 +21,12 @@ itertools = "0.14"
 log = "0.4"
 regex = "1"
 # IFFEAT ssg
-reqwest = "0.12"
+# Removes openssl dependency
+reqwest = { version = "0.12", default-features = false, features = [
+  "charset",
+  "http2",
+  "system-proxy",
+] }
 select = "0.6"
 # ENDIF
 serde = { version = "1", features = ["derive"] }
