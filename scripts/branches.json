@@ -1,4 +1,6 @@
 {
-    "default": ["posix-sh"],
-    "nushell": ["nushell"]
+    "default": ["posix-sh", "ssr"],
+    "nushell": ["nushell", "ssr"],
+    "ssg": ["posix-sh", "ssg"],
+    "ssg-nushell": ["nushell", "ssg"]
 }
