@@ -6,6 +6,9 @@ version = "0.1.0"
 
 # IFFEAT ssg
 [features]
+# IFFEAT remove
+default = ["generate-ssg"]
+# ENDIF
 generate-ssg = []
 serve-dist = []
 run-with-ssr = []
