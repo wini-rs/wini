@@ -122,5 +122,11 @@ pub async fn start() {
     });
 
     render_routes_to_files().await;
+// IFFEAT test
+    use std::convert::identity;
+    assert!(std::fs::exists("./dist/index.html").is_ok_and(identity));
+    assert!(std::fs::exists("./dist/param-test/hello/index.html").is_ok_and(identity));
+    assert!(std::fs::exists("./dist/param-test/hello/index.html").is_ok_and(identity));
+// ENDIF
 // ENDIF
 }
