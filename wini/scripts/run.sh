@@ -22,5 +22,5 @@ watchexec -i "node_modules/**" -e 'scss' -r just compile-scss &
 watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run"
 # ENDIF
 # IFFEAT ssg
-watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run --features --features run-with-ssr"
+watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run --features --no-default-features --features run-with-ssr"
 # ENDIF

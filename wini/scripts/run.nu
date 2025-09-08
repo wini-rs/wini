@@ -14,7 +14,7 @@ just compile-scss
     { || watch . --glob="**/*.rs" { || try { cargo run }; info "Restarting..." } }
 # ENDIF
 # IFFEAT ssg
-    { || watch . --glob="**/*.rs" { || try { cargo run --features run-with-ssr }; info "Restarting..." } }
+    { || watch . --glob="**/*.rs" { || try { cargo run --no-default-features --features run-with-ssr }; info "Restarting..." } }
 # ENDIF
     { || watch . --glob="**/*.rs" { || terminate; } }
 ] | par-each {|c| do $c}

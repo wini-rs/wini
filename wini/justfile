@@ -28,7 +28,7 @@ build-prod: compile-ts compile-scss
     ENV_TYPE="PROD" cargo build --release
 # ENDIF
 # IFFEAT ssg
-    ENV_TYPE="PROD" cargo run --features generate-ssg
+    ENV_TYPE="PROD" cargo run --no-default-features --features generate-ssg
 # ENDIF
 
 # Run in production
@@ -38,7 +38,7 @@ run-prod: js-i js-sync-packages compile-ts compile-scss
     ENV_TYPE="PROD" cargo run --release
 # ENDIF
 # IFFEAT ssg
-    ENV_TYPE="PROD" cargo run --release --features serve-dist
+    ENV_TYPE="PROD" cargo run --release --no-default-features --features serve-dist
 # ENDIF
 
 # Create the binary for the staging
