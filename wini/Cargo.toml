@@ -4,6 +4,12 @@ edition = "2024"
 name = "PROJECT_NAME_TO_RESOLVE"
 version = "0.1.0"
 
+# IFFEAT ssg
+[features]
+generate-ssg = []
+serve-dist = []
+run-with-ssr = []
+# ENDIF
 
 [build-dependencies]
 walkdir = "2.5.0"

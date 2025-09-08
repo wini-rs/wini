@@ -24,12 +24,22 @@ check: compile-ts compile-scss
 # Create the binary for the production
 [group: "build"]
 build-prod: compile-ts compile-scss
+# IFFEAT ssr
     ENV_TYPE="PROD" cargo build --release
+# ENDIF
+# IFFEAT ssg
+    ENV_TYPE="PROD" cargo run --features generate-ssg
+# ENDIF
 
 # Run in production
 [group: "build"]
 run-prod: js-i js-sync-packages compile-ts compile-scss
+# IFFEAT ssr
     ENV_TYPE="PROD" cargo run --release
+# ENDIF
+# IFFEAT ssg
+    ENV_TYPE="PROD" cargo run --release --features serve-dist
+# ENDIF
 
 # Create the binary for the staging
 [group: "build"]
@@ -41,6 +51,10 @@ build-staging: compile-ts compile-scss
 run-staging: js-i js-sync-packages compile-ts compile-scss
     ENV_TYPE="STAGING" cargo run --release
 
+# IFFEAT ssg
+build-static-site:
+    cargo run
+# ENDIF
 
 
 # Create a new *something* based on a template
