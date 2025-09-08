@@ -52,6 +52,7 @@ pub async fn start() {
         .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(compression_layer);
 
+
     // Start the server
     info!("Starting listening on port {}...", *PORT);
     let listener = tokio::net::TcpListener::bind(format!("0.0.0.0:{}", *PORT))
@@ -73,7 +74,6 @@ pub async fn start() {
 // ENDIF
     let ssg_router = SsgRouter::new()
         .route("/", get(pages::hello::render));
-
 // IFFEAT test
     use maud::html;
     let ssg_router = SsgRouter::new()
@@ -107,6 +107,7 @@ pub async fn start() {
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/{*wildcard}", get(handling_file::handle_file))
         .layer(compression_layer);
+
 
     // Start the server
     info!("Starting listening on port {}...", *PORT);
