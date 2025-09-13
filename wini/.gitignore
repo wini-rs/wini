@@ -6,4 +6,4 @@
 !public/*.css
 node_modules/
 .sass-cache
-/dist
+/dist/
