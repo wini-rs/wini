@@ -146,7 +146,9 @@ pub async fn start() {
 
     #[cfg(feature = "serve-dist")]
     {
-        let app = Router::<()>::new().nest_service("/", tower_http::services::ServeDir::new("dist"));
+        let app = Router::<()>::new()
+            .nest_service("/", tower_http::services::ServeDir::new("dist"))
+            .layer(CompressionLayer::new());
 
         // Start the server
         info!("Starting listening on port {}...", *PORT);
