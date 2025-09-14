@@ -106,7 +106,6 @@ pub async fn render_routes_to_files() {
         let mut path = PathBuf::new();
         path.push("dist");
         path.extend(route.split('/'));
-        println!("{route:#?} {path:?}");
         std::fs::create_dir_all(&path).unwrap();
         path.push("index.html");
         std::fs::write(path, resp_text).expect("Couldn't write the file");
@@ -155,7 +154,6 @@ struct PathSegments<'l>(Vec<PathSegment<'l>>);
 
 impl<'l> PathSegments<'l> {
     fn from_str(s: &'l str) -> Self {
-        println!("{:#?}", s.split('/').collect::<Vec<_>>());
         Self(
             s.split('/')
                 .skip(1)
