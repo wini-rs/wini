@@ -1,6 +1,7 @@
 use {
     crate::shared::wini::PORT,
     axum::{routing::MethodRouter, Router},
+    reqwest::Client,
     select::{document::Document, predicate::Name},
     std::{
         borrow::Cow,
@@ -81,8 +82,13 @@ pub async fn render_routes_to_files() {
     let mut static_assets = Vec::new();
 
     let routes = ROUTES_TO_AXUM.lock().unwrap().clone();
+
+    let reqwest_client = Client::new();
+
     for route in &routes {
-        let resp_text = reqwest::get(format!("http://localhost:{}{route}", *PORT))
+        let resp_text = reqwest_client
+            .get(format!("http://localhost:{}{route}", *PORT))
+            .send()
             .await
             .unwrap()
             .text()
