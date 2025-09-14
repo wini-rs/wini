@@ -43,7 +43,7 @@ use {
 /// // After that you can use it like
 /// let listener = tokio::net::TcpListener::bind("0.0.0.0:80").await.unwrap();
 ///
-/// axum::serve(listener, sgg_router.into_axum_router()).await.unwrap();
+/// axum::serve(listener, ssg_router.into_axum_router()).await.unwrap();
 /// ```
 ///
 /// All the routes that need to be SSG will be in `ROUTES_TO_AXUM`, in this case:
