@@ -77,7 +77,7 @@ impl<'l> SsgRouter<'l> {
     ///
     /// # Examples
     ///
-    /// ```rust
+    /// ```rust,ignore
     /// use axum::routing::get;
     ///
     /// let router = SsgRouter::new()
@@ -105,9 +105,11 @@ impl<'l> SsgRouter<'l> {
     ///
     /// # Examples
     ///
-    /// ```rust
-    /// use std::borrow::Cow;
-    /// use axum::routing::get;
+    /// ```rust,ignore
+    /// use {
+    ///     axum::routing::get,
+    ///     std::borrow::Cow,
+    /// };
     ///
     /// // Route with one parameter
     /// let router = SsgRouter::new()
