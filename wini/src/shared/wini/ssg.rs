@@ -1,5 +1,10 @@
+//! Static Site Generation (SSG) utilities for pre-rendering routes to static files.
+//!
+//! This module provides tools to define routes with optional parameters and render them
+//! as static HTML files with associated assets, enabling deployment to static hosting services.
+
 use {
-    crate::shared::wini::PORT,
+    crate::shared::wini::{config::SERVER_CONFIG, PORT},
     axum::{routing::MethodRouter, Router},
     reqwest::Client,
     select::{document::Document, predicate::Name},
@@ -11,23 +16,121 @@ use {
     },
 };
 
-/// A basic router for SSG
+/// A router builder for Static Site Generation that tracks routes and their parameter variants.
+///
+/// `SsgRouter` allows you to register routes with optional parameter sets, then converts
+/// them into an Axum router while tracking all concrete route paths for static rendering.
+///
+/// # Examples
+///
+/// ```rust,ignore
+/// use {
+///     axum::routing::get,
+///     std::borrow::Cow,
+/// };
+///
+/// let ssg_router = SsgRouter::new()
+///     .route("/", get(home_handler))
+///     .route_with_params(
+///         "/blog/{slug}",
+///         get(blog_post_handler),
+///         vec![
+///             vec![Cow::Borrowed("hello-world")],
+///             vec![Cow::Borrowed("rust-tips")],
+///         ]
+///     );
+///
+/// // After that you can use it like
+/// let listener = tokio::net::TcpListener::bind("0.0.0.0:80").await.unwrap();
+///
+/// axum::serve(listener, sgg_router.into_axum_router()).await.unwrap();
+/// ```
+///
+/// All the routes that need to be SSG will be in `ROUTES_TO_AXUM`, in this case:
+/// ```json
+/// [
+///     "/",
+///     "/blog/hello-world",
+///     "/blog/rust-tips",
+/// ]
+/// ```
 #[derive(Debug, Default)]
 pub(crate) struct SsgRouter<'l> {
     routes: HashMap<&'l str, (MethodRouter<()>, Option<Vec<Vec<Cow<'l, str>>>>)>,
 }
 
 impl<'l> SsgRouter<'l> {
+    /// Creates a new SSG router without any route registered.
     pub fn new() -> Self {
         Self::default()
     }
 
+    /// Registers a static route without parameters.
+    ///
+    /// Use this for routes that don't contain dynamic segments (e.g., `/user/{id}`,
+    /// `/blog/page/{title}`).
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The route path (must not contain `{param}` or `*wildcard` segments)
+    /// * `m` - The Axum method router handling this path
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use axum::routing::get;
+    ///
+    /// let router = SsgRouter::new()
+    ///     .route("/", get(home_handler))
+    ///     .route("/about", get(about_handler));
+    /// ```
     #[allow(unused, reason = "Not necessarily used")]
     pub fn route(mut self, path: &'l str, m: MethodRouter<()>) -> Self {
         self.routes.insert(path, (m, None));
         self
     }
 
+    /// Registers a parameterized route with all possible parameter combinations.
+    ///
+    /// Use this for routes containing dynamic segments that you want to pre-render
+    /// with specific parameter values.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The route path containing `{param}` or `*wildcard` segments
+    /// * `m` - The Axum method router handling this path
+    /// * `params` - All parameter combinations to generate static files for.
+    ///   Each inner `Vec` must contain exactly as many values as there are
+    ///   dynamic segments in the path.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use std::borrow::Cow;
+    /// use axum::routing::get;
+    ///
+    /// // Route with one parameter
+    /// let router = SsgRouter::new()
+    ///     .route_with_params(
+    ///         "/blog/{slug}",
+    ///         get(blog_handler),
+    ///         vec![
+    ///             vec![Cow::Borrowed("post-1")],
+    ///             vec![Cow::Borrowed("post-2")],
+    ///         ]
+    ///     );
+    ///
+    /// // Route with multiple parameters
+    /// let router = SsgRouter::new()
+    ///     .route_with_params(
+    ///         "/blog/{year}/{slug}",
+    ///         get(blog_handler),
+    ///         vec![
+    ///             vec![Cow::Borrowed("2024"), Cow::Borrowed("hello")],
+    ///             vec![Cow::Borrowed("2024"), Cow::Borrowed("world")],
+    ///         ]
+    ///     );
+    /// ```
     #[allow(unused, reason = "Not necessarily used")]
     pub fn route_with_params(
         mut self,
@@ -39,6 +142,16 @@ impl<'l> SsgRouter<'l> {
         self
     }
 
+    /// Converts the SSG router into an Axum router and registers all concrete routes for rendering.
+    ///
+    /// This method validates parameter counts against path segments and stores all
+    /// concrete route paths in a global registry for later static generation.
+    ///
+    /// # Panics
+    ///
+    /// * If a parameterized route is registered without parameters
+    /// * If any parameter set has the wrong number of values for its route
+    /// * If a static route is registered with parameters
     pub fn into_axum_router(self) -> Router {
         let mut router = Router::new();
 
@@ -77,6 +190,42 @@ impl<'l> SsgRouter<'l> {
 static ROUTES_TO_AXUM: LazyLock<Arc<Mutex<HashSet<String>>>> =
     LazyLock::new(|| Arc::new(Mutex::new(HashSet::new())));
 
+/// Renders all registered routes to static HTML files with their assets.
+///
+/// This function creates a `dist/` directory and generates static files for all routes
+/// registered through `SsgRouter`. It:
+///
+/// 1. Fetches HTML content for each route from the running server
+/// 2. Parses HTML to find local assets (CSS, JS)
+/// 3. Downloads and saves assets preserving their directory structure
+/// 4. Writes each route's HTML to `dist/{route}/index.html`
+/// 5. Copies the entire public directory to `dist/`
+///
+/// # File Structure
+///
+/// Generated files follow this structure:
+/// ```tree
+/// dist/
+/// ├── index.html              # Root route (/)
+/// ├── about/
+/// │   └── index.html          # /about route
+/// ├── blog/
+/// │   ├── post-1/
+/// │   │   └── index.html      # /blog/post-1 route
+/// │   └── post-2/
+/// │       └── index.html      # /blog/post-2 route
+/// ├── assets/
+/// │   ├── style.css           # Downloaded assets
+/// │   └── script.js
+/// └── ...                     # Copied from public/
+/// ```
+///
+/// # Errors
+///
+/// This function will panic if:
+/// * The server is not reachable
+/// * File system operations fail (permissions, disk space, etc.)
+/// * HTML parsing fails
 pub async fn render_routes_to_files() {
     std::fs::create_dir_all("dist/").unwrap();
     let mut static_assets = Vec::new();
@@ -99,14 +248,14 @@ pub async fn render_routes_to_files() {
 
         for link in document.find(Name("link")) {
             if let Some(href) = link.attr("href") && !href.starts_with("https://") {
-                static_assets.push(href.to_owned());
-            }
+            static_assets.push(href.to_owned());
+        }
         }
 
         for script in document.find(Name("script")) {
             if let Some(src) = script.attr("src") && !src.starts_with("https://") {
-                static_assets.push(src.to_owned());
-            }
+            static_assets.push(src.to_owned());
+        }
         }
 
         let mut path = PathBuf::from("dist");
@@ -140,7 +289,7 @@ pub async fn render_routes_to_files() {
         std::fs::write(path, resp_text).expect("Couldn't write the file");
     }
 
-    copy_dir_all("public", "dist").unwrap();
+    copy_dir_all(SERVER_CONFIG.path.public_from_src(), "dist").unwrap();
 }
 
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {
