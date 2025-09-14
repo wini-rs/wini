@@ -21,13 +21,13 @@ impl<'l> SsgRouter<'l> {
         Self::default()
     }
 
-    #[allow(unused, reason = "Not necessarly used")]
+    #[allow(unused, reason = "Not necessarily used")]
     pub fn route(mut self, path: &'l str, m: MethodRouter<()>) -> Self {
         self.routes.insert(path, (m, None));
         self
     }
 
-    #[allow(unused, reason = "Not necessarly used")]
+    #[allow(unused, reason = "Not necessarily used")]
     pub fn route_with_params(
         mut self,
         path: &'l str,
