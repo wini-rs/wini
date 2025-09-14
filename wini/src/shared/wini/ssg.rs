@@ -67,8 +67,8 @@ impl<'l> SsgRouter<'l> {
 
     /// Registers a static route without parameters.
     ///
-    /// Use this for routes that don't contain dynamic segments (e.g., `/user/{id}`,
-    /// `/blog/page/{title}`).
+    /// Use this for routes that don't contain dynamic segments (e.g.,  `/`, `/about`, but no
+    /// `/user/{id}`, `/blog/page/{title}`).
     ///
     /// # Arguments
     ///
