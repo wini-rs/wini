@@ -29,10 +29,6 @@ use {
 // ENDIF
 pub async fn start() {
 // IFFEAT ssr
-    // Support for compression
-    let compression_layer = CompressionLayer::new();
-
-
     // The main router of the application is defined here
     let app = Router::<()>::new()
         .route("/", get(pages::hello::render))
@@ -50,7 +46,7 @@ pub async fn start() {
         .layer(middleware::from_fn(template::template))
         .layer(middleware::from_fn(cache::html_middleware))
         .route("/{*wildcard}", get(handling_file::handle_file))
-        .layer(compression_layer);
+        .layer(CompressionLayer::new());
 
 
     // Start the server
@@ -67,12 +63,8 @@ pub async fn start() {
 // IFFEAT ssg
     #[cfg(any(feature = "generate-ssg", feature = "run-with-ssr"))]
     {
-        // Support for compression
-        let compression_layer = CompressionLayer::new();
-
-
 // IFFEAT test
-    #[allow(unused, reason = "test")]
+        #[allow(unused, reason = "test")]
 // ENDIF
         let ssg_router = SsgRouter::new()
             .route("/", get(pages::hello::render));
@@ -108,7 +100,7 @@ pub async fn start() {
             .layer(middleware::from_fn(template::template))
             .layer(middleware::from_fn(cache::html_middleware))
             .route("/{*wildcard}", get(handling_file::handle_file))
-            .layer(compression_layer);
+            .layer(CompressionLayer::new());
 
         // Start the server
         info!("Starting listening on port {}...", *PORT);
