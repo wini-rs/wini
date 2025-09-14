@@ -111,6 +111,14 @@ pub async fn render_routes_to_files() {
 
         let mut path = PathBuf::from("dist");
         path.extend(route.split('/'));
+
+        for comp in path.components() {
+            assert!(
+                matches!(comp, std::path::Component::Normal(_)),
+                "Unsafe route component in `{route}`: {comp:?}"
+            );
+        }
+
         std::fs::create_dir_all(&path).unwrap();
         path.push("index.html");
         std::fs::write(path, resp_text).expect("Couldn't write the file");
