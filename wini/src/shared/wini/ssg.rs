@@ -230,7 +230,7 @@ static ROUTES_TO_AXUM: LazyLock<Arc<Mutex<HashSet<String>>>> =
 /// * HTML parsing fails
 pub async fn render_routes_to_files() {
     std::fs::create_dir_all("dist/").unwrap();
-    let mut static_assets = Vec::new();
+    let mut static_assets = HashSet::new();
 
     let routes = ROUTES_TO_AXUM.lock().unwrap().clone();
 
@@ -249,14 +249,14 @@ pub async fn render_routes_to_files() {
         let document = Document::from(resp_text.as_str());
 
         for link in document.find(Name("link")) {
-            if let Some(href) = link.attr("href") && !href.starts_with("https://") {
-            static_assets.push(href.to_owned());
+            if let Some(href) = link.attr("href") && !href.contains("://") {
+            static_assets.insert(href.to_owned());
         }
         }
 
         for script in document.find(Name("script")) {
-            if let Some(src) = script.attr("src") && !src.starts_with("https://") {
-            static_assets.push(src.to_owned());
+            if let Some(src) = script.attr("src") && !src.contains("://") {
+            static_assets.insert(src.to_owned());
         }
         }
 

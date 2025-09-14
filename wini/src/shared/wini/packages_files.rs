@@ -1,7 +1,7 @@
 use {
     super::{config::TomlLoadingError, err::ExitWithMessageIfErr},
     crate::{concat_paths, shared::wini::config::SERVER_CONFIG},
-    serde::{Deserialize, Deserializer, de::Visitor},
+    serde::{de::Visitor, Deserialize, Deserializer},
     std::{collections::HashMap, io, sync::LazyLock},
 };
 
@@ -59,7 +59,7 @@ impl<'de> Deserialize<'de> for VecOrString {
 /// The files on which a package depend on
 pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::new(|| {
     fn module_path_from_short_name(package: &str, file: &str) -> String {
-        if file.starts_with("https://") {
+        if file.contains("://") {
             file.to_string()
         } else {
             concat_paths!(
