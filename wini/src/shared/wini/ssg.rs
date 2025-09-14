@@ -158,10 +158,10 @@ impl<'l> PathSegments<'l> {
             s.split('/')
                 .skip(1)
                 .map(|segment| {
-                    match segment.chars().nth(0) {
-                        Some('*') => PathSegment::Wildcard,
-                        Some(':' | '{') => {
-                            if segment.chars().nth(1) == Some('*') {
+                    match segment.as_bytes().first() {
+                        Some(b'*') => PathSegment::Wildcard,
+                        Some(b':' | b'{') => {
+                            if segment.as_bytes().get(1).copied() == Some(b'*') {
                                 PathSegment::Wildcard
                             } else {
                                 PathSegment::Param
