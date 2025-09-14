@@ -109,8 +109,7 @@ pub async fn render_routes_to_files() {
             }
         }
 
-        let mut path = PathBuf::new();
-        path.push("dist");
+        let mut path = PathBuf::from("dist");
         path.extend(route.split('/'));
         std::fs::create_dir_all(&path).unwrap();
         path.push("index.html");
