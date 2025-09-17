@@ -250,14 +250,14 @@ pub async fn render_routes_to_files() {
 
         for link in document.find(Name("link")) {
             if let Some(href) = link.attr("href") && !href.contains("://") {
-            static_assets.insert(href.to_owned());
-        }
+                static_assets.insert(href.to_owned());
+            }
         }
 
         for script in document.find(Name("script")) {
             if let Some(src) = script.attr("src") && !src.contains("://") {
-            static_assets.insert(src.to_owned());
-        }
+                static_assets.insert(src.to_owned());
+            }
         }
 
         let mut path = PathBuf::from("dist");
