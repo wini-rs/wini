@@ -5,6 +5,9 @@ set shell := ["nu", "-c"]
 check-all:
     nu ./scripts/check-all.nu
 
+test:
+    nu scripts/tests/*.nu
+
 
 init-branches:
     # nu ./scripts/init-branch.nu
