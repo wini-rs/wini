@@ -5,7 +5,11 @@ use {
         Select,
         Text,
     },
-    std::{fmt::Display, sync::LazyLock},
+    std::{
+        collections::{HashMap, HashSet},
+        fmt::Display,
+        sync::LazyLock,
+    },
 };
 
 pub mod ask;
@@ -35,14 +39,30 @@ const HEADER: &str = "\
 │ \x1b[36mWelcome to your new Wini project!\x1B[0m │
 \x1b[36m◆\x1b[0m ──────────────────────────────────┘";
 
+struct Answer {
+    yes: &'static str,
+    no: &'static str,
+    default: bool,
+}
 
-const OFFICIAL_REPOSITORY_OPTIONS: &[&str] = &[
-    "Basic",
-    "Basic - Workspace",
-    "Meta",
-    "Meta - Workspace",
+pub const OFFICIAL_REPOSITORY_QUESTIONS: &'static [(&'static str, Answer)] = &[
+    (
+        "Do you want to do static site generation (SSG) ?",
+        Answer {
+            yes: "ssg",
+            no: "ssr",
+            default: false,
+        },
+    ),
+    (
+        "Do you want to use Nushell as the shell ?",
+        Answer {
+            yes: "nushell",
+            no: "posix-sh",
+            default: false,
+        },
+    ),
 ];
-const OFFICIAL_REPOSITORY_BRANCHES: &[&str] = &["main", "workspaces", "meta", "meta-workspaces"];
 
 pub struct RepoSummary {
     dir: String,
@@ -68,3 +88,19 @@ pub fn input(prompt: &str) -> Result<String, InitError> {
         .prompt()
         .map_err(|_| InitError::ManualExit)
 }
+
+pub fn yes_no(question: &'static str, default: bool) -> Result<bool, InitError> {
+    todo!()
+}
+
+
+/// Port of `scripts/branches.json`
+pub static OPTIONS_TO_BRANCH: LazyLock<HashMap<HashSet<&'static str>, &'static str>> =
+    LazyLock::new(|| {
+        HashMap::from_iter([
+            (HashSet::from_iter(["ssr", "posix-sh"]), "default"),
+            (HashSet::from_iter(["ssg", "posix-sh"]), "ssg"),
+            (HashSet::from_iter(["ssr", "nushell"]), "nushell"),
+            (HashSet::from_iter(["ssg", "nushell"]), "ssg-nushell"),
+        ])
+    });
