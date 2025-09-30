@@ -1,22 +1,24 @@
 use {
-    super::{RepoSummary, err::InitError, sep},
+    super::{err::InitError, sep, RepoSummary},
     crate::{
         init::{
-            HEADER,
-            OFFICIAL_REPOSITORY_BRANCHES,
-            OFFICIAL_REPOSITORY_OPTIONS,
-            RENDER_CONFIG,
-            WINI_REPO,
             git::{clone, use_branch},
             input,
             rename::rename_fields,
             select,
+            HEADER,
+            OFFICIAL_REPOSITORY_BRANCHES,
+            OFFICIAL_REPOSITORY_OPTIONS,
+            OFFICIAL_REPOSITORY_QUESTIONS,
+            OPTIONS_TO_BRANCH,
+            RENDER_CONFIG,
+            WINI_REPO,
         },
         utils::{copy_dir_all, generate_random_string},
     },
     git2::{BranchType, Repository},
-    inquire::{Confirm, set_global_render_config},
-    std::{fs, path::Path},
+    inquire::{set_global_render_config, Confirm},
+    std::{collections::HashSet, fs, path::Path},
 };
 
 
@@ -65,11 +67,13 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
     let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
 
     let result = (|| {
-        let branch_index = select(
-            "Which template should be used",
-            OFFICIAL_REPOSITORY_OPTIONS.to_vec(),
-        )?;
-        let branch = OFFICIAL_REPOSITORY_BRANCHES[branch_index].to_owned();
+        let mut branch_options = HashSet::new();
+
+        for (question, answers) in OFFICIAL_REPOSITORY_QUESTIONS {
+            branch_options.push(yes_no(question, answers.default)?);
+        }
+
+        let branch = OPTIONS_TO_BRANCH[branch_index].to_owned();
 
         sep();
 
