@@ -6,11 +6,7 @@ use {
         Select,
         Text,
     },
-    std::{
-        collections::{HashMap, HashSet},
-        fmt::Display,
-        sync::LazyLock,
-    },
+    std::{collections::HashMap, fmt::Display, sync::LazyLock},
 };
 
 pub mod ask;
@@ -46,7 +42,7 @@ struct Answer {
     default: bool,
 }
 
-pub const OFFICIAL_REPOSITORY_QUESTIONS: &[(&str, Answer)] = &[
+const OFFICIAL_REPOSITORY_QUESTIONS: &[(&str, Answer)] = &[
     (
         "Do you want to do static site generation (SSG) ?",
         Answer {
@@ -91,10 +87,10 @@ pub fn input(prompt: &str) -> Result<String, InitError> {
 }
 
 pub fn prompt_yes_no(question: &'static str, default: bool) -> Result<bool, InitError> {
-    Ok(Confirm::new(question)
+    Confirm::new(question)
         .with_default(default)
         .prompt()
-        .map_err(InitError::PromptError)?)
+        .map_err(InitError::PromptError)
 }
 
 
