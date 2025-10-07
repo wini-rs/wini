@@ -1,10 +1,10 @@
 use {
     err::InitError,
     inquire::{
-        ui::{RenderConfig, Styled},
         Confirm,
         Select,
         Text,
+        ui::{RenderConfig, Styled},
     },
     std::{collections::HashMap, fmt::Display, sync::LazyLock},
 };
