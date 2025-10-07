@@ -66,7 +66,7 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
     let handle_clone_official_repository = std::thread::spawn(|| clone(WINI_REPO));
 
     let result = (|| {
-        let mut branch_options = Vec::new();
+        let mut branch_options = Vec::with_capacity(OFFICIAL_REPOSITORY_QUESTIONS.len());
 
         for (question, answers) in OFFICIAL_REPOSITORY_QUESTIONS {
             branch_options.push(
