@@ -1,22 +1,22 @@
 use {
-    super::{RepoSummary, err::InitError, sep},
+    super::{err::InitError, sep, RepoSummary},
     crate::{
         init::{
-            HEADER,
-            OFFICIAL_REPOSITORY_QUESTIONS,
-            OPTIONS_TO_BRANCH,
-            RENDER_CONFIG,
-            WINI_REPO,
             git::{clone, use_branch},
             input,
             prompt_yes_no,
             rename::rename_fields,
             select,
+            HEADER,
+            OFFICIAL_REPOSITORY_QUESTIONS,
+            OPTIONS_TO_BRANCH,
+            RENDER_CONFIG,
+            WINI_REPO,
         },
         utils::{copy_dir_all, generate_random_string},
     },
     git2::{BranchType, Repository},
-    inquire::{Confirm, set_global_render_config},
+    inquire::{set_global_render_config, Confirm},
     std::{fs, path::Path},
 };
 
@@ -78,7 +78,7 @@ pub fn from_official_repository() -> Result<RepoSummary, InitError> {
             );
         }
 
-        let branch = OPTIONS_TO_BRANCH[&branch_options].to_owned();
+        let branch = OPTIONS_TO_BRANCH[branch_options.as_slice()].to_owned();
 
         sep();
 
