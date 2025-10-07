@@ -4,7 +4,7 @@ use {
         just::{args_from_file::arguments_from_justfile_path, search_justfile::search},
     },
     anstyle::AnsiColor,
-    clap::{crate_version, Command},
+    clap::{Command, crate_version},
 };
 
 pub fn build() -> Result<clap::ArgMatches, InitError> {

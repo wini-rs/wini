@@ -1,22 +1,22 @@
 use {
-    super::{err::InitError, sep, RepoSummary},
+    super::{RepoSummary, err::InitError, sep},
     crate::{
         init::{
-            git::{clone, use_branch},
-            input,
-            prompt_yes_no,
-            rename::rename_fields,
-            select,
             HEADER,
             OFFICIAL_REPOSITORY_QUESTIONS,
             OPTIONS_TO_BRANCH,
             RENDER_CONFIG,
             WINI_REPO,
+            git::{clone, use_branch},
+            input,
+            prompt_yes_no,
+            rename::rename_fields,
+            select,
         },
         utils::{copy_dir_all, generate_random_string},
     },
     git2::{BranchType, Repository},
-    inquire::{set_global_render_config, Confirm},
+    inquire::{Confirm, set_global_render_config},
     std::{fs, path::Path},
 };
 

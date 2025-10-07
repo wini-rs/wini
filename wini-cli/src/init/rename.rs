@@ -1,5 +1,5 @@
 use {
-    super::{err::InitError, git::first_commit, RepoSummary},
+    super::{RepoSummary, err::InitError, git::first_commit},
     std::{fs, io, path::Path},
 };
 

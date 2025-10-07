@@ -38,20 +38,16 @@ impl From<MinimalRecipe> for Command {
             command = command.aliases(aliases);
         }
 
-        command = command.args(
-            val.params
-                .into_iter()
-                .map(|p| {
-                    match p.kind {
-                        ParameterKind::Plus | ParameterKind::Star => {
-                            Arg::new(p.name)
-                                .value_delimiter(',')
-                                .help("Separate values by ','")
-                        },
-                        ParameterKind::Singular => Arg::new(p.name),
-                    }
-                }),
-        );
+        command = command.args(val.params.into_iter().map(|p| {
+            match p.kind {
+                ParameterKind::Plus | ParameterKind::Star => {
+                    Arg::new(p.name)
+                        .value_delimiter(',')
+                        .help("Separate values by ','")
+                },
+                ParameterKind::Singular => Arg::new(p.name),
+            }
+        }));
 
         command.clone()
     }
