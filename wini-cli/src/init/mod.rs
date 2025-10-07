@@ -2,6 +2,7 @@ use {
     err::InitError,
     inquire::{
         ui::{RenderConfig, Styled},
+        Confirm,
         Select,
         Text,
     },
@@ -45,7 +46,7 @@ struct Answer {
     default: bool,
 }
 
-pub const OFFICIAL_REPOSITORY_QUESTIONS: &'static [(&'static str, Answer)] = &[
+pub const OFFICIAL_REPOSITORY_QUESTIONS: &[(&str, Answer)] = &[
     (
         "Do you want to do static site generation (SSG) ?",
         Answer {
@@ -89,18 +90,21 @@ pub fn input(prompt: &str) -> Result<String, InitError> {
         .map_err(|_| InitError::ManualExit)
 }
 
-pub fn yes_no(question: &'static str, default: bool) -> Result<bool, InitError> {
-    todo!()
+pub fn prompt_yes_no(question: &'static str, default: bool) -> Result<bool, InitError> {
+    Ok(Confirm::new(question)
+        .with_default(default)
+        .prompt()
+        .map_err(InitError::PromptError)?)
 }
 
 
 /// Port of `scripts/branches.json`
-pub static OPTIONS_TO_BRANCH: LazyLock<HashMap<HashSet<&'static str>, &'static str>> =
+pub static OPTIONS_TO_BRANCH: LazyLock<HashMap<Vec<&'static str>, &'static str>> =
     LazyLock::new(|| {
         HashMap::from_iter([
-            (HashSet::from_iter(["ssr", "posix-sh"]), "default"),
-            (HashSet::from_iter(["ssg", "posix-sh"]), "ssg"),
-            (HashSet::from_iter(["ssr", "nushell"]), "nushell"),
-            (HashSet::from_iter(["ssg", "nushell"]), "ssg-nushell"),
+            (Vec::from_iter(["ssr", "posix-sh"]), "default"),
+            (Vec::from_iter(["ssg", "posix-sh"]), "ssg"),
+            (Vec::from_iter(["ssr", "nushell"]), "nushell"),
+            (Vec::from_iter(["ssg", "nushell"]), "ssg-nushell"),
         ])
     });
