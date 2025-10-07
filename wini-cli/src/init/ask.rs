@@ -17,7 +17,7 @@ use {
     },
     git2::{BranchType, Repository},
     inquire::{set_global_render_config, Confirm},
-    std::{collections::HashSet, fs, path::Path},
+    std::{fs, path::Path},
 };
 
 
