@@ -1,10 +1,10 @@
 use {
     err::InitError,
     inquire::{
+        ui::{RenderConfig, Styled},
         Confirm,
         Select,
         Text,
-        ui::{RenderConfig, Styled},
     },
     std::{collections::HashMap, fmt::Display, sync::LazyLock},
 };
@@ -95,12 +95,12 @@ pub fn prompt_yes_no(question: &'static str, default: bool) -> Result<bool, Init
 
 
 /// Port of `scripts/branches.json`
-pub static OPTIONS_TO_BRANCH: LazyLock<HashMap<Vec<&'static str>, &'static str>> =
+pub static OPTIONS_TO_BRANCH: LazyLock<HashMap<&'static [&'static str], &'static str>> =
     LazyLock::new(|| {
         HashMap::from_iter([
-            (Vec::from_iter(["ssr", "posix-sh"]), "default"),
-            (Vec::from_iter(["ssg", "posix-sh"]), "ssg"),
-            (Vec::from_iter(["ssr", "nushell"]), "nushell"),
-            (Vec::from_iter(["ssg", "nushell"]), "ssg-nushell"),
+            (["ssr", "posix-sh"].as_slice(), "default"),
+            (&["ssg", "posix-sh"], "ssg"),
+            (&["ssr", "nushell"], "nushell"),
+            (&["ssg", "nushell"], "ssg-nushell"),
         ])
     });
