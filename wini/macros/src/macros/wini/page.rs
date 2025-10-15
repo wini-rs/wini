@@ -2,6 +2,7 @@ use {
     super::args::ProcMacroParameters,
     crate::utils::wini::{
         files::get_js_or_css_files_in_current_dir,
+        js_pkgs,
         params_from_itemfn::params_from_itemfn,
         result::is_ouput_ty_result,
     },
@@ -38,21 +39,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_headers = attributes.generate_all_extensions(false);
-    let js_pkgs = if let Some(js_pkgs) = attributes.js_pkgs {
-        quote!(#(
-            match crate::shared::wini::packages_files::PACKAGES_FILES.get(#js_pkgs) {
-                Some(crate::shared::wini::packages_files::VecOrString::Vec(pkgs)) => {
-                    files.extend(pkgs.into_iter().map(|pkg| Cow::Owned(pkg.strip_prefix('/').unwrap_or(pkg).to_owned())));
-                },
-                Some(crate::shared::wini::packages_files::VecOrString::String(pkg)) => {
-                    files.insert(Cow::Owned(pkg.strip_prefix('/').unwrap_or(pkg).to_owned()));
-                },
-                None => panic!("Package `{}` does not exist", #js_pkgs),
-            };
-        )*)
-    } else {
-        quote!()
-    };
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files));
 
     // Generate the output code
     let expanded = quote! {

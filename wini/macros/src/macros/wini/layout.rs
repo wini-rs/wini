@@ -1,11 +1,15 @@
 use {
     crate::{
         macros::wini::args::ProcMacroParameters,
-        utils::wini::{files::get_js_or_css_files_in_current_dir, result::is_ouput_ty_result},
+        utils::wini::{
+            files::get_js_or_css_files_in_current_dir,
+            js_pkgs,
+            result::is_ouput_ty_result,
+        },
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{FnArg, Ident, parse_macro_input, spanned::Spanned},
+    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident},
 };
 
 
@@ -105,6 +109,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_extensions = attributes.generate_all_extensions(true);
 
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files));
+
     // Generate the output code
     let expanded = quote! {
         #[allow(non_snake_case)]
@@ -135,6 +141,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
             files.extend(html.linked_files.into_iter().map(Cow::Owned));
             files.extend(FILES_IN_CURRENT_DIR);
+
+            #js_pkgs
 
             // Modify extensions with meta tags in it
             #meta_extensions

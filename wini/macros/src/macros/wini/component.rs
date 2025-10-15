@@ -2,6 +2,7 @@ use {
     super::args::ProcMacroParameters,
     crate::utils::wini::{
         files::get_js_or_css_files_in_current_dir,
+        js_pkgs,
         params_from_itemfn::params_from_itemfn,
         result::is_ouput_ty_result,
     },
@@ -36,11 +37,12 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     } else {
         (quote!(::maud::Markup), quote!(), quote!(html))
     };
-    println!("{return_type}");
 
     let (arguments, param_names) = params_from_itemfn(&original_function);
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
+
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(html.linked_files));
 
     // Generate the output code
     let expanded = quote! {
@@ -65,6 +67,8 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
                     .map(String::from)
             );
             html.linked_files.extend(hashset);
+
+            #js_pkgs
 
             #return_data
         }
