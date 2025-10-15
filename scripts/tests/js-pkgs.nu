@@ -7,7 +7,7 @@ def main [] {
     let dir = (check-with-features ["ssg" "posix-sh"])
     cd $dir
 
-    yes '' | just js-add "alpinejs"
+    nix develop -c nu -c "yes '' | just js-add 'alpinejs'"
 
     sed -i 's/#\[page\]/#[page(js_pkgs = ["alpinejs"])]/g' ./src/pages/hello/mod.rs
 
@@ -28,7 +28,7 @@ def main [] {
     let dir = (check-with-features ["ssg" "posix-sh"])
     cd $dir
 
-    yes '' | just js-add "alpinejs"
+    nix develop -c nu -c "yes '' | just js-add 'alpinejs'"
 
     sed -i 's/#\[page\]/#[page(js_pkgs = ["alpinejs"])]/g' ./src/pages/hello/mod.rs
     sed -i 's/#\[layout\]/#[layout(js_pkgs = ["alpinejs"])]/g' ./src/layouts/header/mod.rs
