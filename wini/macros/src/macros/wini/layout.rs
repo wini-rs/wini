@@ -9,7 +9,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident},
+    syn::{FnArg, Ident, parse_macro_input, spanned::Spanned},
 };
 
 

@@ -1,7 +1,7 @@
 use {
     super::{config::TomlLoadingError, err::ExitWithMessageIfErr},
     crate::{concat_paths, shared::wini::config::SERVER_CONFIG},
-    serde::{de::Visitor, Deserialize, Deserializer},
+    serde::{Deserialize, Deserializer, de::Visitor},
     std::{collections::HashMap, io, sync::LazyLock},
 };
 

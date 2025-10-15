@@ -8,7 +8,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Ident},
+    syn::{Ident, parse_macro_input},
 };
 
 

@@ -1,6 +1,6 @@
 use {
-    std::collections::{HashMap, HashSet},
-    syn::{meta::ParseNestedMeta, ExprArray, Lit, LitStr},
+    std::collections::HashMap,
+    syn::{ExprArray, Lit, LitStr, meta::ParseNestedMeta},
 };
 
 /// The arguments expected in attribute
