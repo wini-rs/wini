@@ -7,7 +7,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{Ident, parse_macro_input},
+    syn::{parse_macro_input, Ident},
 };
 
 
@@ -38,6 +38,21 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_headers = attributes.generate_all_extensions(false);
+    let js_pkgs = if let Some(js_pkgs) = attributes.js_pkgs {
+        quote!(#(
+            match crate::shared::wini::packages_files::PACKAGES_FILES.get(#js_pkgs) {
+                Some(crate::shared::wini::packages_files::VecOrString::Vec(pkgs)) => {
+                    files.extend(pkgs.into_iter().map(|pkg| Cow::Owned(pkg.to_owned())));
+                },
+                Some(crate::shared::wini::packages_files::VecOrString::String(pkg)) => {
+                    files.insert(Cow::Owned(pkg.to_owned()));
+                },
+                None => panic!("Package `{}` does not exist", #js_pkgs),
+            };
+        )*)
+    } else {
+        quote!()
+    };
 
     // Generate the output code
     let expanded = quote! {
@@ -64,6 +79,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
             files.extend(FILES_IN_CURRENT_DIR);
             files.extend(linked_files);
+
+            #js_pkgs
 
             // Modify header with meta tags in it
             #meta_headers

@@ -1,11 +1,11 @@
 use {
     cached::proc_macro::cached,
-    maud::{Markup, html},
+    maud::{html, Markup},
     wini_macros::{init_cache, page},
 };
 
 #[init_cache]
-#[page]
+#[page(js_pkgs = ["uwu"])]
 #[cached]
 pub async fn render() -> Markup {
     html! {
@@ -42,7 +42,7 @@ pub async fn test_meta() -> Markup {
 async fn test_meta_page() {
     use {
         crate::template,
-        axum::{Router, middleware::from_fn, routing::get},
+        axum::{middleware::from_fn, routing::get, Router},
         axum_test::TestServer,
     };
 
@@ -69,7 +69,7 @@ async fn test_meta_page() {
 async fn test_meta_layer_with_page() {
     use {
         crate::{shared::wini::layer::MetaLayerBuilder, template},
-        axum::{Router, middleware::from_fn, routing::get},
+        axum::{middleware::from_fn, routing::get, Router},
         axum_test::TestServer,
     };
 
