@@ -6,7 +6,8 @@ check-all:
     nu ./scripts/check-all.nu
 
 test:
-    nu scripts/tests/*.nu
+    nu scripts/tests/ssg.nu
+    nu scripts/tests/js-pkgs.nu
 
 
 init-branches:
