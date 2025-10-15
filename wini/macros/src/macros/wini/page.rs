@@ -42,10 +42,10 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
         quote!(#(
             match crate::shared::wini::packages_files::PACKAGES_FILES.get(#js_pkgs) {
                 Some(crate::shared::wini::packages_files::VecOrString::Vec(pkgs)) => {
-                    files.extend(pkgs.into_iter().map(|pkg| Cow::Owned(pkg.to_owned())));
+                    files.extend(pkgs.into_iter().map(|pkg| Cow::Owned(pkg.strip_prefix('/').unwrap_or(pkg).to_owned())));
                 },
                 Some(crate::shared::wini::packages_files::VecOrString::String(pkg)) => {
-                    files.insert(Cow::Owned(pkg.to_owned()));
+                    files.insert(Cow::Owned(pkg.strip_prefix('/').unwrap_or(pkg).to_owned()));
                 },
                 None => panic!("Package `{}` does not exist", #js_pkgs),
             };

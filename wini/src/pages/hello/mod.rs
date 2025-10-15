@@ -5,7 +5,7 @@ use {
 };
 
 #[init_cache]
-#[page(js_pkgs = ["uwu"])]
+#[page]
 #[cached]
 pub async fn render() -> Markup {
     html! {
