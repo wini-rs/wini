@@ -1,5 +1,5 @@
 use {
-    crate::shared::wini::err::{ServerError, ServerResult},
+    crate::shared::wini::err::{ServerError, ServerErrorKind, ServerResult},
     axum::body::Bytes,
     http_body_util::BodyExt,
     std::fmt::Debug,
@@ -16,7 +16,7 @@ where
         &body
             .collect()
             .await
-            .map_err(|e| ServerError::DebugedError(format!("{e}")))?
+            .map_err(|e| ServerErrorKind::DebugedError(format!("{e}")))?
             .to_bytes(),
     )?
     .to_string())

@@ -1,15 +1,17 @@
-use proc_macro::Span;
+use {proc_macro::Span, std::path::PathBuf};
 
+pub fn get_current_file_path() -> Option<PathBuf> {
+    Span::call_site().local_file()
+}
 
 /// Get javascript and css files in the directory of the proc_macro
 pub fn get_js_or_css_files_in_current_dir() -> Vec<String> {
-    let span = Span::call_site();
-
-    let Some(maybe_file) = span.local_file() else {
-        return vec![];
+    let Some(file_path) = get_current_file_path() else {
+        return Vec::new();
     };
-    let Some(dirname) = maybe_file.parent() else {
-        return vec![];
+
+    let Some(dirname) = file_path.parent() else {
+        return Vec::new();
     };
 
     let mut files = Vec::new();

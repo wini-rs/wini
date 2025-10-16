@@ -1,14 +1,23 @@
 use {
     axum::response::{IntoResponse, Response},
     hyper::{
-        StatusCode,
         header::{InvalidHeaderValue, ToStrError},
+        StatusCode,
     },
-    std::{convert::Infallible, str::Utf8Error},
+    maud::Markup,
+    std::{convert::Infallible, str::Utf8Error, sync::Arc},
 };
 
+pub type ServerResult<T> = Result<T, ServerError>;
+
+#[derive(Debug, Clone)]
+pub struct ServerError {
+    kind: Arc<ServerErrorKind>,
+    trace: Option<Vec<Trace>>,
+}
+
 #[derive(Debug)]
-pub enum ServerError {
+pub enum ServerErrorKind {
     Status(hyper::StatusCode),
     Infaillible(Infallible),
     Utf8Error(Utf8Error),
@@ -18,10 +27,28 @@ pub enum ServerError {
     ToStrError(ToStrError),
 }
 
+impl From<ServerErrorKind> for ServerError {
+    fn from(kind: ServerErrorKind) -> Self {
+        ServerError {
+            kind: Arc::new(kind),
+            trace: None,
+        }
+    }
+}
+
 /// Macro to easily implement errors into
 macro_rules! impl_from_error {
     ($from:ty, $to:path) => {
         impl From<$from> for ServerError {
+            fn from(rejection: $from) -> Self {
+                ServerError {
+                    kind: Arc::new($to(rejection)),
+                    trace: None,
+                }
+            }
+        }
+
+        impl From<$from> for ServerErrorKind {
             fn from(rejection: $from) -> Self {
                 $to(rejection)
             }
@@ -29,42 +56,59 @@ macro_rules! impl_from_error {
     };
 }
 
-impl_from_error!(hyper::StatusCode, Self::Status);
-impl_from_error!(Infallible, Self::Infaillible);
-impl_from_error!(Utf8Error, Self::Utf8Error);
-impl_from_error!(String, Self::DebugedError);
-impl_from_error!(InvalidHeaderValue, Self::InvalidHeader);
-impl_from_error!(ToStrError, Self::ToStrError);
+impl_from_error!(hyper::StatusCode, ServerErrorKind::Status);
+impl_from_error!(Infallible, ServerErrorKind::Infaillible);
+impl_from_error!(Utf8Error, ServerErrorKind::Utf8Error);
+impl_from_error!(String, ServerErrorKind::DebugedError);
+impl_from_error!(InvalidHeaderValue, ServerErrorKind::InvalidHeader);
+impl_from_error!(ToStrError, ServerErrorKind::ToStrError);
 
-pub type ServerResult<T> = Result<T, ServerError>;
 
-impl IntoResponse for ServerError {
+impl IntoResponse for &ServerErrorKind {
     fn into_response(self) -> Response {
         eprintln!("{self:#?}");
         let err_msg = match self {
-            Self::InvalidHeader(err) => {
+            ServerErrorKind::InvalidHeader(err) => {
                 format!("Unexpected header value: {err}")
             },
-            Self::DebugedError(err) => {
+            ServerErrorKind::DebugedError(err) => {
                 format!("Unexpected error: {err}")
             },
-            Self::Infaillible(err) => {
+            ServerErrorKind::Infaillible(err) => {
                 format!("This error should not be possible: {err:#?}")
             },
-            Self::ToStrError(err) => {
+            ServerErrorKind::ToStrError(err) => {
                 format!("Invalid str: {err}")
             },
-            Self::Utf8Error(err) => {
+            ServerErrorKind::Utf8Error(err) => {
                 format!("Error decoding buffer to UTF-8: {err:#?}")
             },
-            Self::PublicRessourceNotFound(path) => {
+            ServerErrorKind::PublicRessourceNotFound(path) => {
                 return (StatusCode::NOT_FOUND, format!("Couldn't find file: {path}"))
                     .into_response();
             },
-            Self::Status(status_code) => return status_code.into_response(),
+            ServerErrorKind::Status(status_code) => return status_code.into_response(),
         };
 
         (StatusCode::INTERNAL_SERVER_ERROR, err_msg).into_response()
+    }
+}
+
+impl IntoResponse for ServerErrorKind {
+    fn into_response(self) -> Response {
+        (&self).into_response()
+    }
+}
+
+impl IntoResponse for &ServerError {
+    fn into_response(self) -> Response {
+        self.kind.as_ref().into_response()
+    }
+}
+
+impl IntoResponse for ServerError {
+    fn into_response(self) -> Response {
+        self.kind.as_ref().into_response()
     }
 }
 
@@ -117,5 +161,29 @@ where
             std::process::exit(1);
         })
         .unwrap()
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Backtrace {
+    pub markup: Option<Markup>,
+    pub err: Arc<ServerErrorKind>,
+    // First element is the oldest
+    pub trace: Vec<Trace>,
+}
+
+#[derive(Debug, Clone)]
+pub struct Trace {
+    pub file_path: &'static str,
+    pub function_name: &'static str,
+}
+
+impl From<ServerError> for Backtrace {
+    fn from(value: ServerError) -> Self {
+        Self {
+            markup: None,
+            err: value.kind,
+            trace: value.trace.unwrap_or_default(),
+        }
     }
 }

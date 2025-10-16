@@ -2,12 +2,12 @@ use {
     crate::{
         concat_paths,
         shared::wini::{
-            PUBLIC_ENDPOINTS,
             config::SERVER_CONFIG,
-            dependencies::{SCRIPTS_DEPENDENCIES, normalize_relative_path},
-            err::{ServerError, ServerResult},
+            dependencies::{normalize_relative_path, SCRIPTS_DEPENDENCIES},
+            err::{ServerError, ServerErrorKind, ServerResult},
             layer::Files,
-            packages_files::{PACKAGES_FILES, VecOrString},
+            packages_files::{VecOrString, PACKAGES_FILES},
+            PUBLIC_ENDPOINTS,
         },
         utils::wini::buffer::buffer_to_string,
     },
@@ -37,7 +37,7 @@ pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
         return Ok(ServeFile::new(format!("./public{path}"))
             .try_call(req)
             .await
-            .map_err(|_| ServerError::PublicRessourceNotFound(path.to_owned()))
+            .map_err(|_| ServerErrorKind::PublicRessourceNotFound(path.to_owned()))
             .into_response());
     }
 

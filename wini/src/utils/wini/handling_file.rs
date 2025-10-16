@@ -1,18 +1,18 @@
 use {
     crate::shared::wini::{
+        cache::{AddCache, CacheCategory},
+        config::SERVER_CONFIG,
+        err::{ServerError, ServerErrorKind, ServerResult},
         CSS_FILES,
         JS_FILES,
         PUBLIC_ENDPOINTS,
-        cache::{AddCache, CacheCategory},
-        config::SERVER_CONFIG,
-        err::{ServerError, ServerResult},
     },
     axum::{
         extract::Request,
         http::HeaderValue,
         response::{AppendHeaders, IntoResponse, Response},
     },
-    hyper::{StatusCode, header::CONTENT_TYPE},
+    hyper::{header::CONTENT_TYPE, StatusCode},
     tower_http::services::ServeFile,
 };
 
@@ -28,7 +28,7 @@ pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body
         return Ok(ServeFile::new(format!("./public{path}"))
             .try_call(req)
             .await
-            .map_err(|_| ServerError::PublicRessourceNotFound(path.clone()))?
+            .map_err(|_| ServerErrorKind::PublicRessourceNotFound(path.clone()))?
             .into_response());
     }
 
