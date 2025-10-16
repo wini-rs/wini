@@ -2,7 +2,7 @@ use {
     crate::shared::wini::{
         cache::{AddCache, CacheCategory},
         config::SERVER_CONFIG,
-        err::{ServerError, ServerErrorKind, ServerResult},
+        err::{ServerErrorKind, ServerResult},
         CSS_FILES,
         JS_FILES,
         PUBLIC_ENDPOINTS,

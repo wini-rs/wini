@@ -4,7 +4,7 @@ use {
         shared::wini::{
             config::SERVER_CONFIG,
             dependencies::{normalize_relative_path, SCRIPTS_DEPENDENCIES},
-            err::{ServerError, ServerErrorKind, ServerResult},
+            err::{ServerErrorKind, ServerResult},
             layer::Files,
             packages_files::{VecOrString, PACKAGES_FILES},
             PUBLIC_ENDPOINTS,

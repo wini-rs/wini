@@ -1,5 +1,5 @@
 use {
-    crate::shared::wini::err::{ServerError, ServerErrorKind, ServerResult},
+    crate::shared::wini::err::{ServerErrorKind, ServerResult},
     axum::body::Bytes,
     http_body_util::BodyExt,
     std::fmt::Debug,
