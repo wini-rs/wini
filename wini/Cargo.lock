@@ -2960,8 +2960,6 @@ dependencies = [
 [[package]]
 name = "wini-maud"
 version = "0.26.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1460f1c0acc3a84af5af97b65b64a7a52893ee0cb18d64470b071a10462d5786"
 dependencies = [
  "axum-core",
  "hashbrown",
@@ -2973,8 +2971,6 @@ dependencies = [
 [[package]]
 name = "wini_maud_macros"
 version = "0.26.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9149aadabe570c1cdf0a59cd299d461ebaf3494d786ebfc0d2f47fd6c3574f32"
 dependencies = [
  "hashbrown",
  "proc-macro-error",

@@ -1,6 +1,6 @@
 use {
     cached::proc_macro::cached,
-    maud::{html, Markup},
+    maud::{html, IntoResult, Markup},
     wini_macros::{init_cache, page},
 };
 
@@ -21,7 +21,7 @@ use crate::{components::button, shared::wini::err::ServerResult};
 #[page]
 pub async fn test_button() -> ServerResult<Markup> {
     Ok(html! {
-        (button().await?)
+        [button]
         button #hello {
             "Say hello!"
         }

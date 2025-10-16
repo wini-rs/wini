@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(min_specialization)]
 
 //! A macro for writing HTML templates.
 //!
@@ -355,12 +356,12 @@ mod actix_support {
     use {
         crate::PreEscaped,
         actix_web_dep::{
-            HttpRequest,
-            HttpResponse,
-            Responder,
             body::{BodySize, MessageBody},
             http::header,
             web::Bytes,
+            HttpRequest,
+            HttpResponse,
+            Responder,
         },
         alloc::string::String,
         core::{
@@ -401,7 +402,7 @@ mod tide_support {
     use {
         crate::PreEscaped,
         alloc::string::String,
-        tide::{Response, StatusCode, http::mime},
+        tide::{http::mime, Response, StatusCode},
     };
 
     impl From<PreEscaped<String>> for Response {
@@ -419,7 +420,7 @@ mod axum_support {
     use {
         crate::Markup,
         axum_core::response::{IntoResponse, Response},
-        http::{HeaderMap, HeaderValue, header},
+        http::{header, HeaderMap, HeaderValue},
     };
 
     impl IntoResponse for Markup {
@@ -455,7 +456,7 @@ mod submillisecond_support {
         crate::PreEscaped,
         alloc::string::String,
         submillisecond::{
-            http::{HeaderMap, HeaderValue, header},
+            http::{header, HeaderMap, HeaderValue},
             response::{IntoResponse, Response},
         },
     };
@@ -478,7 +479,7 @@ mod submillisecond_support {
 pub mod macro_private {
     pub use hashbrown::HashSet;
     use {
-        crate::{Render, display},
+        crate::{display, Render},
         alloc::string::String,
         core::fmt::Display,
     };
@@ -525,5 +526,22 @@ pub mod macro_private {
         pub fn render_to<T: Display + ?Sized>(self, value: &T, buffer: &mut String) {
             display(value).render_to(buffer);
         }
+    }
+}
+
+// This is really suboptimal, but it works
+pub trait IntoResult<T, E> {
+    fn into_result(self) -> Result<T, E>;
+}
+
+impl<T, E> IntoResult<T, E> for T {
+    default fn into_result(self) -> Result<T, E> {
+        Ok(self)
+    }
+}
+
+impl<T, E> IntoResult<T, E> for Result<T, E> {
+    fn into_result(self) -> Result<T, E> {
+        self
     }
 }

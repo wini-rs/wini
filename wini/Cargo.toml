@@ -43,28 +43,24 @@ strum_macros = "0.27"
 tokio = { version = "1", features = ["fs", "macros", "rt-multi-thread"] }
 toml = "0.9"
 tower = "0.5"
-tower-http = { version = "0.6", features = [
-  "compression-br",
-  "compression-gzip",
-  "fs",
-] }
+tower-http = { version = "0.6", features = ["compression-br", "compression-gzip", "fs"] }
 walkdir = "2.5"
 wini-macros = { path = "./macros/" }
-wini-maud = { version = "0.26.7", features = ["axum"] }
+wini-maud = { version = "0.26.7", features = ["axum"], path = "../wini-maud/" }
 
 # IFFEAT test
 [dev-dependencies]
 axum-test = "18"
 # ENDIF
 
-[package.metadata.cargo-machete]
-ignored = [
-  # Used with the procedural macros #[page], #[component], #[layout]
-  "itertools",
-  "wini-maud",
-  # Used with the procedural macro #[cache]
-  "ctor",
-]
+  [package.metadata.cargo-machete]
+  ignored = [
+    # Used with the procedural macros #[page], #[component], #[layout]
+    "itertools",
+    "wini-maud",
+    # Used with the procedural macro #[cache]
+    "ctor",
+  ]
 
 # <https://rust-lang.github.io/rust-clippy/master>
 [lints.clippy]

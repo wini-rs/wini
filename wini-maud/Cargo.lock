@@ -3837,8 +3837,6 @@ dependencies = [
 [[package]]
 name = "wini_maud_macros"
 version = "0.26.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9149aadabe570c1cdf0a59cd299d461ebaf3494d786ebfc0d2f47fd6c3574f32"
 dependencies = [
  "hashbrown",
  "proc-macro-error",

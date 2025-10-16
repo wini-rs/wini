@@ -105,11 +105,20 @@ impl Generator {
             quote!(#expr())
         };
 
-        build.push_tokens(
-            quote!(maud::macro_private::render_to!(&(#called_expr.await), &mut #output_ident);),
-        );
         build.push_tokens(quote!(
-                #linked_files.extend(#called_expr.await.linked_files);
+            let tmp_identifier: ::maud::Markup = {
+                use ::maud::IntoResult;
+                #called_expr.await.into_result()?
+            };
+        ));
+        build.push_tokens(quote!(maud::macro_private::render_to!(
+            &tmp_identifier,
+            &mut #output_ident
+        );));
+        build.push_tokens(quote!(
+            #linked_files.extend({
+                tmp_identifier.linked_files
+            });
         ));
     }
 
