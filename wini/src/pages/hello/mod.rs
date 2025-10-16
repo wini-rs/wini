@@ -1,6 +1,6 @@
 use {
     cached::proc_macro::cached,
-    maud::{html, IntoResult, Markup},
+    maud::{html, Markup},
     wini_macros::{init_cache, page},
 };
 
