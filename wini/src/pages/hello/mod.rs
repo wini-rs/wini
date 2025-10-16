@@ -16,7 +16,10 @@ pub async fn render() -> Markup {
 }
 
 // IFFEAT test
-use crate::{components::button, shared::wini::err::ServerResult};
+use crate::{
+    components::{button, err_component2},
+    shared::wini::err::ServerResult,
+};
 
 #[page]
 pub async fn test_button() -> ServerResult<Markup> {
@@ -37,6 +40,12 @@ pub async fn test_meta() -> Markup {
     }
 }
 
+#[page]
+pub async fn err_page() -> ServerResult<Markup> {
+    Ok(html! {
+        [err_component2]
+    })
+}
 
 #[tokio::test]
 async fn test_meta_page() {
