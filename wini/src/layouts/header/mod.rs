@@ -1,6 +1,6 @@
 use {
     crate::shared::wini::err::ServerResult,
-    maud::{Markup, PreEscaped, html},
+    maud::{html, Markup, PreEscaped},
     wini_macros::layout,
 };
 
@@ -44,6 +44,15 @@ pub async fn parts_and_body(_: &Parts, _body: &Body) -> ServerResult<Markup> {
 }
 #[layout]
 pub async fn status_code(status_code: StatusCode) -> Markup {
+    match status_code {
+        StatusCode::OK => html! {"ok!"},
+        StatusCode::NOT_FOUND => html! {"404"},
+        _ => html! {"Other status code"},
+    }
+}
+
+#[layout]
+pub async fn err_backtrace_logging(status_code: StatusCode) -> Markup {
     match status_code {
         StatusCode::OK => html! {"ok!"},
         StatusCode::NOT_FOUND => html! {"404"},

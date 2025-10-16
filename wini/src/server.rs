@@ -31,6 +31,10 @@ pub async fn start() {
 // IFFEAT ssr
     // The main router of the application is defined here
     let app = Router::<()>::new()
+// IFFEAT test
+        .route("/test", get(pages::hello::err_page))
+        // .layer(middleware::from_fn(f))
+// ENDIF
         .route("/", get(pages::hello::render))
         .layer(middleware::from_fn(header::render))
         .layer(

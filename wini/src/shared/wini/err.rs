@@ -16,6 +16,19 @@ pub struct ServerError {
     trace: Option<Vec<Trace>>,
 }
 
+impl ServerError {
+    pub fn add_trace(&mut self, trace: Trace) {
+        match &mut self.trace {
+            Some(curr_trace) => {
+                curr_trace.push(trace);
+            },
+            None => {
+                self.trace = Some(vec![trace]);
+            },
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum ServerErrorKind {
     Status(hyper::StatusCode),

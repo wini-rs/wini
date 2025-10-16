@@ -1,7 +1,7 @@
 use {
     super::args::ProcMacroParameters,
     crate::utils::wini::{
-        files::get_js_or_css_files_in_current_dir,
+        files::{get_current_file_path, get_js_or_css_files_in_current_dir},
         params_from_itemfn::params_from_itemfn,
         result::is_ouput_ty_result,
     },
@@ -27,10 +27,24 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     );
     original_function.sig.ident = new_name.clone();
 
+    let current_file_path =
+        get_current_file_path().map_or_else(Default::default, |p| p.to_string_lossy().into_owned());
+
     let (return_type, maybe_early_return, return_data) = if is_ouput_ty_result(&original_function) {
         (
             quote!(crate::shared::wini::err::ServerResult<::maud::Markup>),
-            quote!(?),
+            quote!(
+                .map_err(|mut err| {
+                    err.add_trace(
+                        crate::shared::wini::err::Trace {
+                            file_path: #current_file_path,
+                            function_name: stringify!(#original_name),
+                        }
+                    );
+
+                    err
+                })?
+            ),
             quote!(Ok(html)),
         )
     } else {
