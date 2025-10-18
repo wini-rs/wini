@@ -180,17 +180,9 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// #[layout]
 /// pub async fn main_layout(child: &str) -> Markup {
 ///     html! {
-///         html {
-///             head {
-///                 title { "My Site" }
-///                 meta charset="utf-8";
-///             }
-///             body {
-///                 header { "Site Header" }
-///                 main { (PreEscaped(child)) }
-///                 footer { "Site Footer" }
-///             }
-///         }
+///         header { "Site Header" }
+///         main { (PreEscaped(child)) }
+///         footer { "Site Footer" }
 ///     }
 /// }
 /// ```
@@ -220,19 +212,17 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// #[layout]
 /// pub async fn error_layout(status: StatusCode) -> Markup {
 ///     html! {
-///         html {
-///             body class="error-page" {
-///                 h1 { "Error " (status.as_u16()) }
-///                 @match status {
-///                     StatusCode::NOT_FOUND => {
-///                         p { "The page you're looking for doesn't exist." }
-///                     }
-///                     StatusCode::INTERNAL_SERVER_ERROR => {
-///                         p { "Something went wrong on our end." }
-///                     }
-///                     _ => {
-///                         p { "An error occurred." }
-///                     }
+///         div class="error-page" {
+///             h1 { "Error " (status.as_u16()) }
+///             @match status {
+///                 StatusCode::NOT_FOUND => {
+///                     p { "The page you're looking for doesn't exist." }
+///                 }
+///                 StatusCode::INTERNAL_SERVER_ERROR => {
+///                     p { "Something went wrong on our end." }
+///                 }
+///                 _ => {
+///                     p { "An error occurred." }
 ///                 }
 ///             }
 ///         }
@@ -253,14 +243,8 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// )]
 /// pub async fn seo_layout(child: &str) -> Markup {
 ///     html! {
-///         html lang="en" {
-///             head {
-///                 meta charset="utf-8";
-///                 meta name="viewport" content="width=device-width, initial-scale=1";
-///             }
-///             body {
-///                 (PreEscaped(child))
-///             }
+///         main {
+///             (PreEscaped(child))
 ///         }
 ///     }
 /// }
@@ -274,14 +258,12 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// #[layout(js_pkgs = ["htmx"])]
 /// pub async fn htmx_layout(child: &str) -> Markup {
 ///     html! {
-///         html {
-///             body hx-boost="true" {
-///                 nav {
-///                     a href="/" { "Home" }
-///                     a href="/about" { "About" }
-///                 }
-///                 main { (PreEscaped(child)) }
+///         div hx-boost="true" {
+///             nav {
+///                 a href="/" { "Home" }
+///                 a href="/about" { "About" }
 ///             }
+///             main { (PreEscaped(child)) }
 ///         }
 ///     }
 /// }
@@ -295,13 +277,9 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// #[layout]
 /// pub async fn base_layout(child: &str) -> Markup {
 ///     html! {
-///         html {
-///             head {
-///                 link rel="stylesheet" href="/styles/base.css";
-///             }
-///             body {
-///                 (PreEscaped(child))
-///             }
+///         main {
+///             h1 { "Welcome back" }
+///             (PreEscaped(child))
 ///         }
 ///     }
 /// }
