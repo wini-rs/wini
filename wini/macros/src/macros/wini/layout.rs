@@ -5,7 +5,7 @@ use {
     },
     proc_macro::TokenStream,
     quote::quote,
-    syn::{FnArg, Ident, parse_macro_input, spanned::Spanned},
+    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident},
 };
 
 
@@ -69,6 +69,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             )
         },
     };
+    // TODO: use Handler trait OR maybe (probably) create ResponseHandler trait ?
     let handling_of_response = match input_kind {
         InputKind::Str => {
             quote!(
@@ -100,6 +101,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             )
         },
     };
+    // TODO: create an `Option<Backtrace>` to handle errors
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
