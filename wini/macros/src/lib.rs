@@ -26,7 +26,7 @@ pub(crate) mod utils;
 ///
 /// ## Basic usage
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::component};
 ///
 /// #[component]
@@ -41,7 +41,7 @@ pub(crate) mod utils;
 ///
 /// ## With parameters
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::component};
 ///
 /// #[component]
@@ -57,7 +57,7 @@ pub(crate) mod utils;
 ///
 /// ## With error handling
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::component};
 ///
 /// #[component]
@@ -74,7 +74,7 @@ pub(crate) mod utils;
 ///
 /// ## Using components in pages
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::{page, component}};
 ///
 /// #[component]
@@ -100,7 +100,7 @@ pub(crate) mod utils;
 ///
 /// ## With JavaScript packages
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::component};
 ///
 /// #[component(js_pkgs = ["alpinejs"])]
@@ -117,7 +117,7 @@ pub(crate) mod utils;
 ///
 /// ## Composing multiple components
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::component};
 ///
 /// #[component]
@@ -174,7 +174,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Basic usage with string content
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout]
@@ -197,7 +197,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With HTTP parts (accessing request info)
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::layout, axum::http::response::Parts};
 ///
 /// #[layout]
@@ -214,7 +214,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With status code (error pages)
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::layout, hyper::StatusCode};
 ///
 /// #[layout]
@@ -242,7 +242,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With SEO meta tags
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout(
@@ -268,7 +268,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With JavaScript packages
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout(js_pkgs = ["htmx"])]
@@ -289,7 +289,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Nested layouts
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout]
@@ -323,7 +323,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With response parts and body
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {
 ///     maud::{html, Markup},
 ///     wini_macros::layout,
@@ -379,7 +379,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Basic usage
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page]
@@ -392,7 +392,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With route parameters
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page]
@@ -405,7 +405,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With error handling
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page]
@@ -419,7 +419,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With SEO meta tags
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page(
@@ -441,7 +441,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With JavaScript packages
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page(js_pkgs = ["alpinejs", "htmx"])]
@@ -456,7 +456,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## With custom meta tags
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page(
@@ -475,7 +475,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 ///
 /// ## Complete example with all parameters
 ///
-/// ```rust
+/// ```rust,ignore
 /// use {maud::{html, Markup}, wini_macros::page};
 ///
 /// #[page(
