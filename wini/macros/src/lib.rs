@@ -9,7 +9,134 @@ use {
 mod macros;
 pub(crate) mod utils;
 
-/// Creates a wini component
+/// Creates a reusable HTML component that can be composed within pages or other components.
+///
+/// Unlike `#[page]`, components return `Markup` directly and are not converted to HTTP responses.
+/// They automatically link JS/CSS files and can accept parameters.
+///
+/// # Parameters
+///
+/// - `js_pkgs` - Array of JavaScript package names to include
+///
+/// # Return Types
+///
+/// The function can return either `Markup` or `ServerResult<Markup>` for error handling.
+///
+/// # Examples
+///
+/// ## Basic usage
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::component};
+///
+/// #[component]
+/// pub async fn button() -> Markup {
+///     html! {
+///         button class="btn" {
+///             "Click me!"
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With parameters
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::component};
+///
+/// #[component]
+/// pub async fn card(title: String, content: String) -> Markup {
+///     html! {
+///         div class="card" {
+///             h2 { (title) }
+///             p { (content) }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With error handling
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::component};
+///
+/// #[component]
+/// pub async fn user_card(user_id: i32) -> ServerResult<Markup> {
+///     let user = fetch_user(user_id).await?;
+///     Ok(html! {
+///         div class="user-card" {
+///             h3 { (user.name) }
+///             p { (user.email) }
+///         }
+///     })
+/// }
+/// ```
+///
+/// ## Using components in pages
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::{page, component}};
+///
+/// #[component]
+/// pub async fn nav() -> Markup {
+///     html! {
+///         nav {
+///             a href="/" { "Home" }
+///             a href="/about" { "About" }
+///         }
+///     }
+/// }
+///
+/// #[page]
+/// pub async fn dashboard() -> ServerResult<Markup> {
+///     Ok(html! {
+///         (nav().await?)
+///         main {
+///             h1 { "Dashboard" }
+///         }
+///     })
+/// }
+/// ```
+///
+/// ## With JavaScript packages
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::component};
+///
+/// #[component(js_pkgs = ["alpinejs"])]
+/// pub async fn counter() -> Markup {
+///     html! {
+///         div x-data="{ count: 0 }" {
+///             button x-on:click="count++" { "Increment" }
+///             span x-text="count" {}
+///             button x-on:click="count--" { "Decrement" }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## Composing multiple components
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::component};
+///
+/// #[component]
+/// pub async fn icon(name: String) -> Markup {
+///     html! {
+///         i class={"icon icon-" (name)} {}
+///     }
+/// }
+///
+/// #[component]
+/// pub async fn button_with_icon(icon_name: String, label: String) -> ServerResult<Markup> {
+///     Ok(html! {
+///         button class="btn" {
+///             (icon(icon_name).await?)
+///             span { (label) }
+///         }
+///     })
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::component::component(args, item)
@@ -201,28 +328,152 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::layout::layout(args, item)
 }
 
-/// Creates a wini page
+/// Transforms an async function returning `Markup` into a complete HTTP response handler.
 ///
-/// # Usage
+/// The `page` macro automatically handles:
+/// - Conversion to `axum::response::Response`
+/// - Linking JS/CSS files from the current directory
+/// - Injecting SEO meta tags
+/// - JavaScript package management
+///
+/// # Parameters
+///
+/// - `title` - Page title (sets `<title>` and `og:title`)
+/// - `description` - Meta description (sets `description` and `og:description`)
+/// - `keywords` - Array of keywords for SEO
+/// - `author` - Content author
+/// - `site_name` - Site name for Open Graph
+/// - `lang` - Language code (e.g., "en", "fr")
+/// - `img` - Open Graph image URL
+/// - `robots` - Robot indexing instructions (e.g., "index, follow")
+/// - `js_pkgs` - Array of JavaScript package names to include
+/// - `other_meta` - Array of custom meta tag key-value pairs
+///
+/// # Return Types
+///
+/// The function can return either `Markup` or `ServerResult<Markup>` for error handling.
+///
+/// # Examples
+///
+/// ## Basic usage
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page]
+/// pub async fn index() -> Markup {
+///     html! {
+///         h1 { "Hello, World!" }
+///     }
+/// }
 /// ```
+///
+/// ## With route parameters
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page]
+/// pub async fn user_profile(user_id: String) -> Markup {
+///     html! {
+///         h1 { "User: " (user_id) }
+///     }
+/// }
+/// ```
+///
+/// ## With error handling
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page]
+/// pub async fn fallible_page() -> ServerResult<Markup> {
+///     let data = fetch_data().await?;
+///     Ok(html! {
+///         p { (data) }
+///     })
+/// }
+/// ```
+///
+/// ## With SEO meta tags
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
 /// #[page(
-///     title = "Hello world!",
-///     keywords = ["hello", "world"],
+///     title = "My Page Title",
+///     description = "Page description for SEO",
+///     keywords = ["rust", "web", "framework"],
+///     author = "Your Name",
+///     lang = "en",
+///     img = "/og-image.png",
+///     robots = "index, follow",
+///     site_name = "My Site"
+/// )]
+/// pub async fn seo_page() -> Markup {
+///     html! {
+///         h1 { "SEO-optimized page" }
+///     }
+/// }
+/// ```
+///
+/// ## With JavaScript packages
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page(js_pkgs = ["alpinejs", "htmx"])]
+/// pub async fn interactive_page() -> Markup {
+///     html! {
+///         div x-data="{ open: false }" {
+///             button x-on:click="open = !open" { "Toggle" }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With custom meta tags
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page(
+///     title = "Custom Meta Tags",
 ///     other_meta = [
-///         "custom_meta1" = "hello",
-///         "custom_meta2" = "world",
+///         "theme-color" = "#3B82F6",
+///         "custom:property" = "value"
 ///     ]
 /// )]
-/// async fn render() -> Markup {
+/// pub async fn custom_meta() -> Markup {
 ///     html! {
-///         main {
-///             h1 {
-///                 "Hello world"
-///             }
-///             p {
-///                 "Some really, really nice hello world!"
-///             }
-///         }
+///         h1 { "Page with custom meta tags" }
+///     }
+/// }
+/// ```
+///
+/// ## Complete example with all parameters
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::page};
+///
+/// #[page(
+///     title = "Complete Example",
+///     description = "A page with all parameters",
+///     keywords = ["example", "documentation"],
+///     author = "Jane Doe",
+///     site_name = "Wini Framework",
+///     lang = "en",
+///     img = "/images/og-image.png",
+///     robots = "index, follow",
+///     js_pkgs = ["alpinejs", "htmx"],
+///     other_meta = [
+///         "theme-color" = "#3B82F6"
+///     ]
+/// )]
+/// pub async fn complete_example() -> Markup {
+///     html! {
+///         h1 { "Complete example" }
+///         p { "This page has all available parameters configured." }
 ///     }
 /// }
 /// ```

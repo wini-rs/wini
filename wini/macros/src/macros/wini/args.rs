@@ -24,6 +24,8 @@ pub struct ProcMacroParameters {
     pub img: Option<String>,
     /// Other meta tags
     pub other_meta: Option<HashMap<String, String>>,
+    /// Add JS packages
+    pub js_pkgs: Option<Vec<String>>,
 }
 
 macro_rules! generate_extension_function {
@@ -177,7 +179,7 @@ impl ProcMacroParameters {
                 },
                 "keywords" => {
                     let lit_array: ExprArray = meta.value()?.parse()?;
-                    let mut vec_elements = vec![];
+                    let mut vec_elements = Vec::with_capacity(lit_array.elems.len());
                     for elem in lit_array.elems {
                         if let syn::Expr::Lit(lit) = elem &&
                             let syn::Lit::Str(lit_str) = lit.lit
@@ -189,6 +191,25 @@ impl ProcMacroParameters {
                     // Assign it to the correct key
                     match ident.to_string().as_str() {
                         "keywords" => self.keywords = Some(vec_elements),
+                        _ => unreachable!("Already matched."),
+                    }
+
+                    Ok(())
+                },
+                "js_pkgs" => {
+                    let lit_array: ExprArray = meta.value()?.parse()?;
+                    let mut vec_elements = Vec::with_capacity(lit_array.elems.len());
+                    for elem in lit_array.elems {
+                        if let syn::Expr::Lit(lit) = elem &&
+                            let syn::Lit::Str(lit_str) = lit.lit
+                        {
+                            vec_elements.push(lit_str.value());
+                        }
+                    }
+
+                    // Assign it to the correct key
+                    match ident.to_string().as_str() {
+                        "js_pkgs" => self.js_pkgs = Some(vec_elements),
                         _ => unreachable!("Already matched."),
                     }
 

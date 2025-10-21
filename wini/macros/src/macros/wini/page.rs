@@ -2,6 +2,7 @@ use {
     super::args::ProcMacroParameters,
     crate::utils::wini::{
         files::{get_current_file_path, get_js_or_css_files_in_current_dir},
+        js_pkgs,
         params_from_itemfn::params_from_itemfn,
         result::is_ouput_ty_result,
     },
@@ -35,6 +36,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_headers = attributes.generate_all_extensions(false);
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files));
 
     let call_inner_page = if is_ouput_ty_result(&original_function) {
         quote!(
@@ -87,6 +89,8 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
 
             files.extend(FILES_IN_CURRENT_DIR);
             files.extend(linked_files);
+
+            #js_pkgs
 
             // Modify header with meta tags in it
             #meta_headers

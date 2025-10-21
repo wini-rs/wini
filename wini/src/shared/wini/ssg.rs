@@ -4,8 +4,8 @@
 //! as static HTML files with associated assets, enabling deployment to static hosting services.
 
 use {
-    crate::shared::wini::{config::SERVER_CONFIG, PORT},
-    axum::{routing::MethodRouter, Router},
+    crate::shared::wini::{PORT, config::SERVER_CONFIG},
+    axum::{Router, routing::MethodRouter},
     reqwest::Client,
     select::{document::Document, predicate::Name},
     std::{
@@ -168,7 +168,10 @@ impl<'l> SsgRouter<'l> {
                         .iter()
                         .find(|params| params.len() != nb_of_param_or_wildcard)
                     {
-                        panic!("For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: {params_len} ({params:?})", params_len=params.len());
+                        panic!(
+                            "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: {params_len} ({params:?})",
+                            params_len = params.len()
+                        );
                     }
 
                     for params in vec_params {
@@ -179,7 +182,10 @@ impl<'l> SsgRouter<'l> {
                     }
                 },
                 None => {
-                    assert!(nb_of_param_or_wildcard == 0, "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: None", );
+                    assert!(
+                        nb_of_param_or_wildcard == 0,
+                        "For route `{path}`, expected {nb_of_param_or_wildcard} of parameters, got: None",
+                    );
                     ROUTES_TO_AXUM.lock().unwrap().insert(path.to_owned());
                 },
             }
@@ -249,13 +255,17 @@ pub async fn render_routes_to_files() {
         let document = Document::from(resp_text.as_str());
 
         for link in document.find(Name("link")) {
-            if let Some(href) = link.attr("href") && !href.contains("://") {
+            if let Some(href) = link.attr("href") &&
+                !href.contains("://")
+            {
                 static_assets.insert(href.to_owned());
             }
         }
 
         for script in document.find(Name("script")) {
-            if let Some(src) = script.attr("src") && !src.contains("://") {
+            if let Some(src) = script.attr("src") &&
+                !src.contains("://")
+            {
                 static_assets.insert(src.to_owned());
             }
         }

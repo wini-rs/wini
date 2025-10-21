@@ -1,4 +1,4 @@
-use syn::{punctuated::Punctuated, token::Comma, FnArg, Ident, ItemFn};
+use syn::{FnArg, Ident, ItemFn, punctuated::Punctuated, token::Comma};
 
 pub fn params_from_itemfn(function: &ItemFn) -> (Punctuated<FnArg, Comma>, Vec<Ident>) {
     // Make so, that the new function has the same arguments as the previous one
