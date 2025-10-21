@@ -15,7 +15,187 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::component::component(args, item)
 }
 
-/// Creates a wini layout
+/// Wraps pages or other layouts with common HTML structure.
+///
+/// Layouts are applied as Axum middleware and can receive child content in various forms.
+/// They automatically link JS/CSS files and support SEO meta tags.
+///
+/// # Parameters
+///
+/// - `title` - Page title (sets `<title>` and `og:title`)
+/// - `description` - Meta description (sets `description` and `og:description`)
+/// - `keywords` - Array of keywords for SEO
+/// - `author` - Content author
+/// - `site_name` - Site name for Open Graph
+/// - `lang` - Language code (e.g., "en", "fr")
+/// - `img` - Open Graph image URL
+/// - `robots` - Robot indexing instructions
+/// - `js_pkgs` - Array of JavaScript package names to include
+/// - `other_meta` - Array of custom meta tag key-value pairs
+///
+/// # Layout Input Types
+///
+/// Layouts can accept different parameter types depending on your needs:
+///
+/// - `&str` - Receives rendered child HTML as string
+/// - `StatusCode` - Receives HTTP status code (useful for error layouts)
+/// - `&Parts` - Receives HTTP response parts (read-only)
+/// - `&mut Parts` - Receives mutable HTTP response parts
+/// - `&Parts, &Body` - Receives both parts and body
+///
+/// # Examples
+///
+/// ## Basic usage with string content
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+///
+/// #[layout]
+/// pub async fn main_layout(child: Markup) -> Markup {
+///     html! {
+///         header { "Site Header" }
+///         main { (PreEscaped(child)) }
+///         footer { "Site Footer" }
+///     }
+/// }
+/// ```
+///
+/// ## With HTTP parts (accessing request info)
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::layout, axum::http::response::Parts};
+///
+/// #[layout]
+/// pub async fn debug_layout(parts: &mut Parts) -> ServerResult<Markup> {
+///     let status = parts.status;
+///     Ok(html! {
+///         div class="debug-wrapper" {
+///             p { "Status: " (status.as_u16()) }
+///             p { "Version: " (format!("{:?}", parts.version)) }
+///         }
+///     })
+/// }
+/// ```
+///
+/// ## With status code (error pages)
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup}, wini_macros::layout, hyper::StatusCode};
+///
+/// #[layout]
+/// pub async fn error_layout(status: StatusCode) -> Markup {
+///     html! {
+///         div class="error-page" {
+///             h1 { "Error " (status.as_u16()) }
+///             @match status {
+///                 StatusCode::NOT_FOUND => {
+///                     p { "The page you're looking for doesn't exist." }
+///                 }
+///                 StatusCode::INTERNAL_SERVER_ERROR => {
+///                     p { "Something went wrong on our end." }
+///                 }
+///                 _ => {
+///                     p { "An error occurred." }
+///                 }
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With SEO meta tags
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+///
+/// #[layout(
+///     title = "My Website",
+///     description = "A website built with Wini",
+///     lang = "en",
+///     site_name = "Wini Framework"
+/// )]
+/// pub async fn seo_layout(child: Markup) -> Markup {
+///     html! {
+///         main {
+///             (PreEscaped(child))
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With JavaScript packages
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+///
+/// #[layout(js_pkgs = ["htmx"])]
+/// pub async fn htmx_layout(child: Markup) -> Markup {
+///     html! {
+///         div hx-boost="true" {
+///             nav {
+///                 a href="/" { "Home" }
+///                 a href="/about" { "About" }
+///             }
+///             main { (PreEscaped(child)) }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## Nested layouts
+///
+/// ```rust,ignore
+/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+///
+/// #[layout]
+/// pub async fn base_layout(child: Markup) -> Markup {
+///     html! {
+///         main {
+///             h1 { "Welcome back" }
+///             (PreEscaped(child))
+///         }
+///     }
+/// }
+///
+/// #[layout]
+/// pub async fn auth_layout(child: Markup) -> Markup {
+///     html! {
+///         div class="auth-container" {
+///             div class="auth-sidebar" {
+///                 nav { "Auth Navigation" }
+///             }
+///             div class="auth-content" {
+///                 (PreEscaped(child))
+///             }
+///         }
+///     }
+/// }
+/// ```
+///
+/// ## With response parts and body
+///
+/// ```rust,ignore
+/// use {
+///     maud::{html, Markup},
+///     wini_macros::layout,
+///     axum::{body::Body, http::response::Parts}
+/// };
+///
+/// #[layout]
+/// pub async fn advanced_layout(parts: &Parts, body: &Body) -> ServerResult<Markup> {
+///     let content_type = parts
+///         .headers
+///         .get("content-type")
+///         .and_then(|v| v.to_str().ok())
+///         .unwrap_or("unknown");
+///     
+///     Ok(html! {
+///         div class="advanced-wrapper" {
+///             p { "Content-Type: " (content_type) }
+///         }
+///     })
+/// }
+/// ```
 #[proc_macro_attribute]
 pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     macros::wini::layout::layout(args, item)

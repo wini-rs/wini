@@ -9,13 +9,6 @@ use {
 };
 
 
-enum InputKind {
-    StatusCode,
-    Str,
-    Parts,
-    Response,
-}
-
 pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     // Convert the attributes in a struct.
     let mut attributes = ProcMacroParameters::default();
@@ -36,70 +29,99 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
         Default::default()
     };
 
-    // We want to do different things depending on the input
-    let input_kind = match input.sig.inputs.first() {
-        Some(first_arg) => {
-            match first_arg {
-                FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
-                FnArg::Typed(pat_ty) => {
-                    match (*pat_ty.ty).span().source_text() {
-                        Some(ty) => {
-                            if ty == "&str" {
-                                InputKind::Str
-                            } else if ty.contains("StatusCode") {
-                                InputKind::StatusCode
-                            } else if ty.contains("Parts") {
-                                if input.sig.inputs.len() == 2 {
-                                    InputKind::Response
-                                } else {
-                                    InputKind::Parts
-                                }
-                            } else {
-                                panic!("Unknown child type: {ty}")
+    if input.sig.inputs.is_empty() {
+        panic!(
+            "Layouts must take the child as a parameter.\nDid you mean to create a component or a page?"
+        )
+    }
+
+    let mut handling_of_response = Vec::new();
+
+    // TODO: split into 2, before and after request
+    for (idx, input_it) in input.sig.inputs.iter().enumerate() {
+        let is_last = idx + 1 == input.sig.inputs.len();
+        match input_it {
+            FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
+            FnArg::Typed(pat_ty) => {
+                let ty = &pat_ty.ty;
+
+                let from_response_body = if is_last {
+                    quote!(
+                        match #ty::__from_response_body(resp_body, &()).await {
+                            Ok(ok) => ok,
+                            Err(into_resp) => return Ok(into_resp.into_response()),
+                        }
+                    )
+                } else {
+                    quote!(
+                        panic!("FromResponseBody should always be the last argument");
+                    )
+                };
+
+                handling_of_response.push(quote!(
+                    {
+                        use {
+                            crate::shared::wini::layout::*,
+                            axum::response::IntoResponse
+                        }; 
+
+                        let dummy: #ty = match
+                            (
+                                <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY,
+                                <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS,
+                                <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS,
+                            )
+                        {
+                            (true, false,  false) => {
+                                #from_response_body
                             }
-                        },
-                        None => panic!("Expected Layout to have its first argument typed"),
+                            (false, true, false) => {
+                                let ty = match #ty::__from_response_parts(&mut resp_parts, &()).await {
+                                    Ok(ok) => ok,
+                                    Err(into_resp) => return Ok(into_resp.into_response()),
+                                };
+                                ty
+                            }
+                            (false, false, true) => {
+                                todo!()
+                                // let (mut req_parts, body) = req.into_parts();
+                                // let ty = match #ty::__from_request_parts(&mut req_parts, &()).await {
+                                //     Ok(ok) => ok,
+                                //     Err(into_resp) => return Ok(into_resp.into_response()),
+                                // };
+                                // req = axum::extract::Request::from_parts(req_parts, body);
+                                // ty
+                            }
+                            (_, _, _) => unimplemented!("Not implemented yet")
+                        };
+
+                        dummy
                     }
-                },
-            }
-        },
-        None => {
-            panic!(
-                "Layouts must take the child as a parameter.\nDid you mean to create a component or a page?"
-            )
-        },
-    };
-    let handling_of_response = match input_kind {
-        InputKind::Str => {
-            quote!(
-                let (mut resp_parts, resp_body) = resp.into_parts();
+                ));
 
-                let resp_str = crate::utils::wini::buffer::buffer_to_string(resp_body).await.unwrap();
+                // match (*pat_ty.ty).span().source_text() {
+                //     Some(ty) => {
+                //         if ty == "&str" {
+                //             InputKind::Str
+                //         } else if ty.contains("StatusCode") {
+                //             InputKind::StatusCode
+                //         } else if ty.contains("Parts") {
+                //             if input.sig.inputs.len() == 2 {
+                //                 InputKind::Response
+                //             } else {
+                //                 InputKind::Parts
+                //             }
+                //         } else {
+                //             panic!("Unknown child type: {ty}")
+                //         }
+                //     },
+                //     None => panic!("Expected Layout to have its first argument typed"),
+                // }
+            },
+        }
+    }
 
-                let html = #new_name(&resp_str).await #early_return_if_is_result_err;
-            )
-        },
-        InputKind::Response => {
-            quote!(
-                let (mut resp_parts, resp_body) = resp.into_parts();
-
-                let html = #new_name(&mut resp_parts, &resp_body).await #early_return_if_is_result_err;
-            )
-        },
-        InputKind::Parts => {
-            quote!(
-                let (mut resp_parts, _) = resp.into_parts();
-
-                let html = #new_name(&mut resp_parts).await #early_return_if_is_result_err;
-            )
-        },
-        InputKind::StatusCode => {
-            quote!(
-                let (mut resp_parts, _resp_body) = resp.into_parts();
-                let html = #new_name(resp_parts.status).await #early_return_if_is_result_err;
-            )
-        },
-    };
+    // TODO: create an `Option<Backtrace>` to handle errors
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
@@ -124,10 +146,9 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
             const FILES_IN_CURRENT_DIR: [Cow<'static, str>; #len_files_in_current_dir] = [#(Cow::Borrowed(#files_in_current_dir)),*];
 
-
             let mut resp = next.run(req).await;
-
-            #handling_of_response
+            let (mut resp_parts, resp_body) = resp.into_parts();
+            let html = #new_name( #(#handling_of_response),* ).await #early_return_if_is_result_err;
 
             let files: &mut crate::shared::wini::layer::Files = resp_parts
                 .extensions
