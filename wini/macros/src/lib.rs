@@ -178,7 +178,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout]
-/// pub async fn main_layout(child: &str) -> Markup {
+/// pub async fn main_layout(child: Markup) -> Markup {
 ///     html! {
 ///         header { "Site Header" }
 ///         main { (PreEscaped(child)) }
@@ -241,7 +241,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///     lang = "en",
 ///     site_name = "Wini Framework"
 /// )]
-/// pub async fn seo_layout(child: &str) -> Markup {
+/// pub async fn seo_layout(child: Markup) -> Markup {
 ///     html! {
 ///         main {
 ///             (PreEscaped(child))
@@ -256,7 +256,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout(js_pkgs = ["htmx"])]
-/// pub async fn htmx_layout(child: &str) -> Markup {
+/// pub async fn htmx_layout(child: Markup) -> Markup {
 ///     html! {
 ///         div hx-boost="true" {
 ///             nav {
@@ -275,7 +275,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
 ///
 /// #[layout]
-/// pub async fn base_layout(child: &str) -> Markup {
+/// pub async fn base_layout(child: Markup) -> Markup {
 ///     html! {
 ///         main {
 ///             h1 { "Welcome back" }
@@ -285,7 +285,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// }
 ///
 /// #[layout]
-/// pub async fn auth_layout(child: &str) -> Markup {
+/// pub async fn auth_layout(child: Markup) -> Markup {
 ///     html! {
 ///         div class="auth-container" {
 ///             div class="auth-sidebar" {

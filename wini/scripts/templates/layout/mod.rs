@@ -4,6 +4,6 @@ use {
 };
 
 #[layout]
-pub async fn render(child: &str) -> MarkUp {
-    html! {(PreEscaped(child))}
+pub async fn render(child: Markup) -> MarkUp {
+    html! {(child)}
 }

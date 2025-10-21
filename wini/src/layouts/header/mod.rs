@@ -1,16 +1,16 @@
 use {
     crate::shared::wini::err::ServerResult,
-    maud::{Markup, PreEscaped, html},
+    maud::{html, Markup, PreEscaped},
     wini_macros::layout,
 };
 
 #[layout]
-pub async fn render(s: &str) -> ServerResult<Markup> {
+pub async fn render(s: Markup) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"
         }
-        (PreEscaped(s))
+        (s)
     })
 }
 // IFFEAT test
@@ -19,7 +19,7 @@ use {
     hyper::StatusCode,
 };
 #[layout]
-pub async fn mut_parts(_: &mut Parts) -> ServerResult<Markup> {
+pub async fn mut_parts(_: Parts) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"
@@ -27,7 +27,7 @@ pub async fn mut_parts(_: &mut Parts) -> ServerResult<Markup> {
     })
 }
 #[layout]
-pub async fn parts(_: &Parts) -> ServerResult<Markup> {
+pub async fn parts(_: Parts) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"
@@ -35,7 +35,7 @@ pub async fn parts(_: &Parts) -> ServerResult<Markup> {
     })
 }
 #[layout]
-pub async fn parts_and_body(_: &Parts, _body: &Body) -> ServerResult<Markup> {
+pub async fn parts_and_body(_: Parts, _body: Body) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"
