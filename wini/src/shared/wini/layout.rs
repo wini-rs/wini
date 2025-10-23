@@ -68,7 +68,7 @@ pub trait FromRequestPartsHelper<S> {
     fn __from_request_parts<'a>(
         _parts: &'a mut RequestParts,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -82,7 +82,7 @@ impl<T, S> FromRequestPartsHelper<S> for T {
     default fn __from_request_parts<'a>(
         _parts: &'a mut RequestParts,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -96,7 +96,7 @@ impl<T: FromRequestParts<S>, S> FromRequestPartsHelper<S> for T {
     fn __from_request_parts<'a>(
         parts: &'a mut RequestParts,
         state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -113,7 +113,7 @@ pub trait FromResponseBodyHelper<S> {
     fn __from_response_body<'a>(
         _body: Body,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a;
 }
@@ -124,7 +124,7 @@ impl<T, S> FromResponseBodyHelper<S> for T {
     default fn __from_response_body<'a>(
         _body: Body,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -138,7 +138,7 @@ impl<T: FromResponseBody<S>, S> FromResponseBodyHelper<S> for T {
     fn __from_response_body<'a>(
         body: Body,
         state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -156,7 +156,7 @@ pub trait FromResponsePartsHelper<S> {
     fn __from_response_parts<'a>(
         _parts: &'a mut ResponseParts,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -170,7 +170,7 @@ impl<T, S> FromResponsePartsHelper<S> for T {
     default fn __from_response_parts<'a>(
         _parts: &'a mut ResponseParts,
         _state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
@@ -184,7 +184,7 @@ impl<T: FromResponseParts<S>, S> FromResponsePartsHelper<S> for T {
     fn __from_response_parts<'a>(
         parts: &'a mut ResponseParts,
         state: &'a S,
-    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a>>
+    ) -> Pin<Box<dyn Future<Output = Result<Self, Self::RejectionHelper>> + 'a + Send>>
     where
         Self: Sized + 'a,
     {
