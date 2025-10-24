@@ -44,12 +44,13 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     let mut handling_of_request = Vec::new();
     let mut handling_of_response = Vec::new();
 
-    for (idx, input_it) in input.sig.inputs.iter().enumerate() {
-        let is_last = idx + 1 == input.sig.inputs.len();
+    let number_of_args = input.sig.inputs.len();
+    for (idx, input_it) in input.sig.inputs.iter_mut().enumerate() {
+        let is_last = idx + 1 == number_of_args;
         match input_it {
             FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
             FnArg::Typed(pat_ty) => {
-                let ty = &pat_ty.ty;
+                let ty = pat_ty.ty.clone();
                 let ty_str = ty.span().source_text().unwrap_or_default();
 
                 // These parts of code will be used multiple times
@@ -112,13 +113,13 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                                         },
                                     };
 
-                                    let trait_name = impl_from_trait.to_string();
+                                    let error_msg = format!("Invalid attribute macro: the argument's type doesn't implement `{impl_from_trait}`");
 
                                     quote!(
                                         let can_early_exit = if #condition {
                                             true
                                         } else {
-                                            panic!("Invalid attribute macro: the argument's type doesn't implement `{}`", #trait_name)
+                                            panic!(#error_msg)
                                         };
                                     )
                                 },
@@ -138,7 +139,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                                         )
                                     },
                                     FromTrait::RequestParts => {
-                                        quote!(if true { Some(#from_response_parts)})
+                                        quote!(if true { Some(#from_request_parts)})
                                     },
                                 },
                                 match impl_from_trait {
@@ -380,10 +381,10 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-fn parse_attrs_of_arg(arg: &PatType) -> Result<Option<FromTrait>, &'static str> {
+fn parse_attrs_of_arg(arg: &mut PatType) -> Result<Option<FromTrait>, &'static str> {
     let mut current_from = None;
 
-    for attr in &arg.attrs {
+    for (idx, attr) in arg.attrs.iter().enumerate() {
         if let Ok(from) = FromTrait::from_str(
             &attr
                 .path()
@@ -395,12 +396,16 @@ fn parse_attrs_of_arg(arg: &PatType) -> Result<Option<FromTrait>, &'static str> 
             if current_from.is_some() {
                 return Err("You cannot have different `#[from_request_parts]`, `#[from_response_body]` or `#[from_response_parts]` for the same argument.");
             } else {
-                current_from = Some(from);
+                current_from = Some((from, idx));
             }
         }
     }
 
-    Ok(current_from)
+    if let Some((_, idx)) = current_from {
+        arg.attrs.remove(idx);
+    }
+
+    Ok(current_from.map(|(from, _idx)| from))
 }
 
 enum FromTrait {
