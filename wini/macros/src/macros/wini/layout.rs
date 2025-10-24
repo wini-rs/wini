@@ -54,6 +54,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                 let ty_str = ty.span().source_text().unwrap_or_default();
 
                 // These parts of code will be used multiple times
+                // RequestParts
                 let from_request_parts = quote!(
                     {
                         let (mut req_parts, body) = req.into_parts();
@@ -65,6 +66,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                         ty
                     }
                 );
+                // ResponseParts
                 let from_response_parts = quote!(
                     {
                         let ty = match #ty::__from_response_parts(&mut resp_parts, &()).await {
@@ -74,6 +76,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                         ty
                     }
                 );
+                // ResponseBody
                 let from_response_body = if is_last {
                     quote!(
                         match #ty::__from_response_body(resp_body, &()).await {
@@ -174,6 +177,9 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                     };
 
                 // Error messages
+                //
+                // The reason we generate it in the proc_macro and not in the code run at runtime
+                // or const-time is because `std::fmt` is not `const`.
                 let generate_err_msg_conflit =
                     |a: FromTrait, b: FromTrait, maybe_c: Option<FromTrait>| {
                         if let Some(c) = maybe_c {
@@ -238,9 +244,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                                     // Valid!
                                     (true, false,  false) |
                                     (false, true, false) |
-                                    (false, false, true) => {
-                                        ()
-                                    }
+                                    (false, false, true) => {}
                                     // Not a valid extractor
                                     (false, false, false) => {
                                         panic!(#not_a_valid_extractor_error)
@@ -363,8 +367,6 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
             files.extend(html.linked_files.into_iter().map(Cow::Owned));
             files.extend(FILES_IN_CURRENT_DIR);
-            // println!("{files:#?}");
-            println!("{:#?}", FILES_IN_CURRENT_DIR);
 
             #js_pkgs
 

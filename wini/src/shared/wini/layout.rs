@@ -2,15 +2,12 @@
 //! Used in `#[layout]`s
 
 use {
-    crate::shared::wini::{
-        err::ServerError,
-        response::{FromResponseBody, FromResponseParts},
-    },
+    crate::shared::wini::response::{FromResponseBody, FromResponseParts},
     axum::{
         body::Body,
-        extract::{FromRequest, FromRequestParts, Request},
-        http::{request::Parts as RequestParts, response::Parts as ResponseParts, uri::Parts},
-        response::{IntoResponse, Response},
+        extract::FromRequestParts,
+        http::{request::Parts as RequestParts, response::Parts as ResponseParts},
+        response::IntoResponse,
     },
     std::{convert::Infallible, pin::Pin},
 };

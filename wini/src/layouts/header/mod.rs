@@ -6,7 +6,7 @@ use {
 };
 
 #[layout]
-pub async fn render(#[from_request_parts] h: HeaderMap, s: Markup) -> ServerResult<Markup> {
+pub async fn render(#[from_request_parts] _h: HeaderMap, s: Markup) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"

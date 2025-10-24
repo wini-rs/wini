@@ -3,7 +3,7 @@ use {
     axum::{
         body::Body,
         http::{response, Extensions},
-        response::{IntoResponse, Response},
+        response::IntoResponse,
     },
     hyper::{HeaderMap, StatusCode, Version},
     maud::{Markup, PreEscaped},
