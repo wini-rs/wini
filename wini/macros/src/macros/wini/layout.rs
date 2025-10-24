@@ -8,8 +8,10 @@ use {
         },
     },
     proc_macro::TokenStream,
+    proc_macro2::Span,
     quote::quote,
-    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident},
+    std::{fmt::Display, str::FromStr},
+    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident, PatType},
 };
 
 
@@ -39,16 +41,38 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
         )
     }
 
+    let mut handling_of_request = Vec::new();
     let mut handling_of_response = Vec::new();
 
-    // TODO: split into 2, before and after request
     for (idx, input_it) in input.sig.inputs.iter().enumerate() {
         let is_last = idx + 1 == input.sig.inputs.len();
         match input_it {
             FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
             FnArg::Typed(pat_ty) => {
                 let ty = &pat_ty.ty;
+                let ty_str = ty.span().source_text().unwrap_or_default();
 
+                // These parts of code will be used multiple times
+                let from_request_parts = quote!(
+                    {
+                        let (mut req_parts, body) = req.into_parts();
+                        let ty = match #ty::__from_request_parts(&mut req_parts, &()).await {
+                            Ok(ok) => ok,
+                            Err(into_resp) => return Ok(into_resp.into_response()),
+                        };
+                        req = axum::extract::Request::from_parts(req_parts, body);
+                        ty
+                    }
+                );
+                let from_response_parts = quote!(
+                    {
+                        let ty = match #ty::__from_response_parts(&mut resp_parts, &()).await {
+                            Ok(ok) => ok,
+                            Err(into_resp) => return Ok(into_resp.into_response()),
+                        };
+                        ty
+                    }
+                );
                 let from_response_body = if is_last {
                     quote!(
                         match #ty::__from_response_body(resp_body, &()).await {
@@ -62,65 +86,239 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                     )
                 };
 
+                let ident_of_request =
+                    syn::Ident::new(&format!("__wini_ident_{idx}"), Span::call_site());
+
+                let (const_check, request_attr_condition, response_attr_condition) =
+                    match parse_attrs_of_arg(pat_ty) {
+                        Ok(Some(impl_from_trait)) => {
+                            (
+                                {
+                                    let condition = match impl_from_trait {
+                                        FromTrait::ResponseBody => {
+                                            quote!(
+                                                <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY
+                                            )
+                                        },
+                                        FromTrait::ResponseParts => {
+                                            quote!(
+                                                <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS
+                                            )
+                                        },
+                                        FromTrait::RequestParts => {
+                                            quote!(
+                                                <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS
+                                            )
+                                        },
+                                    };
+
+                                    let trait_name = impl_from_trait.to_string();
+
+                                    quote!(
+                                        let can_early_exit = if #condition {
+                                            true
+                                        } else {
+                                            panic!("Invalid attribute macro: the argument's type doesn't implement `{}`", #trait_name)
+                                        };
+                                    )
+                                },
+                                match impl_from_trait {
+                                    FromTrait::ResponseBody => {
+                                        quote!(
+                                            if true {
+                                                None
+                                            }
+                                        )
+                                    },
+                                    FromTrait::ResponseParts => {
+                                        quote!(
+                                            if true {
+                                                None
+                                            }
+                                        )
+                                    },
+                                    FromTrait::RequestParts => {
+                                        quote!(if true { Some(#from_response_parts)})
+                                    },
+                                },
+                                match impl_from_trait {
+                                    FromTrait::ResponseBody => {
+                                        quote!(if true { #from_response_body })
+                                    },
+                                    FromTrait::ResponseParts => {
+                                        quote!(if true { #from_response_parts })
+                                    },
+                                    FromTrait::RequestParts => {
+                                        quote!(if true { #ident_of_request.unwrap() })
+                                    },
+                                },
+                            )
+                        },
+                        Ok(None) => {
+                            (
+                                quote!(let can_early_exit = false;),
+                                quote!(
+                                    if false {
+                                        unreachable!()
+                                    }
+                                ),
+                                quote!(
+                                    if false {
+                                        unreachable!()
+                                    }
+                                ),
+                            )
+                        },
+                        Err(err_msg) => panic!("{err_msg}"),
+                    };
+
+                // Error messages
+                let generate_err_msg_conflit =
+                    |a: FromTrait, b: FromTrait, maybe_c: Option<FromTrait>| {
+                        if let Some(c) = maybe_c {
+                            format!(
+                                "{ty_str} implements `{a}`, `{b}` and `{c}`. Specify which implementation it should come from by either anotating it with `#[{}]`, `#[{}]` or `#[{}]`",
+                                a.to_snake_case_static_str(),
+                                b.to_snake_case_static_str(),
+                                c.to_snake_case_static_str()
+                            )
+                        } else {
+                            format!(
+                                "{ty_str} implements both `{a}` and `{b}`. Specify which implementation it should come from by either anotating it with `#[{}]` or `#[{}]`",
+                                a.to_snake_case_static_str(),
+                                b.to_snake_case_static_str()
+                            )
+                        }
+                    };
+
+                let not_a_valid_extractor_error = format!("{ty_str} is not a valid extractor since it does not implement either the `FromResponseBody`, `FromResponseParts` or `FromRequestParts` traits.", );
+                let err_msg_reqp_and_respp = generate_err_msg_conflit(
+                    FromTrait::RequestParts,
+                    FromTrait::ResponseParts,
+                    None,
+                );
+                let err_msg_reqp_and_respb = generate_err_msg_conflit(
+                    FromTrait::RequestParts,
+                    FromTrait::ResponseBody,
+                    None,
+                );
+                let err_msg_respp_and_respb = generate_err_msg_conflit(
+                    FromTrait::ResponseParts,
+                    FromTrait::ResponseBody,
+                    None,
+                );
+                let err_msg_all_impl = generate_err_msg_conflit(
+                    FromTrait::RequestParts,
+                    FromTrait::ResponseParts,
+                    Some(FromTrait::ResponseBody),
+                );
+
+                handling_of_request.push(quote!(
+                    let #ident_of_request = {
+                        use {
+                            crate::shared::wini::layout::*,
+                            axum::response::IntoResponse
+                        };
+
+                        // Compile-time check to verify the validity of arguments
+                        // The `const` name will appear in the error message, this is why it's
+                        // named like that
+                        const _CHECK_THE_ERROR_MESSAGE_IN_CASE_OF_ERROR: () = const {
+                            #const_check
+
+                            if !can_early_exit {
+                                match
+                                (
+                                    <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY,
+                                    <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS,
+                                    <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS,
+                                )
+                                {
+                                    // Valid!
+                                    (true, false,  false) |
+                                    (false, true, false) |
+                                    (false, false, true) => {
+                                        ()
+                                    }
+                                    // Not a valid extractor
+                                    (false, false, false) => {
+                                        panic!(#not_a_valid_extractor_error)
+                                    }
+                                    // Overlapping
+                                    (true, true,  false) => {
+                                        panic!(#err_msg_respp_and_respb)
+                                    }
+                                    (true, false, true) => {
+                                        panic!(#err_msg_reqp_and_respb)
+
+                                    }
+                                    (false, true, true) => {
+                                        panic!(#err_msg_reqp_and_respp)
+                                    }
+                                    // Full overlapping
+                                    (true, true, true) => {
+                                        panic!(#err_msg_all_impl)
+                                    }
+                                }
+                            }
+                        };
+
+                        let dummy: Option<#ty> = #request_attr_condition else {
+                            match
+                                (
+                                    <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY,
+                                    <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS,
+                                    <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS,
+                                )
+                            {
+                                (true, false,  false) => {
+                                    None
+                                }
+                                (false, true, false) => {
+                                    None
+                                }
+                                (false, false, true) => {
+                                    Some(#from_request_parts)
+                                }
+                                (_, _, _) => unreachable!("Verified in a `const` check")
+                            }
+                        };
+
+                        dummy
+                    };
+                ));
+
                 handling_of_response.push(quote!(
                     {
                         use {
                             crate::shared::wini::layout::*,
                             axum::response::IntoResponse
-                        }; 
+                        };
 
-                        let dummy: #ty = match
-                            (
-                                <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY,
-                                <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS,
-                                <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS,
-                            )
-                        {
-                            (true, false,  false) => {
-                                #from_response_body
+                        let dummy: #ty = #response_attr_condition else {
+                            match
+                                (
+                                    <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY,
+                                    <#ty as IsFromResponseParts>::IS_FROM_RESPONSE_PARTS,
+                                    <#ty as IsFromRequestParts>::IS_FROM_REQUEST_PARTS,
+                                )
+                            {
+                                (true, false,  false) => {
+                                    #from_response_body
+                                }
+                                (false, true, false) => {
+                                    #from_response_parts
+                                }
+                                (false, false, true) => {
+                                    #ident_of_request.unwrap()
+                                }
+                                (_, _, _) => unreachable!("Verified in a `const` check")
                             }
-                            (false, true, false) => {
-                                let ty = match #ty::__from_response_parts(&mut resp_parts, &()).await {
-                                    Ok(ok) => ok,
-                                    Err(into_resp) => return Ok(into_resp.into_response()),
-                                };
-                                ty
-                            }
-                            (false, false, true) => {
-                                todo!()
-                                // let (mut req_parts, body) = req.into_parts();
-                                // let ty = match #ty::__from_request_parts(&mut req_parts, &()).await {
-                                //     Ok(ok) => ok,
-                                //     Err(into_resp) => return Ok(into_resp.into_response()),
-                                // };
-                                // req = axum::extract::Request::from_parts(req_parts, body);
-                                // ty
-                            }
-                            (_, _, _) => unimplemented!("Not implemented yet")
                         };
 
                         dummy
                     }
                 ));
-
-                // match (*pat_ty.ty).span().source_text() {
-                //     Some(ty) => {
-                //         if ty == "&str" {
-                //             InputKind::Str
-                //         } else if ty.contains("StatusCode") {
-                //             InputKind::StatusCode
-                //         } else if ty.contains("Parts") {
-                //             if input.sig.inputs.len() == 2 {
-                //                 InputKind::Response
-                //             } else {
-                //                 InputKind::Parts
-                //             }
-                //         } else {
-                //             panic!("Unknown child type: {ty}")
-                //         }
-                //     },
-                //     None => panic!("Expected Layout to have its first argument typed"),
-                // }
             },
         }
     }
@@ -141,7 +339,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
         #[allow(non_snake_case)]
         pub async fn #name(
-            req: axum::extract::Request,
+            mut req: axum::extract::Request,
             next: axum::middleware::Next
         ) -> crate::shared::wini::err::ServerResult<axum::response::Response> {
             use {
@@ -151,6 +349,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             };
 
             const FILES_IN_CURRENT_DIR: [Cow<'static, str>; #len_files_in_current_dir] = [#(Cow::Borrowed(#files_in_current_dir)),*];
+
+            #(#handling_of_request)*
 
             let mut resp = next.run(req).await;
             let (mut resp_parts, resp_body) = resp.into_parts();
@@ -162,6 +362,8 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
             files.extend(html.linked_files.into_iter().map(Cow::Owned));
             files.extend(FILES_IN_CURRENT_DIR);
+            // println!("{files:#?}");
+            println!("{:#?}", FILES_IN_CURRENT_DIR);
 
             #js_pkgs
 
@@ -176,4 +378,65 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // Convert the generated code back to TokenStream
     TokenStream::from(expanded)
+}
+
+fn parse_attrs_of_arg(arg: &PatType) -> Result<Option<FromTrait>, &'static str> {
+    let mut current_from = None;
+
+    for attr in &arg.attrs {
+        if let Ok(from) = FromTrait::from_str(
+            &attr
+                .path()
+                .get_ident()
+                .span()
+                .source_text()
+                .unwrap_or_default(),
+        ) {
+            if current_from.is_some() {
+                return Err("You cannot have different `#[from_request_parts]`, `#[from_response_body]` or `#[from_response_parts]` for the same argument.");
+            } else {
+                current_from = Some(from);
+            }
+        }
+    }
+
+    Ok(current_from)
+}
+
+enum FromTrait {
+    ResponseParts,
+    ResponseBody,
+    RequestParts,
+}
+
+impl Display for FromTrait {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::ResponseParts => "FromResponseParts",
+            Self::ResponseBody => "FromResponseBody",
+            Self::RequestParts => "FromRequestParts",
+        })
+    }
+}
+impl FromTrait {
+    fn to_snake_case_static_str(&self) -> &'static str {
+        match self {
+            Self::ResponseParts => "from_response_parts",
+            Self::ResponseBody => "from_response_body",
+            Self::RequestParts => "from_request_parts",
+        }
+    }
+}
+
+impl FromStr for FromTrait {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "from_response_parts" => Self::ResponseParts,
+            "from_response_body" => Self::ResponseBody,
+            "from_request_parts" => Self::RequestParts,
+            _ => return Err(()),
+        })
+    }
 }

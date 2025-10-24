@@ -42,12 +42,12 @@ async fn page() -> Markup {
 
 ```rs
 #[layout]
-async fn layout(child: &str) -> Markup {
+async fn layout(child: Markup) -> Markup {
     html! {
         header {
             "Welcome to Wini!"
         }
-        (PreEscaped(child))
+        (child)
     }
 }
 ```
