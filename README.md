@@ -95,15 +95,6 @@ You can install Wini with `cargo`
 cargo install wini
 ```
 
-Alternatively, you can install Wini by downloading the binary (not recommended)
-
-```sh
-curl -fsSL https://wini.rocks/install | sh
-```
-
-> [!NOTE]
-> You need root access.
-
 ### Create your first Wini project
 
 After the installation of `wini`, you can create a new project with
