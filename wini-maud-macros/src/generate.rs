@@ -119,7 +119,7 @@ impl Generator {
                 Some(match punct.as_char() {
                     '!' => ResultKind::Default,
                     '?' => ResultKind::Propagate,
-                    _ => panic!("Unexpecte char: {punct}"),
+                    _ => panic!("Unexpected char: {punct}"),
                 })
             },
             Some(_) => None,
