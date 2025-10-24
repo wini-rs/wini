@@ -84,7 +84,7 @@ pub(crate) mod utils;
 /// 2. In `example_2` we use the `!` operator at the end. This operator behaves exactly as
 ///    `.unwrap_or_default()`
 ///
-/// If you want some more advance handling of error you can do something like:
+/// If you want some more advanced handling of error you can do something like:
 /// ```rust,ignore
 /// #[component]
 /// fn my_component() -> ServerResult<Markup> { ... }
