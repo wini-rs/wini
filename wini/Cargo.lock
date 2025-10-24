@@ -2987,7 +2987,7 @@ dependencies = [
 
 [[package]]
 name = "wini_maud_macros"
-version = "0.26.3"
+version = "0.26.4"
 dependencies = [
  "hashbrown 0.16.0",
  "proc-macro-error",

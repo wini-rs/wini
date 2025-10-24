@@ -3936,7 +3936,7 @@ checksum = "d6bbff5f0aada427a1e5a6da5f1f98158182f26556f345ac9e04d36d0ebed650"
 
 [[package]]
 name = "wini-maud"
-version = "0.26.7"
+version = "0.26.8"
 dependencies = [
  "actix-web",
  "axum-core",
@@ -3955,7 +3955,9 @@ dependencies = [
 
 [[package]]
 name = "wini_maud_macros"
-version = "0.26.3"
+version = "0.26.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0ae4184e347a43358736a66ff429128f4a82318a4c29d26a974b99c27f5594b3"
 dependencies = [
  "hashbrown",
  "proc-macro-error",

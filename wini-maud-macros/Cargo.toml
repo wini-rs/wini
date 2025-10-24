@@ -1,6 +1,6 @@
 [package]
 name = "wini_maud_macros"
-version = "0.26.3"
+version = "0.26.4"
 documentation = "https://docs.rs/wini-maud-macros"
 description = "Internal crate. Please use 'wini-maud' instead."
 repository = "https://github.com/wini-rs/wini"
