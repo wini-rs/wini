@@ -39,7 +39,7 @@ impl Display for InitError {
                 Self::JustError(exit_code) =>
                     format!("A just command failed with exit code: {exit_code}"),
                 Self::EmptyProjectName => "The project name can't be empty".to_string(),
-                Self::PromptError(err) => format!("An error occured with the prompt: {err:?}"),
+                Self::PromptError(err) => format!("An error occurred with the prompt: {err:?}"),
             }
         )
     }

@@ -54,7 +54,7 @@ pub async fn processing_of_error() -> Markup {
     }
 }
 async fn process_error(component_result: ServerResult<Markup>) -> Markup {
-    component_result.unwrap_or_else(|_| html!("An error occured!"))
+    component_result.unwrap_or_else(|_| html!("An error occurred!"))
 }
 
 #[tokio::test]

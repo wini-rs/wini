@@ -90,7 +90,7 @@ pub(crate) mod utils;
 /// fn my_component() -> ServerResult<Markup> { ... }
 ///
 /// fn process_error(component_result: ServerResult<Markup>) -> Markup {
-///     component_result.unwrap_or_else(|_| html!("An error occured!"))
+///     component_result.unwrap_or_else(|_| html!("An error occurred!"))
 /// }
 ///
 /// #[page]
