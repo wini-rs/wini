@@ -32,7 +32,7 @@ impl ServerError {
 #[derive(Debug)]
 pub enum ServerErrorKind {
     Status(hyper::StatusCode),
-    Infaillible(Infallible),
+    Infallible(Infallible),
     Utf8Error(Utf8Error),
     InvalidHeader(InvalidHeaderValue),
     DebugedError(String),
@@ -70,7 +70,7 @@ macro_rules! impl_from_error {
 }
 
 impl_from_error!(hyper::StatusCode, ServerErrorKind::Status);
-impl_from_error!(Infallible, ServerErrorKind::Infaillible);
+impl_from_error!(Infallible, ServerErrorKind::Infallible);
 impl_from_error!(Utf8Error, ServerErrorKind::Utf8Error);
 impl_from_error!(String, ServerErrorKind::DebugedError);
 impl_from_error!(InvalidHeaderValue, ServerErrorKind::InvalidHeader);
@@ -87,7 +87,7 @@ impl IntoResponse for &ServerErrorKind {
             ServerErrorKind::DebugedError(err) => {
                 format!("Unexpected error: {err}")
             },
-            ServerErrorKind::Infaillible(err) => {
+            ServerErrorKind::Infallible(err) => {
                 format!("This error should not be possible: {err:#?}")
             },
             ServerErrorKind::ToStrError(err) => {
