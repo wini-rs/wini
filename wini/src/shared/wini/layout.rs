@@ -55,10 +55,14 @@ impl<T: FromResponseParts<()>> IsFromResponseParts for T {
 }
 
 
-
-/// This trait is only used to execute some code based on a type impleting a trait
-/// This trait **SHOULD NOT** be used outside of a proc macro.
-/// Only used in `#[layout]`
+/// **⚠️ INTERNAL USE ONLY – DO NOT USE DIRECTLY**
+///
+/// This trait is only used internally by the `#[layout]` proc macro to execute
+/// code based on whether a type implements a trait.
+///
+/// **Using this trait directly will result in runtime panics.**
+/// Use the appropriate `From*` traits instead.
+#[doc(hidden)]
 pub trait FromRequestPartsHelper<S> {
     type RejectionHelper: IntoResponse;
 
@@ -101,9 +105,14 @@ impl<T: FromRequestParts<S>, S> FromRequestPartsHelper<S> for T {
     }
 }
 
-/// This trait is only used to execute some code based on a type impleting a trait
-/// This trait **SHOULD NOT** be used outside of a proc macro.
-/// Only used in `#[layout]`
+/// **⚠️ INTERNAL USE ONLY – DO NOT USE DIRECTLY**
+///
+/// This trait is only used internally by the `#[layout]` proc macro to execute
+/// code based on whether a type implements a trait.
+///
+/// **Using this trait directly will result in runtime panics.**
+/// Use the appropriate `From*` traits instead.
+#[doc(hidden)]
 pub trait FromResponseBodyHelper<S> {
     type RejectionHelper: IntoResponse;
 
@@ -144,9 +153,14 @@ impl<T: FromResponseBody<S>, S> FromResponseBodyHelper<S> for T {
 }
 
 
-/// This trait is only used to execute some code based on a type impleting a trait
-/// This trait **SHOULD NOT** be used outside of a proc macro.
-/// Only used in `#[layout]`
+/// **⚠️ INTERNAL USE ONLY – DO NOT USE DIRECTLY**
+///
+/// This trait is only used internally by the `#[layout]` proc macro to execute
+/// code based on whether a type implements a trait.
+///
+/// **Using this trait directly will result in runtime panics.**
+/// Use the appropriate `From*` traits instead.
+#[doc(hidden)]
 pub trait FromResponsePartsHelper<S> {
     type RejectionHelper: IntoResponse;
 
