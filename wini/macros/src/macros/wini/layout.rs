@@ -334,8 +334,6 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     }
 
-    // TODO: create an `Option<Backtrace>` to handle errors
-
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_extensions = attributes.generate_all_extensions(true);
