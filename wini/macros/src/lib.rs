@@ -224,7 +224,8 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 
 /// Wraps pages or other layouts with common HTML structure.
 ///
-/// Layouts are applied as Axum middleware and can receive child content in various forms.
+/// Layouts are applied as Axum middleware and can receive child content in various and
+/// request/respone data.
 /// They automatically link JS/CSS files and support SEO meta tags.
 ///
 /// # Parameters
@@ -240,47 +241,61 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// - `js_pkgs` - Array of JavaScript package names to include
 /// - `other_meta` - Array of custom meta tag key-value pairs
 ///
-/// # Layout Input Types
+/// # Layout Parameter Types
 ///
-/// Layouts can accept different parameter types depending on your needs:
+/// Layouts can accept different parameter types depending on your needs. Arguments must have a
+/// type that either implements:
+/// - [`axum::extract::FromRequestParts`],
+/// - [`crate::shared::wini::response::FromResponseBody`]
+/// - [`crate::shared::wini::response::FromResponseParts`]
 ///
-/// - `&str` - Receives rendered child HTML as string
-/// - `StatusCode` - Receives HTTP status code (useful for error layouts)
-/// - `&Parts` - Receives HTTP response parts (read-only)
-/// - `&mut Parts` - Receives mutable HTTP response parts
-/// - `&Parts, &Body` - Receives both parts and body
+/// There are just a few rules:
+/// 1. Arguments that come from `FromResponseBody` MUST be the last argument.
+/// 2. Only one argument can come from `FromResponseBody`.
+/// 3. In case of conflicts (ex: an argument has a type of `http::header::HeaderMap`, which
+///    implements both `FromRequestParts` and `FromResponseParts`), you can specify from which
+///    implementation it should come from with the following macro attributes:
+///    - `#[from_request_parts]`
+///    - `#[from_response_parts]`
+///    - `#[from_response_body]`
 ///
 /// # Examples
 ///
 /// ## Basic usage with string content
 ///
 /// ```rust,ignore
-/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+/// use {maud::{html, Markup}, wini_macros::layout};
 ///
 /// #[layout]
 /// pub async fn main_layout(child: Markup) -> Markup {
 ///     html! {
 ///         header { "Site Header" }
-///         main { (PreEscaped(child)) }
+///         main { (child) }
 ///         footer { "Site Footer" }
 ///     }
 /// }
 /// ```
 ///
-/// ## With HTTP parts (accessing request info)
+/// ## With conflict between implementations
 ///
 /// ```rust,ignore
-/// use {maud::{html, Markup}, wini_macros::layout, axum::http::response::Parts};
+/// use {maud::{html, Markup}, wini_macros::layout, axum::http::header::HeaderMap};
 ///
 /// #[layout]
-/// pub async fn debug_layout(parts: &mut Parts) -> ServerResult<Markup> {
-///     let status = parts.status;
-///     Ok(html! {
-///         div class="debug-wrapper" {
-///             p { "Status: " (status.as_u16()) }
-///             p { "Version: " (format!("{:?}", parts.version)) }
-///         }
-///     })
+/// pub async fn using_both_header_maps(
+///     #[from_request_parts] headers_req: HeaderMap,
+///     #[from_response_parts] headers_resp: HeaderMap,
+///     child: Markup,
+/// ) -> Markup {
+///     html! {
+///         b { "Headers from request:" }
+///         p { (format!("{headers_req:#?}") )
+///
+///         b { "Headers from response:" }
+///         p { (format!("{headers_resp:#?}") )
+///
+///         (child)
+///     }
 /// }
 /// ```
 ///
@@ -313,7 +328,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// ## With SEO meta tags
 ///
 /// ```rust,ignore
-/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+/// use {maud::{html, Markup}, wini_macros::layout};
 ///
 /// #[layout(
 ///     title = "My Website",
@@ -324,7 +339,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// pub async fn seo_layout(child: Markup) -> Markup {
 ///     html! {
 ///         main {
-///             (PreEscaped(child))
+///             (child)
 ///         }
 ///     }
 /// }
@@ -333,7 +348,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// ## With JavaScript packages
 ///
 /// ```rust,ignore
-/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+/// use {maud::{html, Markup}, wini_macros::layout};
 ///
 /// #[layout(js_pkgs = ["htmx"])]
 /// pub async fn htmx_layout(child: Markup) -> Markup {
@@ -343,7 +358,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///                 a href="/" { "Home" }
 ///                 a href="/about" { "About" }
 ///             }
-///             main { (PreEscaped(child)) }
+///             main { (child) }
 ///         }
 ///     }
 /// }
@@ -352,14 +367,14 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// ## Nested layouts
 ///
 /// ```rust,ignore
-/// use {maud::{html, Markup, PreEscaped}, wini_macros::layout};
+/// use {maud::{html, Markup}, wini_macros::layout};
 ///
 /// #[layout]
 /// pub async fn base_layout(child: Markup) -> Markup {
 ///     html! {
 ///         main {
 ///             h1 { "Welcome back" }
-///             (PreEscaped(child))
+///             (child)
 ///         }
 ///     }
 /// }
@@ -372,33 +387,36 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///                 nav { "Auth Navigation" }
 ///             }
 ///             div class="auth-content" {
-///                 (PreEscaped(child))
+///                 (child)
 ///             }
 ///         }
 ///     }
 /// }
 /// ```
 ///
-/// ## With response parts and body
+/// ## With error backtrace handling
 ///
 /// ```rust,ignore
 /// use {
 ///     maud::{html, Markup},
 ///     wini_macros::layout,
-///     axum::{body::Body, http::response::Parts}
+///     wini::shared::wini::err::Backtrace,
+///     axum::http::request::Parts
 /// };
 ///
 /// #[layout]
-/// pub async fn advanced_layout(parts: &Parts, body: &Body) -> ServerResult<Markup> {
-///     let content_type = parts
-///         .headers
-///         .get("content-type")
-///         .and_then(|v| v.to_str().ok())
-///         .unwrap_or("unknown");
-///     
+/// pub async fn error_handler(
+///     backtrace: Option<Backtrace>,
+///     child: Markup
+/// ) -> ServerResult<Markup> {
 ///     Ok(html! {
-///         div class="advanced-wrapper" {
-///             p { "Content-Type: " (content_type) }
+///         div class="error-layout" {
+///             @if let Some(bt) = backtrace {
+///                 div class="error-info" {
+///                     p { "An error occurred: " (format!("{bt:#?}")) }
+///                 }
+///             }
+///             main { (child) }
 ///         }
 ///     })
 /// }
