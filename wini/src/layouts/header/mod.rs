@@ -2,7 +2,7 @@ use {
     crate::shared::wini::err::{Backtrace, ServerResult},
     hyper::{HeaderMap, Uri},
     maud::{html, Markup},
-    wini_macros::{component, layout},
+    wini_macros::layout,
 };
 
 #[layout]
@@ -106,7 +106,7 @@ pub async fn remove_doubt(
 #[layout]
 pub async fn handle_error_doubt(
     #[from_request_parts] _headers_req: HeaderMap,
-    backtrace: Option<Backtrace>,
+    _backtrace: Option<Backtrace>,
     s: Markup,
 ) -> ServerResult<Markup> {
     Ok(html! {

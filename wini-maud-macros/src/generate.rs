@@ -106,6 +106,7 @@ impl Generator {
 
         let result_kind = match streams.clone().into_iter().last() {
             Some(TokenTree::Punct(punct)) => {
+                // Basically, just remove last token
                 expr = expr
                     .into_iter()
                     .fold((TokenStream::new(), None), |(mut acc, prev), curr| {
