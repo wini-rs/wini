@@ -1,12 +1,12 @@
 use {
-    crate::shared::wini::err::ServerResult,
+    crate::shared::wini::err::{Backtrace, ServerResult},
     hyper::{HeaderMap, Uri},
     maud::{html, Markup},
-    wini_macros::layout,
+    wini_macros::{component, layout},
 };
 
 #[layout]
-pub async fn render(#[from_request_parts] _h: HeaderMap, s: Markup) -> ServerResult<Markup> {
+pub async fn render(s: Markup) -> ServerResult<Markup> {
     Ok(html! {
         header {
             "Welcome to Wini!"
@@ -14,6 +14,7 @@ pub async fn render(#[from_request_parts] _h: HeaderMap, s: Markup) -> ServerRes
         (s)
     })
 }
+
 // IFFEAT test
 use {
     axum::{body::Body, http::response::Parts},
@@ -78,13 +79,41 @@ pub async fn err_backtrace_logging(status_code: StatusCode) -> Markup {
     }
 }
 
-// From request
+// This is a test for `FromRequestParts`
 #[layout]
 pub async fn uri(uri: Uri) -> ServerResult<Markup> {
     Ok(html! {
         header {
             (uri)
         }
+    })
+}
+
+#[layout]
+pub async fn remove_doubt(
+    #[from_request_parts] _headers_req: HeaderMap,
+    #[from_response_parts] _headers_resp: HeaderMap,
+    s: Markup,
+) -> ServerResult<Markup> {
+    Ok(html! {
+        header {
+            "Welcome to Wini!"
+        }
+        (s)
+    })
+}
+
+#[layout]
+pub async fn handle_error_doubt(
+    #[from_request_parts] _headers_req: HeaderMap,
+    backtrace: Option<Backtrace>,
+    s: Markup,
+) -> ServerResult<Markup> {
+    Ok(html! {
+        header {
+            "Welcome to Wini!"
+        }
+        (s)
     })
 }
 // ENDIF

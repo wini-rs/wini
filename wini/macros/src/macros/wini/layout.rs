@@ -11,7 +11,7 @@ use {
     proc_macro2::Span,
     quote::quote,
     std::{fmt::Display, str::FromStr},
-    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident, PatType},
+    syn::{parse::Parse, parse_macro_input, spanned::Spanned, FnArg, Ident, PatType},
 };
 
 
@@ -51,6 +51,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
             FnArg::Receiver(_) => panic!("Layouts don't support `self`"),
             FnArg::Typed(pat_ty) => {
                 let ty = pat_ty.ty.clone();
+                let path_ty = ty_into_path(&ty);
                 let ty_str = ty.span().source_text().unwrap_or_default();
 
                 // These parts of code will be used multiple times
@@ -58,7 +59,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                 let from_request_parts = quote!(
                     {
                         let (mut req_parts, body) = req.into_parts();
-                        let ty = match #ty::__from_request_parts(&mut req_parts, &()).await {
+                        let ty = match #path_ty::__from_request_parts(&mut req_parts, &()).await {
                             Ok(ok) => ok,
                             Err(into_resp) => return Ok(into_resp.into_response()),
                         };
@@ -69,7 +70,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                 // ResponseParts
                 let from_response_parts = quote!(
                     {
-                        let ty = match #ty::__from_response_parts(&mut resp_parts, &()).await {
+                        let ty = match #path_ty::__from_response_parts(&mut resp_parts, &()).await {
                             Ok(ok) => ok,
                             Err(into_resp) => return Ok(into_resp.into_response()),
                         };
@@ -79,14 +80,19 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
                 // ResponseBody
                 let from_response_body = if is_last {
                     quote!(
-                        match #ty::__from_response_body(resp_body, &()).await {
+                        match #path_ty::__from_response_body(resp_body, &()).await {
                             Ok(ok) => ok,
                             Err(into_resp) => return Ok(into_resp.into_response()),
                         }
                     )
                 } else {
                     quote!(
-                        panic!("FromResponseBody should always be the last argument");
+                        const {
+                            if <#ty as IsFromResponseBody>::IS_FROM_RESPONSE_BODY {
+                                panic!("`FromResponseBody` should always be the last argument");
+                            };
+                        };
+                        unreachable!()
                     )
                 };
 
@@ -408,6 +414,16 @@ fn parse_attrs_of_arg(arg: &mut PatType) -> Result<Option<FromTrait>, &'static s
     }
 
     Ok(current_from.map(|(from, _idx)| from))
+}
+
+fn ty_into_path(ty: &Box<syn::Type>) -> syn::Type {
+    syn::parse_str(
+        &ty.span()
+            .source_text()
+            .unwrap_or_default()
+            .replace('<', "::<"),
+    )
+    .unwrap()
 }
 
 enum FromTrait {

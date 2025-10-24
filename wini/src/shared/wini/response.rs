@@ -1,5 +1,8 @@
 use {
-    crate::{shared::wini::err::ServerError, utils::wini::buffer::buffer_to_string},
+    crate::{
+        shared::wini::err::{Backtrace, ServerError},
+        utils::wini::buffer::buffer_to_string,
+    },
     axum::{
         body::Body,
         http::{response, Extensions},
@@ -108,6 +111,20 @@ where
         _state: &S,
     ) -> Result<Self, Self::Rejection> {
         Ok(parts.headers.clone())
+    }
+}
+
+impl<S> FromResponseParts<S> for Option<Backtrace>
+where
+    S: Send + Sync,
+{
+    type Rejection = Infallible;
+
+    async fn from_response_parts(
+        parts: &mut response::Parts,
+        _state: &S,
+    ) -> Result<Self, Self::Rejection> {
+        Ok(parts.extensions.get().cloned())
     }
 }
 

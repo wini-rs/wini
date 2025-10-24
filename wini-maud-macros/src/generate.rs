@@ -93,22 +93,71 @@ impl Generator {
         }
     }
 
-    fn component(&self, expr: TokenStream, build: &mut Builder) {
+    fn component(&self, mut expr: TokenStream, build: &mut Builder) {
         use quote::ToTokens;
         let output_ident = self.output_ident.clone();
         let linked_files = self.linked_files.clone();
         let streams = expr.to_token_stream();
-        let called_expr = if let Some(proc_macro2::TokenTree::Group(_)) = streams.into_iter().last()
-        {
+
+        enum ResultKind {
+            Default,
+            Propagate,
+        }
+
+        let result_kind = match streams.clone().into_iter().last() {
+            Some(TokenTree::Punct(punct)) => {
+                expr = expr
+                    .into_iter()
+                    .fold((TokenStream::new(), None), |(mut acc, prev), curr| {
+                        if let Some(p) = prev {
+                            acc.extend_one(p);
+                        }
+                        (acc, Some(curr))
+                    })
+                    .0;
+                Some(match punct.as_char() {
+                    '!' => ResultKind::Default,
+                    '?' => ResultKind::Propagate,
+                    _ => panic!("Unexpecte char: {punct}"),
+                })
+            },
+            Some(_) => None,
+            None => None,
+        };
+        let should_we_call_expr = {
+            match result_kind {
+                // Second to last
+                Some(_) => {
+                    let second_to_last = streams
+                        .into_iter()
+                        .fold((None, None), |(_, prev), curr| (prev, Some(curr)))
+                        .0;
+                    matches!(second_to_last, Some(proc_macro2::TokenTree::Group(_)))
+                },
+                // Last
+                None => {
+                    matches!(
+                        streams.into_iter().last(),
+                        Some(proc_macro2::TokenTree::Group(_))
+                    )
+                },
+            }
+        };
+        let called_expr = if should_we_call_expr {
             quote!(#expr)
         } else {
             quote!(#expr())
         };
 
+        let what_should_be_done_with_called_expr = match result_kind {
+            Some(ResultKind::Default) => quote!(.unwrap_or_default()),
+            Some(ResultKind::Propagate) => quote!(?),
+            None => quote!(),
+        };
+
         build.push_tokens(quote!(
             let tmp_identifier: ::maud::Markup = {
-                use ::maud::IntoResult;
-                #called_expr.await.into_result()?
+                #called_expr.await #what_should_be_done_with_called_expr
             };
         ));
         build.push_tokens(quote!(maud::macro_private::render_to!(

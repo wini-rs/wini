@@ -2,6 +2,7 @@
 // TokenStream values are reference counted, and the mental overhead of tracking
 // lifetimes outweighs the marginal gains from explicit borrowing
 #![allow(clippy::needless_pass_by_value)]
+#![feature(extend_one)]
 
 extern crate proc_macro;
 

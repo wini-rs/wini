@@ -1,6 +1,4 @@
 #![no_std]
-#![feature(min_specialization)]
-
 //! A macro for writing HTML templates.
 //!
 //! This documentation only describes the runtime API. For a general
@@ -526,22 +524,5 @@ pub mod macro_private {
         pub fn render_to<T: Display + ?Sized>(self, value: &T, buffer: &mut String) {
             display(value).render_to(buffer);
         }
-    }
-}
-
-// This is really suboptimal, but it works
-pub trait IntoResult<T, E> {
-    fn into_result(self) -> Result<T, E>;
-}
-
-impl<T, E> IntoResult<T, E> for T {
-    default fn into_result(self) -> Result<T, E> {
-        Ok(self)
-    }
-}
-
-impl<T, E> IntoResult<T, E> for Result<T, E> {
-    fn into_result(self) -> Result<T, E> {
-        self
     }
 }

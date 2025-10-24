@@ -43,7 +43,7 @@ pub async fn test_meta() -> Markup {
 #[page]
 pub async fn err_page() -> ServerResult<Markup> {
     Ok(html! {
-        [err_component2]
+        [err_component2?]
     })
 }
 
