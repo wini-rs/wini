@@ -27,7 +27,7 @@ impl<T: FromRequestParts<()>> IsFromRequestParts for T {
 }
 
 
-/// Check if it's [`crate::shared::wini::response::FromResponse`]
+/// Check if it's [`crate::shared::wini::response::FromResponseBody`]
 pub trait IsFromResponseBody {
     const IS_FROM_RESPONSE_BODY: bool = false;
 }
