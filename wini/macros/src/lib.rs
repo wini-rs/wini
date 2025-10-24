@@ -9,7 +9,7 @@ use {
 mod macros;
 pub(crate) mod utils;
 
-/// Creates a reusable HTML component that can be composed within pages or other components.
+/// Creates a reusable HTML component that can be composed within pages, layouts or other components.
 ///
 /// Unlike `#[page]`, components return `Markup` directly and are not converted to HTTP responses.
 /// They automatically link JS/CSS files and can accept parameters.
@@ -21,6 +21,86 @@ pub(crate) mod utils;
 /// # Return Types
 ///
 /// The function can return either `Markup` or `ServerResult<Markup>` for error handling.
+///
+/// # Usage of a component
+/// When you use a component, you should always include it with the following syntax of braces:
+///
+/// ```rust,ignore
+/// // DO ✅
+/// html! {
+///     [my_component]
+/// }
+///
+/// // DON'T ❌
+/// html! {
+///     (my_component().await)
+/// }
+/// ```
+///
+/// Even tho the second one "works", it will not propagate the linked files. So, if `my_component`
+/// depends on some style sheets, doing `(my_component().await)` will not include them!
+///
+/// ## Parameters
+/// When the component takes parameters, you can just write it like that:
+/// ```rust,ignore
+/// #[component]
+/// fn my_component(arg1: T1, arg2: T2) -> Markup { ... }
+///
+/// #[page]
+/// fn my_page() {
+///     let arg1 = ...;
+///     let arg2 = ...;
+///     html! {
+///         [my_component(arg1, arg2)]
+///     }
+/// }
+/// ```
+///
+/// ## Handling of `ServerResult<Markup>`
+/// In some cases, your component might return a `ServerError`. In this case, you will need to use
+/// a special syntax to specify how the error should be handled in the caller of the component.
+///
+/// There are 2 ways:
+/// ```rust,ignore
+/// #[component]
+/// fn my_component() -> ServerResult<Markup> { ... }
+///
+/// #[page]
+/// fn example_1() -> ServerResult<Markup> {
+///     html! {
+///         [my_component?]
+///     }
+/// }
+///
+/// #[page]
+/// fn example_2() -> Markup {
+///     html! {
+///         [my_component!]
+///     }
+/// }
+/// ```
+/// 1. In `example_1` we use the `?` operator at the end. This has the same behaviour as in normal
+///    Rust: it behaves as `return Err(...)`.
+/// 2. In `example_2` we use the `!` operator at the end. This operator behaves exactly as
+///    `.unwrap_or_default()`
+///
+/// If you want some more advance handling of error you can do something like:
+/// ```rust,ignore
+/// #[component]
+/// fn my_component() -> ServerResult<Markup> { ... }
+///
+/// fn process_error(component_result: ServerResult<Markup>) -> Markup {
+///     component_result.unwrap_or_else(|_| html!("An error occured!"))
+/// }
+///
+/// #[page]
+/// fn example_1() -> ServerResult<Markup> {
+///     html! {
+///         [process_error(my_component().await)]
+///     }
+/// }
+///
+/// ```
 ///
 /// # Examples
 ///
@@ -90,7 +170,7 @@ pub(crate) mod utils;
 /// #[page]
 /// pub async fn dashboard() -> ServerResult<Markup> {
 ///     Ok(html! {
-///         (nav().await?)
+///         [nav]
 ///         main {
 ///             h1 { "Dashboard" }
 ///         }
@@ -131,7 +211,7 @@ pub(crate) mod utils;
 /// pub async fn button_with_icon(icon_name: String, label: String) -> ServerResult<Markup> {
 ///     Ok(html! {
 ///         button class="btn" {
-///             (icon(icon_name).await?)
+///             [icon(icon_name)]
 ///             span { (label) }
 ///         }
 ///     })

@@ -47,6 +47,16 @@ pub async fn err_page() -> ServerResult<Markup> {
     })
 }
 
+#[page]
+pub async fn processing_of_error() -> Markup {
+    html! {
+        [process_error(err_component2().await)]
+    }
+}
+async fn process_error(component_result: ServerResult<Markup>) -> Markup {
+    component_result.unwrap_or_else(|_| html!("An error occured!"))
+}
+
 #[tokio::test]
 async fn test_meta_page() {
     use {
