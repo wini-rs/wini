@@ -289,10 +289,10 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// ) -> Markup {
 ///     html! {
 ///         b { "Headers from request:" }
-///         p { (format!("{headers_req:#?}") )
+///         p { (format!("{headers_req:#?}")) }
 ///
 ///         b { "Headers from response:" }
-///         p { (format!("{headers_resp:#?}") )
+///         p { (format!("{headers_resp:#?}")) }
 ///
 ///         (child)
 ///     }
