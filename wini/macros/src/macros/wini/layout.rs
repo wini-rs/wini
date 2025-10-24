@@ -11,7 +11,7 @@ use {
     proc_macro2::Span,
     quote::quote,
     std::{fmt::Display, str::FromStr},
-    syn::{parse::Parse, parse_macro_input, spanned::Spanned, FnArg, Ident, PatType},
+    syn::{parse_macro_input, spanned::Spanned, FnArg, Ident, PatType},
 };
 
 
@@ -416,7 +416,7 @@ fn parse_attrs_of_arg(arg: &mut PatType) -> Result<Option<FromTrait>, &'static s
     Ok(current_from.map(|(from, _idx)| from))
 }
 
-fn ty_into_path(ty: &Box<syn::Type>) -> syn::Type {
+fn ty_into_path(ty: &syn::Type) -> syn::Type {
     syn::parse_str(
         &ty.span()
             .source_text()
