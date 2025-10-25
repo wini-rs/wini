@@ -1,14 +1,12 @@
 source ./check.nu
 
 def main [] {
-    let branches_and_paths = []
-
-    open ./scripts/branches.json | transpose name features | each {|i| 
+    let branches_and_paths = open ./scripts/branches.json | transpose name features | each {|i| 
         print $"# -------------------------------------- #"
         print $"# --- Testing feature \"($i.name)\" --- #"
         print $"# -------------------------------------- #"
         let path = check-with-features ($i.features | append "test")
-        $branches_and_paths = ($branches_and_paths | append { "path": $path, "branch": $i.name })
+        { "path": $path, "branch": $i.name }
     }
 
     let wini_template_dir = mktemp -d
@@ -20,7 +18,7 @@ def main [] {
 
     for branch_and_path in $branches_and_paths {
         git checkout $branch_and_path.branch
-        git checkout -b $"($branches_and_paths.branch)-(random uuid)"
+        git checkout -b $"($branch_and_path.branch)-(random uuid)"
 
         rm -rf *
 

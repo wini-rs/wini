@@ -21,7 +21,11 @@ def main [] {
     let wini_template_dir = mktemp -d
     cd $wini_template_dir
 
-    git clone git@github.com:wini-rs/wini-template.git
+    try {
+        git clone git@github.com:wini-rs/wini-template.git
+    } catch {
+        git clone https://github.com/wini-rs/wini-template
+    }
 
     cd wini-template
 
