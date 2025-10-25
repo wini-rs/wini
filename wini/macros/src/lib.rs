@@ -99,7 +99,6 @@ pub(crate) mod utils;
 ///         [process_error(my_component().await)]
 ///     }
 /// }
-///
 /// ```
 ///
 /// # Examples
