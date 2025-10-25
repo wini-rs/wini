@@ -4,6 +4,23 @@
 
 # Wini
 
+
+<!-- Version -->
+<a href="https://github.com/wini-rs/wini/releases">
+    <img src="https://img.shields.io/github/v/release/wini-rs/wini" alt="Release" />
+</a>
+
+<!-- CI -->
+<a href="https://github.com/wini-rs/wini/actions">
+    <img src="https://github.com/wini-rs/wini/actions/workflows/check.yml/badge.svg" alt="CI status" />
+</a>
+
+<!-- Doc -->
+<a href="https://wini.rocks">
+    <img src="https://img.shields.io/badge/Docs-wini.rocks-blue" alt="Documentation" />
+</a>
+
+
 ### A way to rethink front-end development ⚡
 
 </div>
