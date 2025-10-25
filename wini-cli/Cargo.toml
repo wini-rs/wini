@@ -1,6 +1,6 @@
 [package]
 name = "wini"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["tkr-sh"]
 edition = "2024"
 license = "AGPL-3.0-or-later"
