@@ -4,7 +4,12 @@
 source ./check.nu
 
 def main [] {
-    let branches_and_paths = open ./scripts/branches.json | transpose name features | each {|i| 
+    # let branches = open ./scripts/branches.json;
+    let branches = {
+        "ssg": ["posix-sh", "ssg"],
+        "ssg-nushell": ["nushell", "ssg"]
+    };
+    let branches_and_paths = $branches | transpose name features | each {|i| 
         print $"# -------------------------------------- #"
         print $"# --- Testing feature \"($i.name)\" --- #"
         print $"# -------------------------------------- #"

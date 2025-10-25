@@ -90,6 +90,7 @@ async fn test_meta_layer_with_page() {
         crate::{shared::wini::layer::MetaLayerBuilder, template},
         axum::{middleware::from_fn, routing::get, Router},
         axum_test::TestServer,
+        std::collections::HashMap,
     };
 
     let app = Router::new()
@@ -97,12 +98,12 @@ async fn test_meta_layer_with_page() {
         .route("/default", get(render))
         .layer(
             MetaLayerBuilder::default()
-                .default_meta(hash_map! {
-                    "hello" => "world".into(),
-                    "world" => "hello".into(),
-                    "keywords" => "hello, world".into(),
-                })
-                .force_meta(hash_map! {"title" => "hi world!".into()})
+                .default_meta(HashMap::from_iter([
+                    ("hello", "world".into()),
+                    ("world", "hello".into()),
+                    ("keywords", "hello, world".into()),
+                ]))
+                .force_meta(HashMap::from_iter([("title", "hi world!".into())]))
                 .build()
                 .unwrap(),
         )

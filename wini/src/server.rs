@@ -20,6 +20,7 @@ use {
     },
     axum::{middleware, routing::get, Router},
     log::info,
+    std::collections::HashMap,
     tower_http::compression::CompressionLayer,
 };
 
@@ -39,11 +40,11 @@ pub async fn start() {
         .layer(middleware::from_fn(header::render))
         .layer(
             MetaLayerBuilder::default()
-                .default_meta(hash_map! {
-                    "title" => "PROJECT_NAME_TO_RESOLVE".into(),
-                    "description" => "PROJECT_NAME_TO_RESOLVE".into(),
-                    "lang" => "en".into(),
-                })
+                .default_meta(HashMap::from_iter([
+                        ("title", "PROJECT_NAME_TO_RESOLVE".into()),
+                        ("description", "PROJECT_NAME_TO_RESOLVE".into()),
+                        ("lang", "en".into()),
+                ]))
                 .build()
                 .expect("Failed to build MetaLayer"),
         )
@@ -93,11 +94,11 @@ pub async fn start() {
             .layer(middleware::from_fn(header::render))
             .layer(
                 MetaLayerBuilder::default()
-                    .default_meta(hash_map! {
-                        "title" => "PROJECT_NAME_TO_RESOLVE".into(),
-                        "description" => "PROJECT_NAME_TO_RESOLVE".into(),
-                        "lang" => "en".into(),
-                    })
+                    .default_meta(HashMap::from_iter([
+                        ("title", "PROJECT_NAME_TO_RESOLVE".into()),
+                        ("description", "PROJECT_NAME_TO_RESOLVE".into()),
+                        ("lang", "en".into()),
+                    ]))
                     .build()
                     .expect("Failed to build MetaLayer"),
             )
