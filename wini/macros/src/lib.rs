@@ -240,9 +240,9 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// - `js_pkgs` - Array of JavaScript package names to include
 /// - `other_meta` - Array of custom meta tag key-value pairs
 ///
-/// # Layout Parameter Types
+/// # Layout argument types
 ///
-/// Layouts can accept different parameter types depending on your needs. Arguments must have a
+/// Layouts can accept different argument types depending on your needs. Arguments must have a
 /// type that either implements:
 /// - [`axum::extract::FromRequestParts`],
 /// - [`crate::shared::wini::response::FromResponseBody`]
@@ -400,7 +400,6 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 ///     maud::{html, Markup},
 ///     wini_macros::layout,
 ///     wini::shared::wini::err::Backtrace,
-///     axum::http::request::Parts
 /// };
 ///
 /// #[layout]
@@ -432,6 +431,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
 /// - Linking JS/CSS files from the current directory
 /// - Injecting SEO meta tags
 /// - JavaScript package management
+/// - Propagate errors if there are some
 ///
 /// # Parameters
 ///
