@@ -37,7 +37,7 @@ pub(crate) mod utils;
 /// }
 /// ```
 ///
-/// Even tho the second one "works", it will not propagate the linked files. So, if `my_component`
+/// Even though the second one "works", it will not propagate the linked files. So, if `my_component`
 /// depends on some style sheets, doing `(my_component().await)` will not include them!
 ///
 /// ## Parameters
