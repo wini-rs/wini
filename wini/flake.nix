@@ -20,7 +20,6 @@
             devShells.default = with pkgs; mkShell {
                 buildInputs = [
 # IFFEAT posix-sh
-                    watchexec
                     yq-go
 # ENDIF
                     coreutils
@@ -35,6 +34,7 @@
                     delta
                     just
                     taplo
+                    watchexec
 # IFFEAT nushell
                     nushell
 # ENDIF
