@@ -4,13 +4,15 @@ print $"Temp directory: ($temp_dir)"
 
 cd $temp_dir
 
-git clone git@github.com:wini-rs/wini-template
+try {
+    git clone git@github.com:wini-rs/wini-template
+} catch {
+    git clone https://github.com/wini-rs/wini-template
+}
 cd wini-template
 
-git remote set-url origin https://codeberg.org/wini/wini-template
-git pull
-git push
+git push https://codeberg.org/wini/wini-template --mirror
 
 cd -
 
-rm -rf "$temp_dir"
+rm -rf $temp_dir

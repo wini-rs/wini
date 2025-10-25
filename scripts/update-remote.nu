@@ -5,7 +5,7 @@ def main [] {
         print $"# -------------------------------------- #"
         print $"# --- Testing feature \"($i.name)\" --- #"
         print $"# -------------------------------------- #"
-        let path = check-with-features ($i.features | append "test")
+        let path = check-with-features ($i.features)
         { "path": $path, "branch": $i.name }
     }
 
@@ -17,17 +17,23 @@ def main [] {
     cd wini-template
 
     for branch_and_path in $branches_and_paths {
+        let temporary_branch = $"($branch_and_path.branch)-(random uuid)"
         git checkout $branch_and_path.branch
-        git checkout -b $"($branch_and_path.branch)-(random uuid)"
-
+        git pull
+        git checkout -b $temporary_branch
         rm -rf *
 
-        cp -r $branch_and_path.path $"($wini_template_dir)/wini-template"
-        diff -ru --exclude=.git $branch_and_path.path $"($wini_template_dir)/wini-template" | delta
+        let basename = ($"($branch_and_path.path)" | path basename)
+        mv $branch_and_path.path $"($wini_template_dir)/wini-template"
+        cd $basename
+        mv * ..
+        cd ..
+        rm -rf basename
 
-        git push
-        rm -rf $branch_and_path.path
+        # diff -ru --exclude=.git $branch_and_path.path $"($wini_template_dir)/wini-template" | delta
+
+        gitui
+
+        git push --set-upstream origin $temporary_branch
     }
-
-    
 }
