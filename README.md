@@ -4,7 +4,6 @@
 
 # Wini
 
-<div align="center">
   <!-- Version -->
   <a href="https://github.com/wini-rs/wini/releases">
     <img src="https://img.shields.io/github/v/release/wini-rs/wini" alt="Release" />
@@ -14,7 +13,6 @@
   <a href="https://github.com/wini-rs/wini/actions">
     <img src="https://github.com/wini-rs/wini/actions/workflows/check.yml/badge.svg" alt="CI status" />
   </a>
-</div>
 
 ### A way to rethink front-end development ⚡
 
