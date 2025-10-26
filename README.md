@@ -91,18 +91,30 @@ async fn button() -> Markup {
 </table>
 
 
-## What is `wini` ?
+## 🤔 What is `wini` ?
 
-Wini is a set of templates written in [Rust](https://www.rust-lang.org/) for building websites. Instead of using [WebAssembly](https://webassembly.org/) like other common Rust front-end frameworks, Wini templates rely on server-side rendering and, when needed, [TypeScript](https://www.typescriptlang.org/). Other options are also available, like [`htmx`](https://htmx.org/), [Alpine.js](https://alpinejs.dev/), and [`_hyperscript`](https://hyperscript.org/). See the integration docs for [`htmx`](https://wini.rocks/doc/htmx) and [Alpine.js](https://wini.rocks/doc/alpinejs).
+Wini is a set of templates written in [Rust](https://www.rust-lang.org/) for building websites. Instead of using [WebAssembly](https://webassembly.org/) like other common Rust front-end frameworks, Wini templates rely on server-side rendering and when needed [TypeScript](https://www.typescriptlang.org/). Other options are also available, like [`htmx`](https://htmx.org/), [Alpine.js](https://alpinejs.dev/), and [`_hyperscript`](https://hyperscript.org/). (_See the doc for [`htmx`](https://wini.rocks/doc/htmx) and [Alpine.js](https://wini.rocks/doc/alpinejs)._)
 
-The goal of Wini is therefore to be **fast**, **lightweight**, and to handle the maximum number of things that can be handled on the server, **server-side**.
+The goal of Wini is therefore to be **fast** ⚡, **lightweight** 🪶 and **server-side** 🌐 oriented.
 
-Even though Wini doesn't use a JavaScript framework and relies purely on vanilla JavaScript, you still have the possibility of installing packages with [`bun`](https://bun.sh) and using them as you would any JavaScript front-end framework.
+Even though Wini doesn't use a JavaScript framework and relies purely on vanilla JavaScript, you still have the possibility of installing packages with [`bun`](https://bun.sh) and using them as static files.
 
-For more information about how Wini works and how it handles logic; such as pages, components, middleware, routing and layouts, check: <https://wini.rocks>
+## ✨ Features
+- [Server side rendering](https://developer.mozilla.org/en-US/docs/Glossary/SSR) (SSR)
+- [Static site generation](https://developer.mozilla.org/en-US/docs/Glossary/SSG) (SSG)
+- Creation of concepts like [_pages_](https://wini.rocks/doc/concepts/pages), [_components_](https://wini.rocks/doc/concepts/components) and [_layouts_](https://wini.rocks/doc/concepts/layouts)
+- Compatible with [axum](https://docs.rs/axum)'s & [tower](https://docs.rs/tower)'s ecosystems
+- Compatible with [htmx](https://htmx.org), [alpinejs](https://alpinejs.dev), [hyperscript](https://hyperscript.org) and similar frameworks
+- [SEO](https://en.wikipedia.org/wiki/Search_engine_optimization) scoping to pages and layouts
+- [Caching](https://en.wikipedia.org/wiki/Cache_(computing)) rules for [`Cache-` headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching) and _components_ + _pages_ ([`cached`](http://docs.rs/cached))
+- Automatic linking of JavaScript and CSS files
+- Default support for [TypeScript](https://www.typescriptlang.org/) and [Scss](https://sass-lang.com)
+- Advanced [error handling](https://doc.rust-lang.org/book/ch09-00-error-handling.html) and error propagation
+- Basic scripting automation in bash or [nushell](https://nushell.org) depending on your liking
+- Integration with [maud](https://maud.lambda.xyz) for rendering HTML (see [the advantages](https://wini.rocks/doc/why-maud))
+- Easily [forkable and self-hostability](https://wini.rocks/doc/hosting_your_template) of your own template
 
-
-## Getting started
+## 🏁 Getting started
 
 ### Installation
 
@@ -120,9 +132,9 @@ After the installation of `wini`, you can create a new project with
 wini init
 ```
 
-## Documentation
+## 📄 Documentation
 
 All the documentation concerning the inner workings of `wini` and how to work with it are available at: <https://wini.rocks/>.
 
-## State 
+## 🚧 State 
 Even though Wini works, it's still in a very early state: Things might not always work as expected and there might be some breaking changes in the future; but if you are curious, and you want to help contribute to this project, you can still try it!
