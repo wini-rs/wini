@@ -56,7 +56,7 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
 
-    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(html.linked_files));
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(html.linked_files), false);
 
     // Generate the output code
     let expanded = quote! {

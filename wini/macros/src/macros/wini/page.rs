@@ -36,7 +36,7 @@ pub fn page(args: TokenStream, item: TokenStream) -> TokenStream {
     let files_in_current_dir = get_js_or_css_files_in_current_dir();
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_headers = attributes.generate_all_extensions(false);
-    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files));
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files), true);
 
     let call_inner_page = if is_ouput_ty_result(&original_function) {
         quote!(

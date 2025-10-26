@@ -338,7 +338,7 @@ pub fn layout(args: TokenStream, item: TokenStream) -> TokenStream {
     let len_files_in_current_dir = files_in_current_dir.len();
     let meta_extensions = attributes.generate_all_extensions(true);
 
-    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files));
+    let js_pkgs = js_pkgs::handle(attributes.js_pkgs, quote!(files), true);
 
     // Generate the output code
     let expanded = quote! {

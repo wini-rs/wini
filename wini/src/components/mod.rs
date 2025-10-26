@@ -28,4 +28,9 @@ pub async fn err_component2() -> ServerResult<Markup> {
         [err_component1?]
     })
 }
+
+#[component(js_pkgs = [])]
+pub async fn js_pkgs() -> ServerResult<Markup> {
+    Ok(html! {})
+}
 // ENDIF
