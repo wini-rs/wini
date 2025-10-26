@@ -10,7 +10,7 @@ use {
     axum::{
         extract::Request,
         http::HeaderValue,
-        response::{AppendHeaders, IntoResponse, Response},
+        response::{IntoResponse, Response},
     },
     hyper::{header::CONTENT_TYPE, StatusCode},
     tower_http::services::ServeFile,
