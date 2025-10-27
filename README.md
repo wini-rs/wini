@@ -102,7 +102,7 @@ Even though Wini doesn't use a JavaScript framework and relies purely on vanilla
 ## ✨ Features
 - [Server side rendering](https://developer.mozilla.org/en-US/docs/Glossary/SSR) (SSR)
 - [Static site generation](https://developer.mozilla.org/en-US/docs/Glossary/SSG) (SSG)
-- Creation of concepts like [_pages_](https://wini.rocks/doc/concepts/pages), [_components_](https://wini.rocks/doc/concepts/components) and [_layouts_](https://wini.rocks/doc/concepts/layouts)
+- Creation of concepts like [_pages_](https://wini.rocks/doc/pages), [_components_](https://wini.rocks/doc/components) and [_layouts_](https://wini.rocks/doc/layouts)
 - Compatible with [axum](https://docs.rs/axum)'s & [tower](https://docs.rs/tower)'s ecosystems
 - Compatible with [htmx](https://htmx.org), [alpinejs](https://alpinejs.dev), [hyperscript](https://hyperscript.org) and similar frameworks
 - [SEO](https://en.wikipedia.org/wiki/Search_engine_optimization) scoping to pages and layouts
