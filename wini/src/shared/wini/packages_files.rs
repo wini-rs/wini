@@ -1,8 +1,12 @@
 use {
-    super::{config::TomlLoadingError, err::ExitWithMessageIfErr},
-    crate::{concat_paths, shared::wini::config::SERVER_CONFIG},
+    super::err::ExitWithMessageIfErr,
+    crate::{
+        concat_paths,
+        shared::wini::config::SERVER_CONFIG,
+        utils::wini::file::toml_from_path_as_static_str,
+    },
     serde::{Deserialize, Deserializer, de::Visitor},
-    std::{collections::HashMap, io, sync::LazyLock},
+    std::{collections::HashMap, sync::LazyLock},
 };
 
 #[derive(Debug)]
@@ -63,7 +67,7 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
             file.to_string()
         } else {
             concat_paths!(
-                &SERVER_CONFIG.path.modules,
+                &SERVER_CONFIG.path().modules(),
                 &package,
                 std::path::Path::new(&file).file_name().unwrap_or_default()
             )
@@ -74,40 +78,27 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
         }
     }
 
-    let file_to_read_from = "./packages-files.toml";
-
-    let file = std::fs::read_to_string(file_to_read_from)
-        .map_err(|err| {
-            match err.kind() {
-                io::ErrorKind::NotFound => {
-                    TomlLoadingError::ConfigFileDoesntExists(file_to_read_from.to_owned())
-                },
-                _ => TomlLoadingError::OtherIo(err),
-            }
-        })
-        .exit_with_msg_if_err("Error while reading file");
-
     let hashmap: HashMap<String, VecOrString> =
-        toml::from_str(&file).exit_with_msg_if_err("Unexpected error while parsing TOML");
+        toml_from_path_as_static_str("./packages_files.toml")
+            .exit_with_msg_if_err("Unexpected error while parsing TOML");
 
     hashmap
         .into_iter()
         .map(|(key, vec_or_string)| {
-            (
-                key.clone(),
-                match vec_or_string {
-                    VecOrString::Vec(v) => {
-                        VecOrString::Vec(
-                            v.into_iter()
-                                .map(|file| module_path_from_short_name(&key, &file))
-                                .collect(),
-                        )
-                    },
-                    VecOrString::String(s) => {
-                        VecOrString::String(module_path_from_short_name(&key, &s))
-                    },
+            let packages = match vec_or_string {
+                VecOrString::Vec(v) => {
+                    VecOrString::Vec(
+                        v.into_iter()
+                            .map(|file| module_path_from_short_name(&key, &file))
+                            .collect(),
+                    )
                 },
-            )
+                VecOrString::String(s) => {
+                    VecOrString::String(module_path_from_short_name(&key, &s))
+                },
+            };
+
+            (key, packages)
         })
         .collect()
 });

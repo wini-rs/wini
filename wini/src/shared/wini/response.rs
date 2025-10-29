@@ -5,7 +5,7 @@ use {
     },
     axum::{
         body::Body,
-        http::{response, Extensions},
+        http::{Extensions, response},
         response::IntoResponse,
     },
     hyper::{HeaderMap, StatusCode, Version},

@@ -7,7 +7,6 @@ use {
             ENV_TYPE,
             JS_FILES,
             PUBLIC_ENDPOINTS,
-            components_files::COMPONENTS_FILES,
             config::SERVER_CONFIG,
             dependencies::SCRIPTS_DEPENDENCIES,
             packages_files::PACKAGES_FILES,
@@ -31,12 +30,11 @@ async fn main() {
     LazyLock::force(&TSCONFIG_PATHS);
     LazyLock::force(&PUBLIC_ENDPOINTS);
     LazyLock::force(&SCRIPTS_DEPENDENCIES);
-    LazyLock::force(&COMPONENTS_FILES);
     LazyLock::force(&SERVER_CONFIG);
 
     // Verify that all the kind of data returned by the server (html, css, js, etc.) have their
     // cache rules being correctly setup
-    SERVER_CONFIG.cache.verify_all_attributes();
+    SERVER_CONFIG.cache().verify_all_attributes();
 
     cron::launch_crons().await;
     server::start().await;

@@ -61,7 +61,6 @@ pub static PORT: LazyLock<u16> = LazyLock::new(|| {
 
 
 pub mod cache;
-pub mod components_files;
 pub mod config;
 pub mod dependencies;
 pub mod env;

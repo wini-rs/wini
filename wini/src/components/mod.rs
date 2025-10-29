@@ -3,7 +3,7 @@ use {
     crate::shared::wini::err::{ServerErrorKind, ServerResult},
     cached::proc_macro::cached,
     hyper::StatusCode,
-    maud::{html, Markup},
+    maud::{Markup, html},
     wini_macros::component,
 };
 

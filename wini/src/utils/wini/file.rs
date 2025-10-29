@@ -1,4 +1,9 @@
-use {std::path::Path, walkdir::WalkDir};
+use {
+    crate::shared::wini::config::TomlLoadingError,
+    serde::Deserialize,
+    std::{io, path::Path},
+    walkdir::WalkDir,
+};
 
 /// This function will try to get all the files in a directory, including subdirectories and return
 /// their relative paths.
@@ -81,4 +86,21 @@ pub fn get_files_in_directory_per_extensions(dir: &str, extensions: &[&str]) -> 
             })
         })
         .collect::<Vec<_>>()
+}
+
+pub fn toml_from_path_as_static_str<T>(path: &'static str) -> Result<T, TomlLoadingError>
+where
+    T: for<'de> Deserialize<'de>,
+{
+    toml::from_str(
+        std::fs::read_to_string(path)
+            .map_err(|err| {
+                match err.kind() {
+                    io::ErrorKind::NotFound => TomlLoadingError::ConfigFileDoesntExists(path),
+                    _ => TomlLoadingError::OtherIo(err),
+                }
+            })?
+            .as_ref(),
+    )
+    .map_err(|err| TomlLoadingError::InvalidToml(err, path))
 }

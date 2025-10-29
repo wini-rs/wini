@@ -301,7 +301,7 @@ pub async fn render_routes_to_files() {
         std::fs::write(path, resp_text).expect("Couldn't write the file");
     }
 
-    copy_dir_all(SERVER_CONFIG.path.public_from_src(), "dist").unwrap();
+    copy_dir_all(SERVER_CONFIG.path().public_from_src(), "dist").unwrap();
 }
 
 fn copy_dir_all(src: impl AsRef<Path>, dst: impl AsRef<Path>) -> std::io::Result<()> {

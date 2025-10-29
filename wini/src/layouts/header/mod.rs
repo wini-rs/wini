@@ -1,6 +1,6 @@
 use {
     crate::shared::wini::err::ServerResult,
-    maud::{html, Markup},
+    maud::{Markup, html},
     wini_macros::layout,
 };
 

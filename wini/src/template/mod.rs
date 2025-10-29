@@ -2,12 +2,12 @@ use {
     crate::{
         concat_paths,
         shared::wini::{
+            PUBLIC_ENDPOINTS,
             config::SERVER_CONFIG,
-            dependencies::{normalize_relative_path, SCRIPTS_DEPENDENCIES},
+            dependencies::{SCRIPTS_DEPENDENCIES, normalize_relative_path},
             err::{ServerErrorKind, ServerResult},
             layer::Files,
-            packages_files::{VecOrString, PACKAGES_FILES},
-            PUBLIC_ENDPOINTS,
+            packages_files::{PACKAGES_FILES, VecOrString},
         },
         utils::wini::buffer::buffer_to_string,
     },
@@ -106,12 +106,12 @@ fn order_scripts_by_dependent(scripts: &mut Vec<String>) -> HashSet<String> {
         .flatten()
         .map(|dep| {
             let public_path =
-                normalize_relative_path(concat_paths!("str", &SERVER_CONFIG.path.public))
+                normalize_relative_path(concat_paths!("str", &SERVER_CONFIG.path().public()))
                     .display()
                     .to_string();
 
             if dep.starts_with(&public_path) {
-                dep[SERVER_CONFIG.path.public.len() - 3..].to_string()
+                dep[SERVER_CONFIG.path().public().len() - 3..].to_string()
             } else {
                 if !dep.ends_with(".js") {
                     packages.push(dep.clone());

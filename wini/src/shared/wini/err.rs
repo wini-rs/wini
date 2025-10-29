@@ -1,20 +1,35 @@
 use {
     axum::response::{IntoResponse, Response},
     hyper::{
-        header::{InvalidHeaderValue, ToStrError},
         StatusCode,
+        header::{InvalidHeaderValue, ToStrError},
     },
     maud::Markup,
-    std::{convert::Infallible, str::Utf8Error, sync::Arc},
+    std::{
+        convert::Infallible,
+        fmt::{self, Display},
+        str::Utf8Error,
+        sync::Arc,
+    },
 };
 
 pub type ServerResult<T> = Result<T, ServerError>;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct ServerError {
-    kind: Arc<ServerErrorKind>,
+    kind: ServerErrorKind,
     trace: Option<Vec<Trace>>,
 }
+
+impl Display for ServerError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{:?}", self.kind)?;
+        write_traces(&self.trace, f)?;
+        Ok(())
+    }
+}
+
+impl std::error::Error for ServerError {}
 
 impl ServerError {
     pub fn add_trace(&mut self, trace: Trace) {
@@ -42,10 +57,7 @@ pub enum ServerErrorKind {
 
 impl From<ServerErrorKind> for ServerError {
     fn from(kind: ServerErrorKind) -> Self {
-        ServerError {
-            kind: Arc::new(kind),
-            trace: None,
-        }
+        ServerError { kind, trace: None }
     }
 }
 
@@ -55,7 +67,7 @@ macro_rules! impl_from_error {
         impl From<$from> for ServerError {
             fn from(rejection: $from) -> Self {
                 ServerError {
-                    kind: Arc::new($to(rejection)),
+                    kind: $to(rejection),
                     trace: None,
                 }
             }
@@ -115,13 +127,13 @@ impl IntoResponse for ServerErrorKind {
 
 impl IntoResponse for &ServerError {
     fn into_response(self) -> Response {
-        self.kind.as_ref().into_response()
+        (&self.kind).into_response()
     }
 }
 
 impl IntoResponse for ServerError {
     fn into_response(self) -> Response {
-        self.kind.as_ref().into_response()
+        self.kind.into_response()
     }
 }
 
@@ -195,8 +207,27 @@ impl From<ServerError> for Backtrace {
     fn from(value: ServerError) -> Self {
         Self {
             markup: None,
-            err: value.kind,
+            err: Arc::new(value.kind),
             trace: value.trace.unwrap_or_default(),
         }
     }
+}
+
+fn write_traces(traces: &Option<Vec<Trace>>, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    let Some(traces) = &traces else {
+        return Ok(());
+    };
+
+    if traces.is_empty() {
+        return Ok(());
+    }
+
+    writeln!(f, "\n\nStack trace:")?;
+    writeln!(f, "{}", "─".repeat(50))?;
+
+    for (idx, frame) in traces.iter().enumerate() {
+        writeln!(f, "{:>4} │ {frame:?}", idx + 1)?;
+    }
+
+    Ok(())
 }

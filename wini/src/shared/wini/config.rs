@@ -1,63 +1,49 @@
 use {
     super::{ENV_TYPE, cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType},
-    crate::concat_paths,
+    crate::{concat_paths, utils::wini::file::toml_from_path_as_static_str},
+    getset::Getters,
     serde::{Deserialize, Deserializer},
-    std::{
-        collections::HashMap,
-        fmt::Display,
-        io,
-        str::FromStr,
-        sync::{Arc, LazyLock},
-    },
+    std::{collections::HashMap, fmt::Display, io, str::FromStr, sync::LazyLock},
     strum::IntoEnumIterator,
 };
 
 
-pub static SERVER_CONFIG: LazyLock<Arc<Config>> = LazyLock::new(|| {
-    Arc::new(Config::from_file().unwrap_or_else(|error| {
+pub static SERVER_CONFIG: LazyLock<Config> = LazyLock::new(|| {
+    Config::from_file().unwrap_or_else(|error| {
         log::error!("{error}");
         log::info!("Terminating program...");
         std::process::exit(1);
-    }))
+    })
 });
 
 
 /// The config parsed from `./wini.toml`
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, Getters)]
+#[getset(get = "pub")]
 pub struct Config {
-    pub path: ConfigPath,
-    pub cache: Caches,
+    path: ConfigPath,
+    cache: Caches,
 }
 
 impl Config {
     /// Load the configuration from the `./wini.toml` file at the root of the project
     pub fn from_file() -> Result<Self, TomlLoadingError> {
-        let file_to_read_from = "./wini.toml";
-        toml::from_str(
-            std::fs::read_to_string(file_to_read_from)
-                .map_err(|err| {
-                    match err.kind() {
-                        io::ErrorKind::NotFound => {
-                            TomlLoadingError::ConfigFileDoesntExists(file_to_read_from.to_owned())
-                        },
-                        _ => TomlLoadingError::OtherIo(err),
-                    }
-                })?
-                .as_ref(),
-        )
-        .map_err(|err| TomlLoadingError::InvalidToml(err, file_to_read_from.to_owned()))
+        toml_from_path_as_static_str("./wini.toml")
     }
 }
 
 
 /// The paths of different important folders
-#[derive(Debug, serde::Deserialize)]
+/// ConfigPath uses [`String`] instead of [`std::path::PathBuf`] becase we often use
+/// [`ToString::to_string`].
+#[derive(Debug, serde::Deserialize, Getters)]
+#[getset(get = "pub")]
 pub struct ConfigPath {
-    pub pages: String,
-    pub layouts: String,
-    pub public: String,
-    pub components: String,
-    pub modules: String,
+    pages: String,
+    layouts: String,
+    public: String,
+    components: String,
+    modules: String,
 }
 
 impl ConfigPath {
@@ -76,30 +62,31 @@ impl<'de> Deserialize<'de> for ConfigCache {
     where
         D: Deserializer<'de>,
     {
-        let value: serde_json::Value = Deserialize::deserialize(deserializer)?;
+        let table: toml::Table = Deserialize::deserialize(deserializer)?;
 
-        // Check if the value is an object
-        if let serde_json::Value::Object(map) = value {
-            let mut cache_categories_rules = HashMap::new();
+        let mut cache_categories_rules = HashMap::new();
 
-            for (key, val) in map {
-                if val.is_boolean() && key == "function" {
-                    continue;
-                }
-
-                let cache_rule: String =
-                    serde_json::from_value(val).map_err(serde::de::Error::custom)?;
-
-                let cache_config = CacheCategory::from_str(&key)
-                    .map_err(|e| serde::de::Error::custom(format!("Invalid key: `{key}`\n{e}")))?;
-
-                cache_categories_rules.insert(cache_config, cache_rule);
+        for (key, val) in table {
+            if val.is_bool() && key == "function" {
+                continue;
             }
 
-            Ok(ConfigCache(cache_categories_rules))
-        } else {
-            Err(serde::de::Error::custom("expected an object"))
+            let cache_rule: String = match val {
+                toml::Value::String(string) => string,
+                _ => {
+                    return Err(serde::de::Error::custom(
+                        "Values of cache rules should be strings",
+                    ));
+                },
+            };
+
+            let cache_config = CacheCategory::from_str(&key)
+                .map_err(|e| serde::de::Error::custom(format!("Invalid key: `{key}`\n{e}")))?;
+
+            cache_categories_rules.insert(cache_config, cache_rule);
         }
+
+        Ok(ConfigCache(cache_categories_rules))
     }
 }
 
@@ -114,27 +101,31 @@ pub struct Caches {
 
 impl Caches {
     /// Get the current cache rule for a specific cache category
-    pub fn get_or_panic(&self, cache_for: CacheCategory) -> String {
-        self.get(cache_for).expect("Expected some data")
+    pub fn get_or_panic(&self, cache_for: CacheCategory) -> &str {
+        self.get(cache_for).unwrap_or_else(|| {
+            panic!(
+                "Cache rule for {cache_for:?} not found in environment {env:?}. \
+                Check your ./wini.toml configuration.",
+                env = *ENV_TYPE
+            )
+        })
     }
 
     /// Get the current cache rule for a specific cache category
-    pub fn get(&self, cache_for: CacheCategory) -> Option<String> {
+    pub fn get(&self, cache_for: CacheCategory) -> Option<&str> {
         self.get_opt_with_env_type(*ENV_TYPE, cache_for)
     }
 
-    fn get_opt_with_env_type(&self, env_type: EnvType, cache_for: CacheCategory) -> Option<String> {
-        self.environments
-            .get(&env_type)
-            .and_then(|env| env.as_ref())
+    fn get_opt_with_env_type(&self, env_type: EnvType, cache_for: CacheCategory) -> Option<&str> {
+        let env_from = match self.environments.get(&env_type) {
+            Some(env) => env,
+            None => &self.default,
+        };
+
+        env_from
+            .as_ref()
             .and_then(|env| env.0.get(&cache_for))
-            .cloned()
-            .or_else(|| {
-                self.default
-                    .as_ref()
-                    .and_then(|env| env.0.get(&cache_for))
-                    .cloned()
-            })
+            .map(AsRef::as_ref)
     }
 
     /// Verify that all the cache categories have a cache rule associated to them
@@ -142,7 +133,7 @@ impl Caches {
         for env in EnvType::iter() {
             for cache_for in CacheCategory::iter() {
                 // Function category is only used by macros to know if you want to precompute
-                // #[cache] functions.
+                // #[cached] functions.
                 if cache_for != CacheCategory::Function &&
                     self.get_opt_with_env_type(env, cache_for).is_none()
                 {
@@ -162,9 +153,19 @@ impl Caches {
 
 #[derive(Debug)]
 pub enum TomlLoadingError {
-    ConfigFileDoesntExists(String),
-    InvalidToml(toml::de::Error, String),
+    ConfigFileDoesntExists(&'static str),
+    InvalidToml(toml::de::Error, &'static str),
     OtherIo(io::Error),
+}
+
+impl std::error::Error for TomlLoadingError {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
+        match self {
+            Self::InvalidToml(err, _) => Some(err),
+            Self::OtherIo(err) => Some(err),
+            Self::ConfigFileDoesntExists(_) => None,
+        }
+    }
 }
 
 impl Display for TomlLoadingError {
