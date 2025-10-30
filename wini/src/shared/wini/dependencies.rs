@@ -1,8 +1,8 @@
 use {
     super::{
-        JS_FILES,
         err::ExitWithMessageIfErr,
-        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
+        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
+        JS_FILES,
     },
     crate::concat_paths,
     regex::Regex,
@@ -15,16 +15,17 @@ use {
 
 pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r#"(import|from)\s*["']([^'"]+)["'](;|\n)"#)
-        .expect("This should always be a valid regex.")
+        .exit_with_msg_if_err("This should always be a valid regex.")
 });
 
-pub static REGEX_IS_PACKAGE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^[A-Za-z_0-9]").expect("This should always be a valid regex."));
+fn is_package(maybe_is_package: &str) -> bool {
+    !maybe_is_package.starts_with('.') &&
+        !maybe_is_package.starts_with('/') &&
+        !maybe_is_package.starts_with("file:")
+}
 
 pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
-        LazyLock::force(&REGEX_IS_PACKAGE);
-
         JS_FILES
             .keys()
             .map(|script| (script.to_owned(), script_dependencies(script)))
@@ -106,15 +107,8 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
 ///
 /// If there is an error finding a dependency
 fn script_dependencies(path: &str) -> Option<Vec<String>> {
-    let mut path_str = path.strip_prefix("/").unwrap_or(path).replace(".js", ".ts");
-    let mut path = std::path::Path::new(&path_str);
-
-    if !path.exists() {
-        path_str = path_str.replace(".ts", ".js");
-        path = std::path::Path::new(&path_str);
-    }
-
-    let contents = std::fs::read_to_string(path).exit_with_msg_if_err("IO Error");
+    let path = find_existing_path(path);
+    let contents = std::fs::read_to_string(&path).exit_with_msg_if_err("IO Error");
 
     let caps = REGEX_DEPENDENCY.captures_iter(&contents);
 
@@ -129,15 +123,14 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
     } else {
         let mut relatives_dependencies = vec![];
 
-        // Ok to clone since this function will only be called on initialization of LazyLock
         for dep in dependencies {
-            let is_dep_package = REGEX_IS_PACKAGE.is_match(&dep);
+            let is_dep_package = is_package(&dep);
 
             // We need to convert the dependency to it's correct path
 
             // If an import starts with a ".", it's a path to a file. In this case, we want to
             // have it's path relative to the file it's referenced from.
-            let dep_relative_path = if dep.starts_with('.') {
+            let dep_path = if dep.starts_with('.') {
                 let dep = concat_paths!(
                     path.parent().expect("Path should have a parent."),
                     if dep.ends_with(".js") {
@@ -198,10 +191,10 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
             };
 
 
-            relatives_dependencies.push(dep_relative_path.clone());
+            relatives_dependencies.push(dep_path.clone());
 
             // If it's not a package, we need to look at the dependencies of this file
-            if !is_dep_package && let Some(sub_deps) = script_dependencies(&dep_relative_path) {
+            if !is_dep_package && let Some(sub_deps) = script_dependencies(&dep_path) {
                 for sub_dep in sub_deps {
                     if relatives_dependencies.contains(&sub_dep) {
                         let maybe_index = relatives_dependencies.iter().position(|d| *d == sub_dep);
@@ -217,4 +210,17 @@ fn script_dependencies(path: &str) -> Option<Vec<String>> {
 
         Some(relatives_dependencies)
     }
+}
+
+fn find_existing_path(path: &str) -> PathBuf {
+    let base = path.strip_prefix('/').unwrap_or(path);
+
+    for extension in [".ts", ".js"] {
+        let candidate = PathBuf::from(base).with_extension(extension);
+        if candidate.exists() {
+            return candidate;
+        }
+    }
+
+    PathBuf::from(base)
 }
