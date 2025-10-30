@@ -22,7 +22,7 @@ pub async fn html_middleware(
     let (mut res_parts, res_body) = rep.into_parts();
     res_parts.headers.insert(
         CACHE_CONTROL,
-        HeaderValue::from_str(&SERVER_CONFIG.cache().get_or_panic(CacheCategory::Html))?,
+        HeaderValue::from_str(SERVER_CONFIG.cache().get_or_panic(CacheCategory::Html))?,
     );
     let res = Response::from_parts(res_parts, res_body);
     Ok(res)
