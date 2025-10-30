@@ -79,7 +79,7 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
     }
 
     let hashmap: HashMap<String, VecOrString> =
-        toml_from_path_as_static_str("./packages_files.toml")
+        toml_from_path_as_static_str("./packages-files.toml")
             .exit_with_msg_if_err("Unexpected error while parsing TOML");
 
     hashmap
