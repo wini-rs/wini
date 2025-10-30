@@ -1,7 +1,0 @@
-FROM postgres:latest
-
-ENV POSTGRES_USER=me
-ENV POSTGRES_PASSWORD=me
-ENV POSTGRES_DB=test_sqlx
-
-EXPOSE 5432

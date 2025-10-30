@@ -1,7 +1,0 @@
-{
-    "dependencies": { "htmx.org": "^1.9.12" },
-    "devDependencies": {
-        "@biomejs/biome": "1.9.4",
-        "@types/node": "^22.9.3"
-    }
-}

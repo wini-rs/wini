@@ -1,8 +1,0 @@
-/target
-*.css
-*.js
-.env
-!public/helpers.js
-!public/*.css
-node_modules/
-.sass-cache
