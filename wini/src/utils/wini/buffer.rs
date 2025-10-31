@@ -12,12 +12,11 @@ where
     B: axum::body::HttpBody<Data = Bytes> + Debug,
     B::Error: std::fmt::Display + std::fmt::Debug,
 {
-    Ok(std::str::from_utf8(
-        &body
-            .collect()
+    Ok(String::from_utf8(
+        body.collect()
             .await
             .map_err(|e| ServerErrorKind::DebugedError(format!("{e}")))?
-            .to_bytes(),
-    )?
-    .to_string())
+            .to_bytes()
+            .to_vec(),
+    )?)
 }

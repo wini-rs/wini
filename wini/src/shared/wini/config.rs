@@ -1,6 +1,10 @@
 use {
-    super::{ENV_TYPE, cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType},
-    crate::{concat_paths, utils::wini::file::toml_from_path_as_static_str},
+    super::{cache::CacheCategory, dependencies::normalize_relative_path, env::EnvType, ENV_TYPE},
+    crate::{
+        concat_paths,
+        shared::wini::err::ExitWithMessageIfErr,
+        utils::wini::file::toml_from_path_as_static_str,
+    },
     getset::Getters,
     serde::{Deserialize, Deserializer},
     std::{collections::HashMap, fmt::Display, io, str::FromStr, sync::LazyLock},
@@ -8,13 +12,8 @@ use {
 };
 
 
-pub static SERVER_CONFIG: LazyLock<Config> = LazyLock::new(|| {
-    Config::from_file().unwrap_or_else(|error| {
-        log::error!("{error}");
-        log::info!("Terminating program...");
-        std::process::exit(1);
-    })
-});
+pub static SERVER_CONFIG: LazyLock<Config> =
+    LazyLock::new(|| Config::from_file().exit_with_msg_if_err("Invalid config"));
 
 
 /// The config parsed from `./wini.toml`
@@ -143,7 +142,7 @@ impl Caches {
                     Look at your cache definitions in `./wini.toml`\
                         "
                     );
-                    std::process::exit(1);
+                    panic!("End of program")
                 }
             }
         }

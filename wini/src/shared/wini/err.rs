@@ -1,14 +1,15 @@
 use {
     axum::response::{IntoResponse, Response},
     hyper::{
-        StatusCode,
         header::{InvalidHeaderValue, ToStrError},
+        StatusCode,
     },
     maud::Markup,
     std::{
         convert::Infallible,
         fmt::{self, Display},
         str::Utf8Error,
+        string::FromUtf8Error,
         sync::Arc,
     },
 };
@@ -49,6 +50,7 @@ pub enum ServerErrorKind {
     Status(hyper::StatusCode),
     Infallible(Infallible),
     Utf8Error(Utf8Error),
+    FromUtf8Error(FromUtf8Error),
     InvalidHeader(InvalidHeaderValue),
     DebugedError(String),
     PublicRessourceNotFound(String),
@@ -83,6 +85,7 @@ macro_rules! impl_from_error {
 
 impl_from_error!(hyper::StatusCode, ServerErrorKind::Status);
 impl_from_error!(Infallible, ServerErrorKind::Infallible);
+impl_from_error!(FromUtf8Error, ServerErrorKind::FromUtf8Error);
 impl_from_error!(Utf8Error, ServerErrorKind::Utf8Error);
 impl_from_error!(String, ServerErrorKind::DebugedError);
 impl_from_error!(InvalidHeaderValue, ServerErrorKind::InvalidHeader);
@@ -106,6 +109,9 @@ impl IntoResponse for &ServerErrorKind {
                 format!("Invalid str: {err}")
             },
             ServerErrorKind::Utf8Error(err) => {
+                format!("Error decoding buffer to UTF-8: {err:#?}")
+            },
+            ServerErrorKind::FromUtf8Error(err) => {
                 format!("Error decoding buffer to UTF-8: {err:#?}")
             },
             ServerErrorKind::PublicRessourceNotFound(path) => {
@@ -175,7 +181,7 @@ where
     fn exit_with_msg_if_err(self, msg: impl std::fmt::Display) -> T {
         self.map_err(|err| {
             log::error!("{msg}: {err:?}");
-            std::process::exit(1);
+            panic!("End of program")
         })
         .expect("Already exited if `Err`")
     }
@@ -183,7 +189,7 @@ where
     fn exit_with_msg_to_compute_if_err<S: std::fmt::Display, F: Fn() -> S>(self, msg: F) -> T {
         self.map_err(|err| {
             log::error!("{}: {err:?}", msg());
-            std::process::exit(1);
+            panic!("End of program")
         })
         .unwrap()
     }

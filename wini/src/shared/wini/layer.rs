@@ -94,56 +94,26 @@ where
 
             let (mut resp_parts, resp_body) = resp.into_parts();
 
-            {
-                if let Some(extensions) = resp_parts.extensions.get_mut::<Tags>() {
-                    for (tag, value) in &*force_meta {
-                        extensions.insert(
-                            tag,
-                            match value {
-                                Cow::Owned(string) => Cow::Owned(string.to_owned()),
-                                Cow::Borrowed(str) => Cow::Borrowed(str),
-                            },
-                        );
-                    }
-
-                    for (tag, value) in &*default_meta {
-                        if !extensions.contains_key(tag) {
-                            extensions.insert(
-                                tag,
-                                match value {
-                                    Cow::Owned(string) => Cow::Owned(string.to_owned()),
-                                    Cow::Borrowed(str) => Cow::Borrowed(str),
-                                },
-                            );
-                        }
-                    }
-                } else {
-                    let mut tags: Tags = HashMap::new();
-
-                    for (tag, value) in &*force_meta {
-                        tags.insert(
-                            tag,
-                            match value {
-                                Cow::Owned(string) => Cow::Owned(string.to_owned()),
-                                Cow::Borrowed(str) => Cow::Borrowed(*str),
-                            },
-                        );
-                    }
-
-                    for (tag, value) in &*default_meta {
-                        if !tags.contains_key(tag) {
-                            tags.insert(
-                                tag,
-                                match value {
-                                    Cow::Owned(string) => Cow::Owned(string.to_owned()),
-                                    Cow::Borrowed(str) => Cow::Borrowed(*str),
-                                },
-                            );
-                        }
-                    }
-
-                    resp_parts.extensions.insert(tags);
+            if let Some(extensions) = resp_parts.extensions.get_mut::<Tags>() {
+                for (tag, value) in &*force_meta {
+                    extensions.insert(tag, value.clone());
                 }
+
+                for (tag, value) in &*default_meta {
+                    extensions.entry(tag).or_insert_with(|| value.clone());
+                }
+            } else {
+                let mut tags: Tags = HashMap::new();
+
+                for (tag, value) in &*force_meta {
+                    tags.insert(tag, value.clone());
+                }
+
+                for (tag, value) in &*default_meta {
+                    tags.entry(tag).or_insert_with(|| value.clone());
+                }
+
+                resp_parts.extensions.insert(tags);
             }
 
             Ok(Response::from_parts(resp_parts, resp_body))
