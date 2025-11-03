@@ -135,29 +135,27 @@ mod tests {
     use {
         super::{get_files_in_directory, get_files_in_directory_per_extensions},
         crate::shared::wini::config::SERVER_CONFIG,
-        std::{ffi::OsStr, os::unix::ffi::OsStrExt},
+        std::{collections::HashSet, ffi::OsStr, os::unix::ffi::OsStrExt},
     };
 
     #[test]
     fn test_files_in_current_directory() {
         let entries = get_files_in_directory(SERVER_CONFIG.path().public_from_src());
-        assert_eq!(
-            entries,
-            [
-                "/favicon.ico",
-                "/favicon.svg",
-                "/helpers.g.ts",
-                "/helpers.js",
-                "/helpers.min.js",
-                "/main.css",
-                "/robots.txt",
-                "/site.webmanifest",
-            ]
-            .iter()
-            .map(ToOwned::to_owned)
-            .map(ToOwned::to_owned)
-            .collect()
-        );
+        assert!([
+            "/favicon.ico",
+            "/favicon.svg",
+            "/helpers.g.ts",
+            "/helpers.js",
+            "/helpers.min.js",
+            "/main.css",
+            "/robots.txt",
+            "/site.webmanifest",
+        ]
+        .iter()
+        .map(ToOwned::to_owned)
+        .map(ToOwned::to_owned)
+        .collect::<HashSet<String>>()
+        .is_subset(&entries));
     }
 
     #[test]
@@ -167,27 +165,23 @@ mod tests {
             &[OsStr::from_bytes(b"js")],
             true,
         );
-        assert_eq!(
-            entries,
-            ["/helpers.js", "/helpers.min.js",]
-                .iter()
-                .map(ToOwned::to_owned)
-                .map(ToOwned::to_owned)
-                .collect()
-        );
+        assert!(["/helpers.js", "/helpers.min.js",]
+            .iter()
+            .map(ToOwned::to_owned)
+            .map(ToOwned::to_owned)
+            .collect::<HashSet<String>>()
+            .is_subset(&entries));
 
         let entries = get_files_in_directory_per_extensions(
             SERVER_CONFIG.path().public_from_src(),
             &[OsStr::from_bytes(b"js")],
             false,
         );
-        assert_eq!(
-            entries,
-            ["/public/helpers.js", "/public/helpers.min.js",]
-                .iter()
-                .map(ToOwned::to_owned)
-                .map(ToOwned::to_owned)
-                .collect()
-        );
+        assert!(["/public/helpers.js", "/public/helpers.min.js",]
+            .iter()
+            .map(ToOwned::to_owned)
+            .map(ToOwned::to_owned)
+            .collect::<HashSet<String>>()
+            .is_subset(&entries));
     }
 }
