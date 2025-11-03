@@ -1,6 +1,6 @@
 use {
     cached::proc_macro::cached,
-    maud::{html, Markup},
+    maud::{Markup, html},
     wini_macros::{init_cache, page},
 };
 
@@ -61,7 +61,7 @@ async fn process_error(component_result: ServerResult<Markup>) -> Markup {
 async fn test_meta_page() {
     use {
         crate::template,
-        axum::{middleware::from_fn, routing::get, Router},
+        axum::{Router, middleware::from_fn, routing::get},
         axum_test::TestServer,
     };
 
@@ -88,7 +88,7 @@ async fn test_meta_page() {
 async fn test_meta_layer_with_page() {
     use {
         crate::{shared::wini::layer::MetaLayerBuilder, template},
-        axum::{middleware::from_fn, routing::get, Router},
+        axum::{Router, middleware::from_fn, routing::get},
         axum_test::TestServer,
         std::collections::HashMap,
     };

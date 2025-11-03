@@ -5,7 +5,7 @@ use {
         shared::wini::config::SERVER_CONFIG,
         utils::wini::file::toml_from_path_as_static_str,
     },
-    serde::{de::Visitor, Deserialize, Deserializer},
+    serde::{Deserialize, Deserializer, de::Visitor},
     std::{collections::HashMap, sync::LazyLock},
 };
 

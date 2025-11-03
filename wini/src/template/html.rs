@@ -1,5 +1,5 @@
 use {
-    maud::{Markup, PreEscaped, DOCTYPE},
+    maud::{DOCTYPE, Markup, PreEscaped},
     std::borrow::Cow,
 };
 

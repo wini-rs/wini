@@ -1,8 +1,8 @@
 use {
     super::{
-        err::ExitWithMessageIfErr,
-        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
         JS_FILES,
+        err::ExitWithMessageIfErr,
+        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
     },
     crate::concat_paths,
     regex::Regex,

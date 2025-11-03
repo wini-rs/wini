@@ -81,29 +81,27 @@ pub fn get_files_in_directory_per_extensions(
         .into_iter()
         .filter_map(|entry| {
             match entry {
-                Ok(entry) => {
+                Ok(entry)
                     if extensions
                         .iter()
-                        .any(|ext| entry.path().extension() == Some(ext))
-                    {
-                        let entry_path = entry.into_path();
-                        Some({
+                        .any(|ext| entry.path().extension() == Some(ext)) =>
+                {
+                    let entry_path = entry.into_path();
+                    Some({
+                        format!(
+                            "/{}",
                             if with_strip {
-                                format!(
-                                    "/{}",
-                                    entry_path
-                                        .strip_prefix(&dir)
-                                        .unwrap_or(&entry_path)
-                                        .display()
-                                )
+                                entry_path
+                                    .strip_prefix(&dir)
+                                    .unwrap_or(&entry_path)
+                                    .display()
                             } else {
-                                format!("/{}", entry_path.display())
+                                entry_path.display()
                             }
-                        })
-                    } else {
-                        None
-                    }
+                        )
+                    })
                 },
+                Ok(_entry) => None,
                 Err(err) => {
                     log::warn!("Error reading an entry: {err:#?}");
                     None
@@ -141,21 +139,23 @@ mod tests {
     #[test]
     fn test_files_in_current_directory() {
         let entries = get_files_in_directory(SERVER_CONFIG.path().public_from_src());
-        assert!([
-            "/favicon.ico",
-            "/favicon.svg",
-            "/helpers.g.ts",
-            "/helpers.js",
-            "/helpers.min.js",
-            "/main.css",
-            "/robots.txt",
-            "/site.webmanifest",
-        ]
-        .iter()
-        .map(ToOwned::to_owned)
-        .map(ToOwned::to_owned)
-        .collect::<HashSet<String>>()
-        .is_subset(&entries));
+        assert!(
+            [
+                "/favicon.ico",
+                "/favicon.svg",
+                "/helpers.g.ts",
+                "/helpers.js",
+                "/helpers.min.js",
+                "/main.css",
+                "/robots.txt",
+                "/site.webmanifest",
+            ]
+            .iter()
+            .map(ToOwned::to_owned)
+            .map(ToOwned::to_owned)
+            .collect::<HashSet<String>>()
+            .is_subset(&entries)
+        );
     }
 
     #[test]
@@ -165,23 +165,27 @@ mod tests {
             &[OsStr::new("js")],
             true,
         );
-        assert!(["/helpers.js", "/helpers.min.js",]
-            .iter()
-            .map(ToOwned::to_owned)
-            .map(ToOwned::to_owned)
-            .collect::<HashSet<String>>()
-            .is_subset(&entries));
+        assert!(
+            ["/helpers.js", "/helpers.min.js",]
+                .iter()
+                .map(ToOwned::to_owned)
+                .map(ToOwned::to_owned)
+                .collect::<HashSet<String>>()
+                .is_subset(&entries)
+        );
 
         let entries = get_files_in_directory_per_extensions(
             SERVER_CONFIG.path().public_from_src(),
             &[OsStr::new("js")],
             false,
         );
-        assert!(["/public/helpers.js", "/public/helpers.min.js",]
-            .iter()
-            .map(ToOwned::to_owned)
-            .map(ToOwned::to_owned)
-            .collect::<HashSet<String>>()
-            .is_subset(&entries));
+        assert!(
+            ["/public/helpers.js", "/public/helpers.min.js",]
+                .iter()
+                .map(ToOwned::to_owned)
+                .map(ToOwned::to_owned)
+                .collect::<HashSet<String>>()
+                .is_subset(&entries)
+        );
     }
 }

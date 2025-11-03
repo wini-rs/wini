@@ -5,7 +5,7 @@ use {
             dependencies::SCRIPTS_DEPENDENCIES,
             err::ServerResult,
             layer::Files,
-            packages_files::{VecOrString, PACKAGES_FILES},
+            packages_files::{PACKAGES_FILES, VecOrString},
         },
         utils::wini::buffer::buffer_to_string,
     },
