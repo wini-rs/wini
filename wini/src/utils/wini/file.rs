@@ -135,7 +135,7 @@ mod tests {
     use {
         super::{get_files_in_directory, get_files_in_directory_per_extensions},
         crate::shared::wini::config::SERVER_CONFIG,
-        std::{collections::HashSet, ffi::OsStr, os::unix::ffi::OsStrExt},
+        std::{collections::HashSet, ffi::OsStr},
     };
 
     #[test]
@@ -162,7 +162,7 @@ mod tests {
     fn test_files_in_current_directory_per_extensions() {
         let entries = get_files_in_directory_per_extensions(
             SERVER_CONFIG.path().public_from_src(),
-            &[OsStr::from_bytes(b"js")],
+            &[OsStr::new("js")],
             true,
         );
         assert!(["/helpers.js", "/helpers.min.js",]
@@ -174,7 +174,7 @@ mod tests {
 
         let entries = get_files_in_directory_per_extensions(
             SERVER_CONFIG.path().public_from_src(),
-            &[OsStr::from_bytes(b"js")],
+            &[OsStr::new("js")],
             false,
         );
         assert!(["/public/helpers.js", "/public/helpers.min.js",]

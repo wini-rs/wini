@@ -9,7 +9,6 @@ use {
     std::{
         collections::{HashMap, HashSet},
         ffi::OsStr,
-        os::unix::ffi::OsStrExt,
         str::FromStr,
         sync::LazyLock,
     },
@@ -24,7 +23,7 @@ pub static PUBLIC_ENDPOINTS: LazyLock<HashSet<String>> =
 
 /// An HashMap of all the CSS files, with their content being the value
 pub static CSS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(|| {
-    get_files_in_directory_per_extensions("src", &[OsStr::from_bytes(b"css")], false)
+    get_files_in_directory_per_extensions("src", &[OsStr::new("css")], false)
         .into_iter()
         .map(|file| {
             let content = std::fs::read_to_string(&file[1..])
@@ -37,7 +36,7 @@ pub static CSS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(|
 
 /// An HashMap of all the JavaScript files, with their content being the value
 pub static JS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(|| {
-    get_files_in_directory_per_extensions("src", &[OsStr::from_bytes(b"js")], false)
+    get_files_in_directory_per_extensions("src", &[OsStr::new("js")], false)
         .into_iter()
         .map(|file| {
             let content = std::fs::read_to_string(format!(".{file}"))
