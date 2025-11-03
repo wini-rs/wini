@@ -122,7 +122,6 @@ fn script_dependencies(path: &str) -> Option<HashSet<String>> {
                 is_external_package,
             } in deps
             {
-                println!("{dep_path:#?}");
                 all_dependencies.insert(dep_path.clone());
 
                 if !is_external_package && !visited.contains(&dep_path) {

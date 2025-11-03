@@ -5,9 +5,6 @@ set shell := ["nu", "-c"]
 check-all:
     nu ./scripts/check-all.nu
 
-clean:
-    rm -rf tmp/*
-
 test:
     nu scripts/tests/ssg.nu
     nu scripts/tests/js-pkgs.nu

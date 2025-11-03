@@ -1,7 +1,6 @@
 # Returns a string
 def check-with-features [features: list] {
-    mkdir ~/tmp
-    let tmp_dir = mktemp -d -p ~/tmp
+    let tmp_dir = mktemp -d
     cp -r wini $tmp_dir
     cd $'($tmp_dir)/wini'
 
