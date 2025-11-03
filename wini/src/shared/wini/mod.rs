@@ -1,40 +1,49 @@
 use {
-    crate::utils::wini::file::{self, get_files_in_directory_per_extensions},
+    crate::{
+        shared::wini::config::SERVER_CONFIG,
+        utils::wini::file::{self, get_files_in_directory_per_extensions},
+    },
     dotenvy::dotenv,
     env::EnvType,
     err::ExitWithMessageIfErr,
-    std::{collections::HashMap, str::FromStr, sync::LazyLock},
+    std::{
+        collections::{HashMap, HashSet},
+        ffi::OsStr,
+        os::unix::ffi::OsStrExt,
+        str::FromStr,
+        sync::LazyLock,
+    },
 };
 
 type FileContent = String;
 type FileName = String;
 
 /// The list of all the public endpoints <=> all the files in `../public`
-pub static PUBLIC_ENDPOINTS: LazyLock<Vec<String>> =
-    LazyLock::new(|| file::get_files_in_directory("./public").unwrap_or_default());
+pub static PUBLIC_ENDPOINTS: LazyLock<HashSet<String>> =
+    LazyLock::new(|| file::get_files_in_directory(SERVER_CONFIG.path().public_from_src()));
 
 /// An HashMap of all the CSS files, with their content being the value
 pub static CSS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(|| {
-    get_files_in_directory_per_extensions("src", &["css"])
+    get_files_in_directory_per_extensions("src", &[OsStr::from_bytes(b"css")], false)
         .into_iter()
         .map(|file| {
-            (
-                format!("/{file}"),
-                std::fs::read_to_string(file).exit_with_msg_if_err("File should always exist."),
-            )
+            let content = std::fs::read_to_string(&file[1..])
+                .exit_with_msg_if_err("File should always exist.");
+
+            (file, content)
         })
         .collect()
 });
 
 /// An HashMap of all the JavaScript files, with their content being the value
 pub static JS_FILES: LazyLock<HashMap<FileName, FileContent>> = LazyLock::new(|| {
-    get_files_in_directory_per_extensions("src", &["js"])
+    get_files_in_directory_per_extensions("src", &[OsStr::from_bytes(b"js")], false)
         .into_iter()
         .map(|file| {
-            (
-                format!("/{file}"),
-                std::fs::read_to_string(file).exit_with_msg_if_err("File should always exist."),
-            )
+            let content = std::fs::read_to_string(format!(".{file}"))
+                .exit_with_msg_if_err("File should always exist.");
+
+            (file, content)
         })
         .collect()
 });

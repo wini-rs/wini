@@ -7,7 +7,8 @@ use {
     crate::concat_paths,
     regex::Regex,
     std::{
-        collections::HashMap,
+        collections::{HashMap, HashSet, VecDeque},
+        ops::Not,
         path::{Component, Path, PathBuf},
         sync::LazyLock,
     },
@@ -18,13 +19,7 @@ pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
         .exit_with_msg_if_err("This should always be a valid regex.")
 });
 
-fn is_package(maybe_is_package: &str) -> bool {
-    !maybe_is_package.starts_with('.') &&
-        !maybe_is_package.starts_with('/') &&
-        !maybe_is_package.starts_with("file:")
-}
-
-pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
+pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<HashSet<String>>>> =
     LazyLock::new(|| {
         JS_FILES
             .keys()
@@ -45,7 +40,9 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
 /// let normalized = normalize_relative_path(path);
 /// assert_eq!(normalized, PathBuf::from("file.txt"));
 /// ```
-pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
+///
+/// _Equivalent of unstable [`std::path::Path::normalize_lexically`]_
+pub fn normalize_relative_path(path: impl AsRef<Path>) -> PathBuf {
     let mut components = Vec::new();
 
     for component in path.as_ref().components() {
@@ -65,7 +62,7 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
                     components.push(component); // If it's at the start, keep it
                 }
             },
-            _ => {
+            Component::RootDir | Component::Normal(_) | Component::Prefix(_) => {
                 components.push(component);
             },
         }
@@ -87,8 +84,8 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
 /// This is used to easily import <script/>s in head
 ///
 /// # Example:
-/// `file1.js` // require("./file2")
-/// `file2.js` // require("debug")
+/// `file1.js` // import "./file2";
+/// `file2.js` // import "debug";
 ///
 /// Will produce the following slice:
 /// `["file2.js", "debug"]`.
@@ -102,114 +99,143 @@ pub fn normalize_relative_path<P: AsRef<Path>>(path: P) -> PathBuf {
 ///     <script src="file2.js"></script>
 ///     ...
 /// </head>
+/// ```
 ///
 /// # Panic
 ///
 /// If there is an error finding a dependency
-fn script_dependencies(path: &str) -> Option<Vec<String>> {
+fn script_dependencies(path: &str) -> Option<HashSet<String>> {
+    let mut all_dependencies = HashSet::new();
+    let mut visited = HashSet::new();
+    let mut to_process = VecDeque::new();
+
+    to_process.push_back(path.to_string());
+
+    while let Some(current_path) = to_process.pop_front() {
+        if !visited.insert(current_path.clone()) {
+            continue;
+        }
+
+        if let Some(deps) = extract_dependencies(&current_path) {
+            for ResolvedDependency {
+                path: dep_path,
+                is_external_package,
+            } in deps
+            {
+                println!("{dep_path:#?}");
+                all_dependencies.insert(dep_path.clone());
+
+                if !is_external_package && !visited.contains(&dep_path) {
+                    to_process.push_back(dep_path);
+                }
+            }
+        }
+    }
+
+    all_dependencies.remove(path);
+
+    all_dependencies
+        .is_empty()
+        .not()
+        .then_some(all_dependencies)
+}
+
+
+fn extract_dependencies(path: &str) -> Option<Vec<ResolvedDependency>> {
     let path = find_existing_path(path);
     let contents = std::fs::read_to_string(&path).exit_with_msg_if_err("IO Error");
 
     let caps = REGEX_DEPENDENCY.captures_iter(&contents);
-
     let dependencies = caps
         .into_iter()
         .map(|m| m.extract::<3>())
         .map(|ex| ex.1[1].to_string())
-        .collect::<Vec<String>>();
+        .filter_map(|dep| resolve_dependency_path(&dep, &path))
+        .collect::<Vec<_>>();
 
     if dependencies.is_empty() {
         None
     } else {
-        let mut relatives_dependencies = vec![];
+        Some(dependencies)
+    }
+}
 
-        for dep in dependencies {
-            let is_dep_package = is_package(&dep);
+fn resolve_dependency_path(dep: &str, path: &Path) -> Option<ResolvedDependency> {
+    // If an import starts with a ".", it's a path to a file. In this case, we want to
+    // have it's path relative to the file it's referenced from.
+    if dep.starts_with('.') {
+        let dep = if dep.ends_with(".js") || dep.ends_with(".ts") {
+            concat_paths!(path.parent().expect("Path should have a parent."), dep)
+        } else {
+            log::warn!("File {dep:?} doesn't have a defined extension. Trying `.ts`...");
+            concat_paths!(
+                path.parent().expect("Path should have a parent."),
+                &format!("{dep}.ts")
+            )
+        };
 
-            // We need to convert the dependency to it's correct path
+        Some(ResolvedDependency {
+            path: normalize_relative_path(dep).display().to_string(),
+            is_external_package: false,
+        })
+    }
+    // Resolve tsconfig paths. <=> If it's a file that needs to be resolved with
+    // `tsconfig.compilerOptions.paths`.
+    else if let Some(prefix_path) = TSCONFIG_PATHS
+        .prefixes()
+        .iter()
+        .find(|prefix| dep.starts_with(*prefix))
+    {
+        let vec = TSCONFIG_PATHS
+            .get(*prefix_path)
+            .expect("Already matched the key");
 
-            // If an import starts with a ".", it's a path to a file. In this case, we want to
-            // have it's path relative to the file it's referenced from.
-            let dep_path = if dep.starts_with('.') {
-                let dep = concat_paths!(
-                    path.parent().expect("Path should have a parent."),
-                    if dep.ends_with(".js") {
-                        dep
-                    } else {
-                        dep + ".ts"
-                    }
-                )
-                .to_str()
-                .expect("Not empty.")
-                .to_string();
+        // If there is only one path to resolve, we know which one it is! (the first)
+        if let Some(first) = vec.first() {
+            Some(ResolvedDependency {
+                path: concat_paths!(first, &dep[prefix_path.len()..])
+                    .display()
+                    .to_string(),
+                is_external_package: false,
+            })
+        } else {
+            let mut resolved_path = None;
 
-                normalize_relative_path(dep).display().to_string()
-            }
-            // Resolve tsconfig paths. <=> If it's a file that needs to be resolved with
-            // `tsconfig.compilerOptions.paths`.
-            else if let Some(prefix_path) = TSCONFIG_PATHS
-                .prefixes()
-                .iter()
-                .find(|prefix| dep.starts_with(*prefix))
-            {
-                let vec = TSCONFIG_PATHS
-                    .get(*prefix_path)
-                    .expect("Already matched the key");
+            for path in vec {
+                let relative_path =
+                    concat_paths!(path, format!(".{}.js", &dep[prefix_path.len()..]));
 
-                // If there is only one path to resolve, we know which one it is! (the first)
-                if let Some(first) = vec.first() {
-                    concat_paths!(first, &dep[prefix_path.len()..])
-                        .display()
-                        .to_string()
-                } else {
-                    let mut resolved_path = None;
-
-                    for path in vec {
-                        let relative_path =
-                            concat_paths!(path, format!(".{}.js", &dep[prefix_path.len()..]))
-                                .display()
-                                .to_string();
-
-                        // When there is a first match, we break
-                        if Path::new(&relative_path).is_file() {
-                            resolved_path = Some(relative_path);
-                            break;
-                        }
-                    }
-
-                    if let Some(path) = resolved_path {
-                        path
-                    } else {
-                        log::warn!("Couldn't find a file corresponding to {dep:#?}");
-                        continue;
-                    }
+                // When there is a first match, we break
+                if Path::new(&relative_path).is_file() {
+                    resolved_path = Some(relative_path);
+                    break;
                 }
             }
-            // Else it's just a package
-            else {
-                dep
-            };
 
-
-            relatives_dependencies.push(dep_path.clone());
-
-            // If it's not a package, we need to look at the dependencies of this file
-            if !is_dep_package && let Some(sub_deps) = script_dependencies(&dep_path) {
-                for sub_dep in sub_deps {
-                    if relatives_dependencies.contains(&sub_dep) {
-                        let maybe_index = relatives_dependencies.iter().position(|d| *d == sub_dep);
-                        if let Some(index) = maybe_index {
-                            relatives_dependencies.remove(index);
-                        }
-                    }
-
-                    relatives_dependencies.push(sub_dep);
-                }
+            if let Some(path) = resolved_path {
+                Some(ResolvedDependency {
+                    path: path.display().to_string(),
+                    is_external_package: false,
+                })
+            } else {
+                log::warn!("Couldn't find a file corresponding to {dep:#?}");
+                None
             }
         }
-
-        Some(relatives_dependencies)
     }
+    // Else it's just a package
+    else {
+        Some(ResolvedDependency {
+            path: dep.to_owned(),
+            is_external_package: true,
+        })
+    }
+}
+
+#[derive(Debug)]
+struct ResolvedDependency {
+    path: String,
+    is_external_package: bool,
 }
 
 fn find_existing_path(path: &str) -> PathBuf {
@@ -223,4 +249,130 @@ fn find_existing_path(path: &str) -> PathBuf {
     }
 
     PathBuf::from(base)
+}
+
+#[cfg(test)]
+mod normalize_relative_path_tests {
+    use {super::*, std::path::PathBuf};
+
+    #[test]
+    fn test_simple_relative_path() {
+        let path = Path::new("./folder/file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("folder/file.txt"));
+    }
+
+    #[test]
+    fn test_parent_directory_removal() {
+        let path = Path::new("./folder/../file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("file.txt"));
+    }
+
+    #[test]
+    fn test_multiple_parent_directories() {
+        let path = Path::new("./folder1/../folder2/../file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("file.txt"));
+    }
+
+    #[test]
+    fn test_leading_parent_directory() {
+        let path = Path::new("../file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("../file.txt"));
+    }
+
+    #[test]
+    fn test_root_directory() {
+        let path = Path::new("/folder/../file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("/file.txt"));
+    }
+
+    #[test]
+    fn test_current_directory_only() {
+        let path = Path::new(".");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::new());
+    }
+
+    #[test]
+    fn test_only_parent_directory() {
+        let path = Path::new("..");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from(".."));
+    }
+
+    #[test]
+    fn test_multiple_current_directories() {
+        let path = Path::new("././folder/./file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("folder/file.txt"));
+    }
+
+    #[test]
+    fn test_full_path() {
+        let path = Path::new("/a/b/c/../../file.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("/a/file.txt"));
+    }
+
+    #[test]
+    fn test_no_normalization_needed() {
+        let path = Path::new("already/normalized/path.txt");
+        let normalized = normalize_relative_path(path);
+        assert_eq!(normalized, PathBuf::from("already/normalized/path.txt"));
+    }
+}
+
+#[cfg(test)]
+mod tests_script_dependencies {
+    use super::*;
+
+    #[test]
+    fn example1() {
+        let deps = script_dependencies("./src/shared/wini/tests/dependencies/example1/a.js");
+        assert_eq!(
+            deps,
+            Some(HashSet::from_iter([
+                "src/shared/wini/tests/dependencies/example1/b.js".into(),
+                "c.js".into()
+            ]))
+        );
+    }
+
+    #[test]
+    fn example2() {
+        let deps = script_dependencies("./src/shared/wini/tests/dependencies/example2/a.ts");
+        assert_eq!(
+            deps,
+            Some(HashSet::from_iter([
+                "src/shared/wini/tests/dependencies/example2/b.js".into(),
+                "src/shared/wini/tests/dependencies/example2/c.ts".into(),
+                "src/shared/wini/tests/dependencies/example2/d.js".into(),
+                "test".into()
+            ]))
+        );
+    }
+
+    #[test]
+    fn example3() {
+        let deps = script_dependencies("./src/shared/wini/tests/dependencies/example3/a.ts");
+        assert_eq!(
+            deps,
+            Some(HashSet::from_iter([
+                "src/shared/wini/tests/dependencies/example3/b.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/c.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/d.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/e.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/f.ts".into(),
+                "b".into(),
+                "c".into(),
+                "d".into(),
+                "e".into(),
+                "f".into(),
+            ]))
+        );
+    }
 }

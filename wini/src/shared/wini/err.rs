@@ -6,8 +6,10 @@ use {
     },
     maud::Markup,
     std::{
+        borrow::Cow,
         convert::Infallible,
         fmt::{self, Display},
+        io,
         str::Utf8Error,
         string::FromUtf8Error,
         sync::Arc,
@@ -53,7 +55,8 @@ pub enum ServerErrorKind {
     FromUtf8Error(FromUtf8Error),
     InvalidHeader(InvalidHeaderValue),
     DebugedError(String),
-    PublicRessourceNotFound(String),
+    PublicRessourceNotFound(Option<String>),
+    IoError(io::ErrorKind),
     ToStrError(ToStrError),
 }
 
@@ -90,6 +93,7 @@ impl_from_error!(Utf8Error, ServerErrorKind::Utf8Error);
 impl_from_error!(String, ServerErrorKind::DebugedError);
 impl_from_error!(InvalidHeaderValue, ServerErrorKind::InvalidHeader);
 impl_from_error!(ToStrError, ServerErrorKind::ToStrError);
+impl_from_error!(io::ErrorKind, ServerErrorKind::IoError);
 
 
 impl IntoResponse for &ServerErrorKind {
@@ -114,8 +118,17 @@ impl IntoResponse for &ServerErrorKind {
             ServerErrorKind::FromUtf8Error(err) => {
                 format!("Error decoding buffer to UTF-8: {err:#?}")
             },
+            ServerErrorKind::IoError(err) => {
+                format!("IO error: {err:#?}")
+            },
             ServerErrorKind::PublicRessourceNotFound(path) => {
-                return (StatusCode::NOT_FOUND, format!("Couldn't find file: {path}"))
+                return (
+                    StatusCode::NOT_FOUND,
+                    match path {
+                        Some(path) => Cow::Owned(format!("Couldn't find file: {path}")),
+                        None => Cow::Borrowed("Couldn't find file"),
+                    },
+                )
                     .into_response();
             },
             ServerErrorKind::Status(status_code) => return status_code.into_response(),

@@ -1,9 +1,12 @@
-use maud::{DOCTYPE, Markup, PreEscaped};
+use {
+    maud::{Markup, PreEscaped, DOCTYPE},
+    std::borrow::Cow,
+};
 
 pub fn html(
     s: &str,
-    scripts_files: Vec<String>,
-    style_sheets: Vec<String>,
+    scripts_files: Vec<Cow<str>>,
+    style_sheets: Vec<Cow<str>>,
     meta: &Markup,
 ) -> String {
     maud::html! {

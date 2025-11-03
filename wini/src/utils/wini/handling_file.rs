@@ -22,14 +22,22 @@ use {
 /// - css files
 /// - javascript files
 pub async fn handle_file(req: Request) -> ServerResult<Response<axum::body::Body>> {
-    let path = &req.uri().path().to_string();
+    let path = req.uri().path();
 
     if PUBLIC_ENDPOINTS.contains(path) {
-        return Ok(ServeFile::new(format!("./public{path}"))
-            .try_call(req)
-            .await
-            .map_err(|_| ServerErrorKind::PublicRessourceNotFound(path.clone()))?
-            .into_response());
+        return Ok(ServeFile::new(format!(
+            "{public}{path}",
+            public = SERVER_CONFIG.path().public_from_src()
+        ))
+        .try_call(req)
+        .await
+        .map_err(|err| {
+            match err.kind() {
+                std::io::ErrorKind::NotFound => ServerErrorKind::PublicRessourceNotFound(None),
+                other_err => ServerErrorKind::IoError(other_err),
+            }
+        })?
+        .into_response());
     }
 
     if path.ends_with(".css") {

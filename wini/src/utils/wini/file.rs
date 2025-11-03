@@ -1,9 +1,11 @@
 use {
     crate::shared::wini::config::TomlLoadingError,
     serde::Deserialize,
-    std::{io, path::Path},
+    std::{collections::HashSet, ffi::OsStr, io, path::Path},
     walkdir::WalkDir,
 };
+
+type StringWithLeadingSlash = String;
 
 /// This function will try to get all the files in a directory, including subdirectories and return
 /// their relative paths.
@@ -20,27 +22,33 @@ use {
 ///
 /// Will result in
 ///
-/// `["a", "b/d", "c"]`
-pub fn get_files_in_directory<P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<String>> {
-    let mut files = Vec::new();
-
-    // Read the directory
-    for entry in std::fs::read_dir(dir.as_ref())? {
-        let entry = entry?;
-        let path = entry.path();
-
-        // Check if the entry is a file
-        if path.is_file() {
-            // Get the file name and its path
-            if path.file_name().and_then(|n| n.to_str()).is_some() {
-                files.push(path.to_string_lossy().replace("./public", ""));
+/// `["/a", "/b/d", "/c"]`
+pub fn get_files_in_directory(dir: impl AsRef<Path>) -> HashSet<StringWithLeadingSlash> {
+    WalkDir::new(&dir)
+        .follow_links(true)
+        .into_iter()
+        .filter_map(|entry| {
+            match entry {
+                Ok(entry) if entry.file_type().is_dir() => None,
+                Ok(entry) => {
+                    let entry_path = entry.into_path();
+                    Some({
+                        format!(
+                            "/{}",
+                            entry_path
+                                .strip_prefix(&dir)
+                                .unwrap_or(&entry_path)
+                                .display()
+                        )
+                    })
+                },
+                Err(err) => {
+                    log::warn!("Error reading an entry: {err:#?}");
+                    None
+                },
             }
-        } else if path.is_dir() {
-            files.extend(get_files_in_directory(path)?);
-        }
-    }
-
-    Ok(files)
+        })
+        .collect()
 }
 
 /// This function will try to get all the files in a directory, including subdirectories with a
@@ -62,30 +70,47 @@ pub fn get_files_in_directory<P: AsRef<Path>>(dir: P) -> std::io::Result<Vec<Str
 ///
 /// Will result in
 ///
-/// `["a.js", "b/d.css", "e.css"]`
-pub fn get_files_in_directory_per_extensions(dir: &str, extensions: &[&str]) -> Vec<String> {
-    let extensions_with_dots = extensions
-        .iter()
-        .map(|ext| format!(".{ext}"))
-        .collect::<Vec<String>>();
-
-    WalkDir::new(dir)
+/// `["/a.js", "/b/d.css", "/e.css"]`
+pub fn get_files_in_directory_per_extensions(
+    dir: impl AsRef<Path>,
+    extensions: &[&OsStr],
+    with_strip: bool,
+) -> HashSet<StringWithLeadingSlash> {
+    WalkDir::new(&dir)
         .follow_links(true)
         .into_iter()
         .filter_map(|entry| {
-            entry.ok().and_then(|file| {
-                extensions_with_dots
-                    .iter()
-                    .any(|ext| file.path().to_str().is_some_and(|s| s.ends_with(ext)))
-                    .then(|| {
-                        file.path()
-                            .to_str()
-                            .expect("Already verified before")
-                            .to_string()
-                    })
-            })
+            match entry {
+                Ok(entry) => {
+                    if extensions
+                        .iter()
+                        .any(|ext| entry.path().extension() == Some(ext))
+                    {
+                        let entry_path = entry.into_path();
+                        Some({
+                            if with_strip {
+                                format!(
+                                    "/{}",
+                                    entry_path
+                                        .strip_prefix(&dir)
+                                        .unwrap_or(&entry_path)
+                                        .display()
+                                )
+                            } else {
+                                format!("/{}", entry_path.display())
+                            }
+                        })
+                    } else {
+                        None
+                    }
+                },
+                Err(err) => {
+                    log::warn!("Error reading an entry: {err:#?}");
+                    None
+                },
+            }
         })
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 pub fn toml_from_path_as_static_str<T>(path: &'static str) -> Result<T, TomlLoadingError>
@@ -103,4 +128,66 @@ where
             .as_ref(),
     )
     .map_err(|err| TomlLoadingError::InvalidToml(err, path))
+}
+
+#[cfg(test)]
+mod tests {
+    use {
+        super::{get_files_in_directory, get_files_in_directory_per_extensions},
+        crate::shared::wini::config::SERVER_CONFIG,
+        std::{ffi::OsStr, os::unix::ffi::OsStrExt},
+    };
+
+    #[test]
+    fn test_files_in_current_directory() {
+        let entries = get_files_in_directory(SERVER_CONFIG.path().public_from_src());
+        assert_eq!(
+            entries,
+            [
+                "/favicon.ico",
+                "/favicon.svg",
+                "/helpers.g.ts",
+                "/helpers.js",
+                "/helpers.min.js",
+                "/main.css",
+                "/robots.txt",
+                "/site.webmanifest",
+            ]
+            .iter()
+            .map(ToOwned::to_owned)
+            .map(ToOwned::to_owned)
+            .collect()
+        );
+    }
+
+    #[test]
+    fn test_files_in_current_directory_per_extensions() {
+        let entries = get_files_in_directory_per_extensions(
+            SERVER_CONFIG.path().public_from_src(),
+            &[OsStr::from_bytes(b"js")],
+            true,
+        );
+        assert_eq!(
+            entries,
+            ["/helpers.js", "/helpers.min.js",]
+                .iter()
+                .map(ToOwned::to_owned)
+                .map(ToOwned::to_owned)
+                .collect()
+        );
+
+        let entries = get_files_in_directory_per_extensions(
+            SERVER_CONFIG.path().public_from_src(),
+            &[OsStr::from_bytes(b"js")],
+            false,
+        );
+        assert_eq!(
+            entries,
+            ["/public/helpers.js", "/public/helpers.min.js",]
+                .iter()
+                .map(ToOwned::to_owned)
+                .map(ToOwned::to_owned)
+                .collect()
+        );
+    }
 }
