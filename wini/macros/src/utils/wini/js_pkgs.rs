@@ -6,9 +6,9 @@ pub(crate) fn handle(
     wrap_in_cow: bool,
 ) -> TokenStream {
     let package_stripped = if wrap_in_cow {
-        quote!(Cow::Owned(pkg.strip_prefix('/').unwrap_or(pkg).to_owned()))
+        quote!(Cow::Owned(pkg.to_owned()))
     } else {
-        quote!(pkg.strip_prefix('/').unwrap_or(pkg).to_owned())
+        quote!(pkg.to_owned())
     };
 
     if let Some(js_pkgs) = js_pkgs {
