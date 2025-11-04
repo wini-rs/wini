@@ -1,13 +1,13 @@
 use {
     super::{
-        JS_FILES,
         err::ExitWithMessageIfErr,
-        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
+        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
+        JS_FILES,
     },
     crate::concat_paths,
     regex::Regex,
     std::{
-        collections::{HashMap, HashSet, VecDeque},
+        collections::{HashMap, VecDeque},
         ops::Not,
         path::{Component, Path, PathBuf},
         sync::LazyLock,
@@ -19,7 +19,7 @@ pub static REGEX_DEPENDENCY: LazyLock<Regex> = LazyLock::new(|| {
         .exit_with_msg_if_err("This should always be a valid regex.")
 });
 
-pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<HashSet<String>>>> =
+pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> =
     LazyLock::new(|| {
         JS_FILES
             .keys()
@@ -83,6 +83,10 @@ pub fn normalize_relative_path(path: impl AsRef<Path>) -> PathBuf {
 /// If a package depend on other packages, they will not be included.
 /// This is used to easily import <script/>s in head
 ///
+/// # Returns
+/// An `Option<Vec<String>>`. The order of dependency matters, therefore a [`Vec`] is more suitable
+/// than a [`HashSet`].
+///
 /// # Example:
 /// `file1.js` // import "./file2";
 /// `file2.js` // import "debug";
@@ -104,34 +108,44 @@ pub fn normalize_relative_path(path: impl AsRef<Path>) -> PathBuf {
 /// # Panic
 ///
 /// If there is an error finding a dependency
-fn script_dependencies(path: &str) -> Option<HashSet<String>> {
-    let mut all_dependencies = HashSet::new();
-    let mut visited = HashSet::new();
+fn script_dependencies(path: &str) -> Option<Vec<String>> {
+    let mut all_dependencies = Vec::new();
+    let mut visited = HashMap::<String, u16>::new();
     let mut to_process = VecDeque::new();
 
-    to_process.push_back(path.to_string());
+    let normalized_path = normalize_relative_path(path).display().to_string();
+    to_process.push_back(normalized_path.clone());
 
     while let Some(current_path) = to_process.pop_front() {
-        if !visited.insert(current_path.clone()) {
-            continue;
-        }
-
         if let Some(deps) = extract_dependencies(&current_path) {
             for ResolvedDependency {
                 path: dep_path,
                 is_external_package,
             } in deps
             {
-                all_dependencies.insert(dep_path.clone());
-
-                if !is_external_package && !visited.contains(&dep_path) {
-                    to_process.push_back(dep_path);
+                if !is_external_package {
+                    to_process.push_back(dep_path.clone());
                 }
+
+                all_dependencies.retain(|dep| *dep != dep_path);
+                all_dependencies.push(dep_path);
             }
+        }
+
+        if *visited
+            .entry(current_path)
+            .and_modify(|v| *v += 1)
+            .or_default() ==
+            1000
+        {
+            log::error!("Infinite recursion found in Typescript imports.");
+            panic!("End of program");
         }
     }
 
-    all_dependencies.remove(path);
+    all_dependencies.retain(|dep| *dep != normalized_path);
+
+    all_dependencies.reverse();
 
     all_dependencies
         .is_empty()
@@ -334,10 +348,10 @@ mod tests_script_dependencies {
         let deps = script_dependencies("./src/shared/wini/tests/dependencies/example1/a.js");
         assert_eq!(
             deps,
-            Some(HashSet::from_iter([
+            Some(vec![
+                "c.js".into(),
                 "src/shared/wini/tests/dependencies/example1/b.js".into(),
-                "c.js".into()
-            ]))
+            ])
         );
     }
 
@@ -346,12 +360,12 @@ mod tests_script_dependencies {
         let deps = script_dependencies("./src/shared/wini/tests/dependencies/example2/a.ts");
         assert_eq!(
             deps,
-            Some(HashSet::from_iter([
-                "src/shared/wini/tests/dependencies/example2/b.js".into(),
-                "src/shared/wini/tests/dependencies/example2/c.ts".into(),
+            Some(vec![
+                "test".into(),
                 "src/shared/wini/tests/dependencies/example2/d.js".into(),
-                "test".into()
-            ]))
+                "src/shared/wini/tests/dependencies/example2/c.ts".into(),
+                "src/shared/wini/tests/dependencies/example2/b.js".into(),
+            ])
         );
     }
 
@@ -360,18 +374,44 @@ mod tests_script_dependencies {
         let deps = script_dependencies("./src/shared/wini/tests/dependencies/example3/a.ts");
         assert_eq!(
             deps,
-            Some(HashSet::from_iter([
-                "src/shared/wini/tests/dependencies/example3/b.ts".into(),
-                "src/shared/wini/tests/dependencies/example3/c.ts".into(),
-                "src/shared/wini/tests/dependencies/example3/d.ts".into(),
-                "src/shared/wini/tests/dependencies/example3/e.ts".into(),
-                "src/shared/wini/tests/dependencies/example3/f.ts".into(),
-                "b".into(),
-                "c".into(),
-                "d".into(),
-                "e".into(),
+            Some(vec![
                 "f".into(),
-            ]))
+                "e".into(),
+                "d".into(),
+                "c".into(),
+                "b".into(),
+                "src/shared/wini/tests/dependencies/example3/f.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/e.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/d.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/c.ts".into(),
+                "src/shared/wini/tests/dependencies/example3/b.ts".into(),
+            ])
+        );
+    }
+
+    #[test]
+    fn example4() {
+        let deps = script_dependencies("./src/shared/wini/tests/dependencies/example4/a.ts");
+        assert_eq!(
+            deps,
+            Some(vec![
+                "src/shared/wini/tests/dependencies/example4/b.ts".into(),
+            ])
+        );
+    }
+
+    #[test]
+    fn example5() {
+        let deps = script_dependencies("./src/shared/wini/tests/dependencies/example5/a.ts");
+        assert_eq!(
+            deps,
+            Some(vec![
+                "test".into(),
+                "src/shared/wini/tests/dependencies/example5/c.ts".into(),
+                "random".into(),
+                "src/shared/wini/tests/dependencies/example5/b.ts".into(),
+                "src/shared/wini/tests/dependencies/example5/d.ts".into(),
+            ])
         );
     }
 }
