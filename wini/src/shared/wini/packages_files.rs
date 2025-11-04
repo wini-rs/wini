@@ -5,7 +5,7 @@ use {
         shared::wini::config::SERVER_CONFIG,
         utils::wini::file::toml_from_path_as_static_str,
     },
-    serde::{Deserialize, Deserializer, de::Visitor},
+    serde::{de::Visitor, Deserialize, Deserializer},
     std::{collections::HashMap, sync::LazyLock},
 };
 
@@ -71,10 +71,9 @@ pub static PACKAGES_FILES: LazyLock<HashMap<String, VecOrString>> = LazyLock::ne
                 &package,
                 std::path::Path::new(&file).file_name().unwrap_or_default()
             )
-            .display()
-            .to_string()
+            .to_string_lossy()
             .trim_start_matches('.')
-            .to_string()
+            .to_owned()
         }
     }
 
