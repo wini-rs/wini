@@ -11,5 +11,5 @@ just compile-scss
 watchexec -i "target/**" -i "node_modules/**" -e 'ts,scss,rs' -d 100 --stop-signal SIGTERM  -r "just compile-ts; just compile-scss; cargo run"
 # ENDIF
 # IFFEAT ssg
-watchexec -i "target/**" -i "node_modules/**" -e 'ts,scss,rs' -d 100 --stop-signal SIGTERM  -r "just compile-ts; just compile-scss; cargo run --features --no-default-features --features run-with-ssr"
+watchexec -i "target/**" -i "node_modules/**" -e 'ts,scss,rs' -d 100 --stop-signal SIGTERM  -r "just compile-ts; just compile-scss; cargo run --no-default-features --features run-with-ssr"
 # ENDIF
