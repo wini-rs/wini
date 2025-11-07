@@ -1,0 +1,145 @@
+# <https://doc.rust-lang.org/cargo/index.html>
+[package]
+edition = "2024"
+name = "PROJECT_NAME_TO_RESOLVE"
+version = "0.1.0"
+
+# IFFEAT ssg
+[features]
+default = ["generate-ssg"]
+generate-ssg = []
+serve-dist = []
+run-with-ssr = []
+# ENDIF
+
+[build-dependencies]
+walkdir = "2.5.0"
+
+[dependencies]
+axum = { version = "0.8", features = ["macros"] }
+cached = { version = "0.56", features = ["async_tokio_rt_multi_thread"] }
+colog = "1.4"
+ctor = "0.5"
+derive_builder = "0.20"
+dotenvy = "0.15"
+getset = "0.1.6"
+http-body-util = "0.1"
+hyper = "1"
+itertools = "0.14"
+log = "0.4"
+regex = "1"
+# IFFEAT ssg
+# Removes openssl dependency
+reqwest = { version = "0.12", default-features = false, features = [
+  "charset",
+  "http2",
+  "system-proxy",
+] }
+select = "0.6"
+# ENDIF
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0"
+strum = "0.27"
+strum_macros = "0.27"
+tokio = { version = "1", features = ["fs", "macros", "rt-multi-thread"] }
+toml = "0.9"
+tower = "0.5"
+tower-http = { version = "0.6", features = ["compression-br", "compression-gzip", "fs"] }
+walkdir = "2.5"
+wini-macros = { path = "./macros/" }
+wini-maud = { version = "0.26.8", features = ["axum"] }
+
+# IFFEAT test
+[dev-dependencies]
+axum-test = "18"
+# ENDIF
+
+  [package.metadata.cargo-machete]
+  ignored = [
+    # Used with the procedural macros #[page], #[component], #[layout]
+    "itertools",
+    "wini-maud",
+    # Used with the procedural macro #[cache]
+    "ctor",
+  ]
+
+# <https://rust-lang.github.io/rust-clippy/master>
+[lints.clippy]
+# Based
+allow_attributes_without_reason = "warn"
+branches_sharing_code = "warn"
+cfg_not_test = "warn"
+clear_with_drain = "warn"
+clone_on_ref_ptr = "warn"
+cloned_instead_of_copied = "warn"
+cognitive_complexity = "warn"
+collection_is_never_read = "warn"
+comparison_chain = "warn"
+create_dir = "warn"
+doc_link_with_quotes = "warn"
+empty_drop = "warn"
+empty_enum = "warn"
+empty_enum_variants_with_brackets = "warn"
+empty_structs_with_brackets = "warn"
+equatable_if_let = "warn"
+explicit_into_iter_loop = "warn"
+filetype_is_file = "warn"
+filter_map_next = "warn"
+flat_map_option = "warn"
+if_not_else = "warn"
+ignored_unit_patterns = "warn"
+implicit_clone = "warn"
+index_refutable_slice = "warn"
+indexing_slicing = "warn"
+inefficient_to_string = "warn"
+iter_filter_is_ok = "warn"
+iter_filter_is_some = "warn"
+iter_on_empty_collections = "warn"
+iter_on_single_items = "warn"
+iter_with_drain = "warn"
+large_digit_groups = "warn"
+manual_assert = "warn"
+match_same_arms = "warn"
+match_wildcard_for_single_variants = "warn"
+mismatching_type_param_order = "warn"
+mixed_read_write_in_expression = "warn"
+mut_mut = "warn"
+needless_collect = "warn"
+needless_continue = "warn"
+needless_raw_string_hashes = "warn"
+negative_feature_names = "warn"
+non_std_lazy_statics = "warn"
+nonstandard_macro_braces = "warn"
+option_as_ref_cloned = "warn"
+option_option = "warn"
+or_fun_call = "warn"
+path_buf_push_overwrite = "warn"
+pub_without_shorthand = "deny"
+redundant_closure_for_method_calls = "warn"
+redundant_type_annotations = "warn"
+rest_pat_in_fully_bound_structs = "warn"
+same_name_method = "warn"
+self_named_module_files = "deny"
+semicolon_if_nothing_returned = "warn"
+significant_drop_in_scrutinee = "warn"
+single_char_pattern = "warn"
+str_split_at_newline = "warn"
+string_lit_chars_any = "warn"
+trait_duplication_in_bounds = "warn"
+type_repetition_in_bounds = "warn"
+undocumented_unsafe_blocks = "warn"
+uninlined_format_args = "warn"
+unnested_or_patterns = "warn"
+unreadable_literal = "warn"
+unused_peekable = "warn"
+unused_result_ok = "warn"
+unused_rounding = "warn"
+unused_self = "warn"
+verbose_bit_mask = "warn"
+verbose_file_reads = "warn"
+
+# Removing
+enum_variant_names = "allow"
+too_many_arguments = "allow"
+type_complexity = "allow"
+upper_case_acronyms = "allow"

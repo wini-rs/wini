@@ -16,4 +16,3 @@ cargo clippy --fix || {
         cargo clippy --fix --allow-dirty
     fi
 }
-

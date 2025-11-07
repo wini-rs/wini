@@ -1,0 +1,15 @@
+[package]
+edition = "2024"
+name = "wini-macros"
+version = "0.1.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+dotenvy = "0.15"
+proc-macro2 = "1"
+quote = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+syn = { version = "2.0", features = ["full"] }
+toml = "0.8"

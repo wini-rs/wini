@@ -24,3 +24,10 @@ sync-codeberg-with-github:
 
 see-branch *ARGS:
     nu ./scripts/see-branch.nu ...[{{ARGS}}]
+
+gen:
+    nu ./scripts/gen.nu
+
+watch-gen:
+    watchexec -w 'wini-base' -d 100 --stop-signal SIGTERM  -r "nu ./scripts/gen.nu"
+

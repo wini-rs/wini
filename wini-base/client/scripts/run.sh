@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# This script is in charge of running the application in dev mode
+
+source ./scripts/log.sh
+source ./scripts/terminate.sh
+
+
+on_interrupt() {
+    pkill -f -9 watchexec
+    terminate
+    info 'Terminating...'
+}
+
+./scripts/clean-js-without-ts.sh
+
+trap on_interrupt SIGINT TERM EXIT
+
+watchexec -i "node_modules/**" -e 'ts' -r just compile-ts &
+watchexec -i "node_modules/**" -e 'scss' -r just compile-scss &
+# IFFEAT ssr
+watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run"
+# ENDIF
+# IFFEAT ssg
+watchexec -i "target/**" -i "node_modules/**" --stop-signal SIGTERM  -r "cargo run --no-default-features --features run-with-ssr"
+# ENDIF
