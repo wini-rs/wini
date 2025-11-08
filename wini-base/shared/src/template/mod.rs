@@ -31,12 +31,12 @@ mod meta;
 pub async fn template(req: Request, next: Next) -> ServerResult<Response> {
 //// ENDIF
 //// IFTARGET sdk
-pub async fn template<F>(req: Request, next: Next, html: F) -> ServerResult<Response> 
+pub async fn template<F>(req: Request, next: Next, compute_html: F) -> ServerResult<Response> 
 where F: Fn(
     &str,
     Vec<Cow<str>>,
     Vec<Cow<str>>,
-    maud::Markup,
+    &maud::Markup,
 
 ) -> String,
 {
@@ -78,7 +78,12 @@ where F: Fn(
     };
 
     // Compute the HTML to send
+//// IFTARGET client
     let html = html::html(&resp_str, scripts, styles, &meta_tags);
+//// ENDIF
+//// IFTARGET sdk
+    let html = compute_html(&resp_str, scripts, styles, &meta_tags);
+//// ENDIF
 
     // Recalculate the length
     *res_parts.headers.entry(CONTENT_LENGTH).or_insert(0.into()) = html.len().into();

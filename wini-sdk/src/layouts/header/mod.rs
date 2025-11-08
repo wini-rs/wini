@@ -1,5 +1,5 @@
 use {
-    crate::shared::wini::err::ServerResult,
+    wini_sdk::err::ServerResult,
     maud::{Markup, html},
     wini_macros::layout,
 };
@@ -16,7 +16,7 @@ pub async fn render(s: Markup) -> ServerResult<Markup> {
 
 // IFFEAT test
 use {
-    crate::shared::wini::err::Backtrace,
+    wini_sdk::err::Backtrace,
     axum::{body::Body, http::response::Parts},
     hyper::{HeaderMap, StatusCode, Uri},
 };

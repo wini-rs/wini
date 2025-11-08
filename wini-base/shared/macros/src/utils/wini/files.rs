@@ -14,7 +14,7 @@ type StringWithLeadingSlash = String;
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```text
 /// ├── a.css
 /// ├── b/
 /// │   └── d.js

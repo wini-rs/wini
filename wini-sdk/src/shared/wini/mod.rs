@@ -78,6 +78,7 @@ pub mod layout;
 pub mod packages_files;
 pub mod response;
 // IFFEAT ssg
+#[cfg(feature = "ssg")]
 pub mod ssg;
 // ENDIF
 pub mod tsconfig;

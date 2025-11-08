@@ -1,6 +1,6 @@
 // IFFEAT test
 use {
-    crate::shared::wini::err::{ServerErrorKind, ServerResult},
+    wini_sdk::err::{ServerErrorKind, ServerResult},
     cached::proc_macro::cached,
     hyper::StatusCode,
     maud::{Markup, html},

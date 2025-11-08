@@ -24,9 +24,9 @@ mod meta;
 
 
 /// Use the basic template of HTML
-pub async fn template<F>(req: Request, next: Next, html: F) -> ServerResult<Response>
+pub async fn template<F>(req: Request, next: Next, compute_html: F) -> ServerResult<Response>
 where
-    F: Fn(&str, Vec<Cow<str>>, Vec<Cow<str>>, Markup) -> String,
+    F: Fn(&str, Vec<Cow<str>>, Vec<Cow<str>>, &maud::Markup) -> String,
 {
     // Compute the request
     let rep = next.run(req).await;
@@ -65,7 +65,7 @@ where
     };
 
     // Compute the HTML to send
-    let html = html::html(&resp_str, scripts, styles, &meta_tags);
+    let html = compute_html(&resp_str, scripts, styles, &meta_tags);
 
     // Recalculate the length
     *res_parts.headers.entry(CONTENT_LENGTH).or_insert(0.into()) = html.len().into();

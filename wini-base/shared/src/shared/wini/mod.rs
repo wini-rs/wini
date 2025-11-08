@@ -78,6 +78,9 @@ pub mod layout;
 pub mod packages_files;
 pub mod response;
 // IFFEAT ssg
+//// IFTARGET sdk
+#[cfg(feature = "ssg")]
+//// ENDIF
 pub mod ssg;
 // ENDIF
 pub mod tsconfig;

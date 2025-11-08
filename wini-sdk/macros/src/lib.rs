@@ -245,8 +245,8 @@ pub fn component(args: TokenStream, item: TokenStream) -> TokenStream {
 /// Layouts can accept different argument types depending on your needs. Arguments must have a
 /// type that either implements:
 /// - [`axum::extract::FromRequestParts`],
-/// - [`crate::shared::wini::response::FromResponseBody`]
-/// - [`crate::shared::wini::response::FromResponseParts`]
+/// - [`wini_sdk::response::FromResponseBody`]
+/// - [`wini_sdk::response::FromResponseParts`]
 ///
 /// There are just a few rules:
 /// 1. Arguments that come from `FromResponseBody` MUST be the last argument.

@@ -22,7 +22,7 @@ pub struct MetaLayer {
     /// To add a default meta description if the page doesn't have one
     /// ```
     /// use {
-    ///     PROJECT_NAME_TO_RESOLVE::shared::wini::layer::MetaLayerBuilder,
+    ///     wini_sdk::layer::MetaLayerBuilder,
     ///     std::collections::HashMap,
     /// };
     ///
@@ -38,7 +38,7 @@ pub struct MetaLayer {
     /// To always send "Hello world!" as the meta description
     /// ```
     /// use {
-    ///     PROJECT_NAME_TO_RESOLVE::shared::wini::layer::MetaLayerBuilder,
+    ///     wini_sdk::layer::MetaLayerBuilder,
     ///     std::collections::HashMap,
     /// };
     ///

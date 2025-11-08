@@ -33,7 +33,7 @@ impl Config {
 
 
 /// The paths of different important folders
-/// ConfigPath uses [`String`] instead of [`std::path::PathBuf`] becase we often use
+/// ConfigPath uses [`String`] instead of [`std::path::PathBuf`] because we often use
 /// [`ToString::to_string`].
 #[derive(Debug, serde::Deserialize, Getters)]
 #[getset(get = "pub")]

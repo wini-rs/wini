@@ -7,3 +7,8 @@ pub mod template;
 mod utils;
 
 pub use {shared::wini::*, utils::wini::*};
+pub mod cache {
+    pub use {shared::wini::cache::*, utils::wini::cache::*};
+
+    use super::*;
+}

@@ -12,7 +12,7 @@ type StringWithLeadingSlash = String;
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```text
 /// ├── a
 /// ├── b/
 /// │   └── d
@@ -56,7 +56,7 @@ pub fn get_files_in_directory(dir: impl AsRef<Path>) -> HashSet<StringWithLeadin
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```text
 /// ├── a.js
 /// ├── a_not_js
 /// ├── b/
@@ -127,6 +127,7 @@ where
     )
     .map_err(|err| TomlLoadingError::InvalidToml(err, path))
 }
+//// IFTARGET client
 
 #[cfg(test)]
 mod tests {
@@ -145,7 +146,6 @@ mod tests {
                 "/favicon.svg",
                 "/helpers.g.ts",
                 "/helpers.js",
-                "/helpers.min.js",
                 "/main.css",
                 "/robots.txt",
                 "/site.webmanifest",
@@ -166,7 +166,7 @@ mod tests {
             true,
         );
         assert!(
-            ["/helpers.js", "/helpers.min.js",]
+            ["/helpers.js",]
                 .iter()
                 .map(ToOwned::to_owned)
                 .map(ToOwned::to_owned)
@@ -180,7 +180,7 @@ mod tests {
             false,
         );
         assert!(
-            ["/public/helpers.js", "/public/helpers.min.js",]
+            ["/public/helpers.js",]
                 .iter()
                 .map(ToOwned::to_owned)
                 .map(ToOwned::to_owned)
@@ -189,3 +189,4 @@ mod tests {
         );
     }
 }
+//// ENDIF

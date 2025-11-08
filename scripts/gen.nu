@@ -20,13 +20,18 @@ def main [] {
     # SDK
     cd ../wini-sdk
     remove-gating 'sdk'
+    fd -e rs . | lines | each {
+        sd 'PROJECT_NAME_TO_RESOLVE::\w*::wini' 'wini_sdk' $in;
+        sd '`crate::\w*::wini' '`wini_sdk' $in;
+        sd 'PROJECT_NAME_TO_RESOLVE' 'wini_sdk' $in;
+    }
     cargo fmt; cargo clippy; cargo test
 
     print "log"
 
     cd ..
-    chmod 444 wini
-    chmod 444 wini-sdk
+    chmod 544 wini
+    chmod 544 wini-sdk
 }
 
 def remove-gating [current_target: string] {

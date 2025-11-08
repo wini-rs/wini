@@ -1,8 +1,8 @@
 use {
     super::{
-        err::ExitWithMessageIfErr,
-        tsconfig::{TsConfigPathsPrefix, TSCONFIG_PATHS},
         JS_FILES,
+        err::ExitWithMessageIfErr,
+        tsconfig::{TSCONFIG_PATHS, TsConfigPathsPrefix},
     },
     crate::concat_paths,
     regex::Regex,
@@ -32,7 +32,7 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
 ///
 /// # Example
 ///
-/// ```rs
+/// ```rust
 /// use PROJECT_NAME_TO_RESOLVE::shared::wini::dependencies::normalize_relative_path;
 /// use std::path::{Path, PathBuf};
 ///

@@ -27,7 +27,7 @@ impl<T: FromRequestParts<()>> IsFromRequestParts for T {
 }
 
 
-/// Check if it's [`crate::shared::wini::response::FromResponseBody`]
+/// Check if it's [`wini_sdk::response::FromResponseBody`]
 pub trait IsFromResponseBody {
     const IS_FROM_RESPONSE_BODY: bool = false;
 }
@@ -41,7 +41,7 @@ impl<T: FromResponseBody<()>> IsFromResponseBody for T {
 }
 
 
-/// Check if it's [`crate::shared::wini::response::FromResponseParts`]
+/// Check if it's [`wini_sdk::response::FromResponseParts`]
 pub trait IsFromResponseParts {
     const IS_FROM_RESPONSE_PARTS: bool = false;
 }

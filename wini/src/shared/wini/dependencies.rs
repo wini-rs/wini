@@ -32,7 +32,7 @@ pub static SCRIPTS_DEPENDENCIES: LazyLock<HashMap<String, Option<Vec<String>>>> 
 ///
 /// # Example
 ///
-/// ```rs
+/// ```rust
 /// use PROJECT_NAME_TO_RESOLVE::shared::wini::dependencies::normalize_relative_path;
 /// use std::path::{Path, PathBuf};
 ///

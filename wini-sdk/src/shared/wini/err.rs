@@ -164,7 +164,7 @@ impl IntoResponse for ServerError {
 ///
 /// # Example
 ///
-/// ```ignore
+/// ```text
 /// use wini::shared::wini::err::ExitWithMessageIfErr;
 ///
 /// fn main() {
